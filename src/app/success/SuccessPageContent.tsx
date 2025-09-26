@@ -117,7 +117,7 @@ export default function SuccessPageContent() {
                 <p className="text-muted-foreground mb-4">Enjoy the premium experience! For any help or to join our community, connect with us on Telegram.</p>
                  <div className="flex justify-center gap-4">
                     <Button asChild variant="outline">
-                        <Link href="/">
+                        <Link href="/home">
                             Back to Home
                         </Link>
                     </Button>

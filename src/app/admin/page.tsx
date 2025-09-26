@@ -226,7 +226,7 @@ export default function AdminPage() {
   };
 
   const handleBack = () => {
-    router.push('/');
+    router.push('/home');
   }
 
   const handleDeleteClick = (key: Key) => {
@@ -292,7 +292,7 @@ export default function AdminPage() {
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={(open) => {
           if(!open && !isAuthenticated) {
-            router.push('/');
+            router.push('/home');
           }
         }}>
           <DialogContent className="sm:max-w-md">
@@ -321,7 +321,7 @@ export default function AdminPage() {
                <Button type="submit" onClick={handlePasswordSubmit}>
                   Unlock
                 </Button>
-              <Button type="button" variant="secondary" onClick={() => router.push('/')}>
+              <Button type="button" variant="secondary" onClick={() => router.push('/home')}>
                 Go Back
               </Button>
             </DialogFooter>
@@ -614,7 +614,7 @@ export default function AdminPage() {
               <Label htmlFor="plan" className="text-right">
                 Plan
               </Label>
-              <Select onValueChange={setSelectedPlan} value={selectedPlan}>
+              <Select onValuechange={setSelectedPlan} value={selectedPlan}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
@@ -675,4 +675,5 @@ export default function AdminPage() {
     
 
     
+
 
