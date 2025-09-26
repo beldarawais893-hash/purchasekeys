@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Copy, Check, Upload } from 'lucide-react';
+import { Search, Copy, Check, Upload, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useRef } from 'react';
 import {
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
+import { verifyPaymentWithAi } from '@/app/actions';
 
 type Key = {
   id: string;
@@ -63,6 +64,7 @@ export function PurchaseSchedule() {
   const [paymentStep, setPaymentStep] = useState(1);
   const [utrNumber, setUtrNumber] = useState('');
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -71,6 +73,7 @@ export function PurchaseSchedule() {
     setPaymentStep(1);
     setUtrNumber('');
     setScreenshotFile(null);
+    setIsVerifying(false);
     setIsPaymentDialogOpen(true);
   };
   
@@ -98,10 +101,21 @@ export function PurchaseSchedule() {
       setScreenshotFile(file);
     }
   };
+  
+  const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+  }
 
-  const handleConfirmPurchase = () => {
-     if (!selectedPlan) return;
-     if (paymentStep === 2 && (!utrNumber || !screenshotFile)) {
+
+  const handleConfirmPurchase = async () => {
+     if (!selectedPlan || !screenshotFile || !utrNumber.trim()) {
       toast({
         title: 'Verification Required',
         description: 'Please enter the UTR number and upload the payment screenshot.',
@@ -109,12 +123,39 @@ export function PurchaseSchedule() {
       });
       return;
     }
-
+    
+    setIsVerifying(true);
 
     try {
+        const screenshotDataUri = await fileToDataUri(screenshotFile);
+        const verificationResult = await verifyPaymentWithAi({
+            screenshotDataUri,
+            utrNumber: utrNumber.trim(),
+            expectedAmount: selectedPlan.price.split(' ')[0],
+            expectedUpiId: UPI_ID,
+        });
+
+        if (!verificationResult.isVerified) {
+            toast({
+                title: 'Payment Verification Failed',
+                description: verificationResult.reason,
+                variant: 'destructive',
+                duration: 9000,
+            });
+            setIsVerifying(false);
+            return;
+        }
+
+        toast({
+          title: 'Payment Verified!',
+          description: 'Your payment has been successfully verified. Issuing key...',
+        });
+
+
       const storedKeys = localStorage.getItem('appKeys');
       if (!storedKeys) {
         toast({ title: 'Error', description: 'No keys available.', variant: 'destructive' });
+        setIsVerifying(false);
         setIsPaymentDialogOpen(false);
         return;
       }
@@ -125,6 +166,7 @@ export function PurchaseSchedule() {
       if (availableKeyIndex === -1) {
         toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${selectedPlan.duration} plan are currently sold out.`, variant: 'destructive' });
         setIsPaymentDialogOpen(false);
+        setIsVerifying(false);
         return;
       }
 
@@ -151,9 +193,10 @@ export function PurchaseSchedule() {
       navigator.clipboard.writeText(keyToClaim.value);
 
     } catch (error) {
-      console.error("Failed to process purchase", error);
-      toast({ title: 'Error', description: 'Could not process the purchase.', variant: 'destructive' });
+      console.error("Failed to process purchase with AI verification", error);
+      toast({ title: 'Error', description: 'An unexpected error occurred during verification.', variant: 'destructive' });
     } finally {
+      setIsVerifying(false);
       setIsPaymentDialogOpen(false);
       setSelectedPlan(null);
       setPaymentStep(1);
@@ -297,6 +340,7 @@ export function PurchaseSchedule() {
                         placeholder="Enter 12-digit UTR number" 
                         value={utrNumber}
                         onChange={(e) => setUtrNumber(e.target.value)}
+                        disabled={isVerifying}
                     />
                 </div>
                 <div className="w-full space-y-2">
@@ -308,11 +352,13 @@ export function PurchaseSchedule() {
                         onChange={handleFileChange}
                         className="hidden" 
                         accept="image/png, image/jpeg, image/jpg"
+                        disabled={isVerifying}
                     />
                     <Button 
                         variant="outline" 
                         className="w-full"
                         onClick={() => fileInputRef.current?.click()}
+                        disabled={isVerifying}
                     >
                         <Upload className="mr-2 h-4 w-4" />
                         {screenshotFile ? screenshotFile.name : 'Upload Screenshot'}
@@ -321,9 +367,9 @@ export function PurchaseSchedule() {
                 </div>
               </div>
               <DialogFooter className="flex-col gap-2 sm:flex-row">
-                 <Button onClick={() => setPaymentStep(1)} variant="outline" className="w-full">Back</Button>
-                <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90">
-                  Confirm Purchase
+                 <Button onClick={() => setPaymentStep(1)} variant="outline" className="w-full" disabled={isVerifying}>Back</Button>
+                <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90" disabled={isVerifying}>
+                  {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Purchase'}
                 </Button>
               </DialogFooter>
             </>
