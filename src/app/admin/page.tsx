@@ -92,8 +92,12 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (keys.length > 0) {
-      localStorage.setItem('appKeys', JSON.stringify(keys));
+    // This effect ensures that any time the 'keys' state changes,
+    // it's saved to localStorage. But we check to avoid writing
+    // the initial empty array before keys are loaded.
+    const storedKeys = localStorage.getItem('appKeys');
+    if (keys.length > 0 || (storedKeys && JSON.parse(storedKeys).length > 0)) {
+        localStorage.setItem('appKeys', JSON.stringify(keys));
     }
   }, [keys]);
 
@@ -119,7 +123,10 @@ export default function AdminPage() {
       status: 'available',
     };
 
-    setKeys((prevKeys) => [...prevKeys, keyToAdd]);
+    const updatedKeys = [...keys, keyToAdd];
+    setKeys(updatedKeys);
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys)); // Explicitly save here
+
     setNewKey('');
     setSelectedPlan('');
     setIsAddKeyDialogOpen(false);
@@ -130,11 +137,9 @@ export default function AdminPage() {
   };
 
   const handleDeleteKey = (keyId: string) => {
-    setKeys((prevKeys) => {
-        const updatedKeys = prevKeys.filter((key) => key.id !== keyId);
-        localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
-        return updatedKeys;
-    });
+    const updatedKeys = keys.filter((key) => key.id !== keyId);
+    setKeys(updatedKeys);
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
     toast({
       title: 'Success',
       description: 'Key deleted successfully.',
@@ -315,7 +320,7 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{availableKeys.length}</div>
-                       <p className="text-xs text-muted-foreground">{((availableKeys.length / totalKeys) * 100).toFixed(0) || 0}% available</p>
+                       <p className="text-xs text-muted-foreground">{totalKeys > 0 ? ((availableKeys.length / totalKeys) * 100).toFixed(0) : 0}% available</p>
                     </CardContent>
                   </Card>
                   <Card className="bg-secondary/50 border-border">
@@ -325,7 +330,7 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">{claimedKeys.length}</div>
-                      <p className="text-xs text-muted-foreground">{((claimedKeys.length / totalKeys) * 100).toFixed(0) || 0}% claimed</p>
+                      <p className="text-xs text-muted-foreground">{totalKeys > 0 ? ((claimedKeys.length / totalKeys) * 100).toFixed(0) : 0}% claimed</p>
                     </CardContent>
                   </Card>
               </CardContent>
@@ -412,3 +417,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
