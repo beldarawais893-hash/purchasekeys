@@ -356,6 +356,9 @@ export default function AdminPage() {
                       <TableHead className="text-foreground font-semibold">UTR</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
                       <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
+                      <TableHead className="text-right text-foreground font-semibold">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -369,6 +372,11 @@ export default function AdminPage() {
                         <TableCell>{key.utr}</TableCell>
                         <TableCell>{key.plan}</TableCell>
                         <TableCell>{key.claimedAt}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
