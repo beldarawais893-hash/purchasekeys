@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Roboto_Slab } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -7,6 +7,12 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '700'],
   variable: '--font-body',
+});
+
+const robotoSlab = Roboto_Slab({
+  subsets: ['latin'],
+  weight: ['700'],
+  variable: '--font-headline',
 });
 
 export const metadata: Metadata = {
@@ -21,7 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-body antialiased`}>
+      <body
+        className={`${inter.variable} ${robotoSlab.variable} font-body antialiased`}
+      >
         {children}
         <Toaster />
       </body>
