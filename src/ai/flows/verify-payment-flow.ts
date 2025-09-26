@@ -57,11 +57,11 @@ const prompt = ai.definePrompt({
 
   **Fraud & Tampering Detection (Crucial Second-Level Check):**
   *   **Analyze Image Integrity:** Scrutinize the screenshot for any signs of digital alteration. Look for mismatched fonts, inconsistent text alignment, pixelation around key text areas (Amount, UTR), or unnatural spacing.
-  *   **Check for Illegal Content:** Inspect the image for any unprofessional watermarks, irrelevant or suspicious text, or any visual elements that are not typical for a genuine payment confirmation screen.
+  *   **Check for Illegal Content:** Inspect the image for any unprofessional watermarks (like "PhoText", "InShot", etc.), irrelevant or suspicious text, or any visual elements that are not typical for a genuine payment confirmation screen.
   *   **Font and Style Consistency:** Ensure that the font type, size, and color are consistent throughout the screenshot, as they would be in a real app. Any deviation could indicate tampering.
 
   **Final Decision Logic:**
-  -   If the primary verification passes BUT you detect **any sign of tampering or illegal content**, you MUST set 'isVerified' to 'false'. The reason should clearly state the suspicion, e.g., "The uploaded image appears to be edited. Please upload the original, unaltered payment screenshot."
+  -   If the primary verification passes BUT you detect **any sign of tampering or illegal content**, you MUST set 'isVerified' to 'false'. The reason should clearly state the specific issue found, for example: "The uploaded image contains a watermark, indicating it may have been edited." or "The text font in the amount appears to be altered." and then instruct the user: "Please upload the original, unaltered payment screenshot."
   -   If the image is unclear, invalid, or not a payment screenshot at all, set 'isVerified' to 'false' and state the reason.
   -   Only if **all** primary details match AND there are **zero signs of tampering** should you set 'isVerified' to 'true' with the reason "Payment verified successfully.".
 
