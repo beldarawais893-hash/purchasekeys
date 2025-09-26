@@ -158,7 +158,6 @@ export default function AdminPage() {
     return acc;
   }, 0);
 
-
   return (
     <div className="bg-background min-h-screen">
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
@@ -364,7 +363,7 @@ export default function AdminPage() {
             <DialogDescription>
               Enter the key details and select a plan.
             </DialogDescription>
-          </Header>
+          </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="new-key" className="text-right">
@@ -403,6 +402,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-}
 
     
