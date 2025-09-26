@@ -267,7 +267,7 @@ export default function AdminPage() {
           <>
             <Card className="bg-card mb-8">
               <CardHeader>
-                <CardTitle>Key Management</CardTitle>
+                <CardTitle className="text-primary">Key Management</CardTitle>
                 <CardDescription>Add, view, and manage keys here.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -279,7 +279,7 @@ export default function AdminPage() {
             </Card>
             <Card className="bg-card mb-8">
               <CardHeader>
-                <CardTitle>Available Keys</CardTitle>
+                <CardTitle className="text-primary">Available Keys</CardTitle>
                 <CardDescription>
                   These keys are available for users to purchase.
                 </CardDescription>
@@ -320,7 +320,7 @@ export default function AdminPage() {
 
             <Card className="bg-card">
               <CardHeader>
-                <CardTitle>Claimed Keys</CardTitle>
+                <CardTitle className="text-primary">Claimed Keys</CardTitle>
                 <CardDescription>
                   These keys have already been used.
                 </CardDescription>
@@ -489,6 +489,8 @@ export default function AdminPage() {
   );
 
     
+    
+
     
 
     
