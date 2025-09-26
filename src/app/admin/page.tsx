@@ -169,6 +169,7 @@ export default function AdminPage() {
   };
 
   const handleLogout = () => {
+    sessionStorage.removeItem('adminAuthenticated');
     setIsAuthenticated(false);
     setPasswordInput('');
     router.push('/');
@@ -506,5 +507,7 @@ export default function AdminPage() {
   );
 
     
+
+
 
 
