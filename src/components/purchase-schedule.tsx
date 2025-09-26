@@ -46,11 +46,11 @@ type Plan = {
 };
 
 const plans: Plan[] = [
-  { id: 1, duration: '1 Day', price: '200 Rs' },
-  { id: 2, duration: '3 Day', price: '350 Rs' },
-  { id: 3, duration: '7 Day', price: '500 Rs' },
-  { id: 4, duration: '15 Day', price: '720 Rs' },
-  { id: 5, duration: '1 Month', price: '1000 Rs' },
+  { id: 1, duration: '1 Day', price: '200' },
+  { id: 2, duration: '3 Day', price: '350' },
+  { id: 3, duration: '7 Day', price: '500' },
+  { id: 4, duration: '15 Day', price: '720' },
+  { id: 5, duration: '1 Month', price: '1000' },
 ];
 
 const UPI_ID = '9058895955-c289@axl';
@@ -140,7 +140,7 @@ export function PurchaseSchedule() {
         const verificationResult = await verifyPaymentWithAi({
             screenshotDataUri,
             utrNumber: enteredUtr,
-            expectedAmount: selectedPlan.price.split(' ')[0],
+            expectedAmount: selectedPlan.price,
             expectedUpiId: UPI_ID,
         });
 
@@ -204,7 +204,7 @@ export function PurchaseSchedule() {
     }
   };
 
-  const qrCodeUrl = selectedPlan ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=${PAYEE_NAME}&am=${selectedPlan.price.split(' ')[0]}&cu=INR&tn=Payment for ${selectedPlan.duration}` : '';
+  const qrCodeUrl = selectedPlan ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=${PAYEE_NAME}&am=${selectedPlan.price}&cu=INR&tn=Payment for ${selectedPlan.duration}` : '';
 
   return (
     <>
@@ -222,7 +222,7 @@ export function PurchaseSchedule() {
             {plans.map((plan) => (
               <TableRow key={plan.id} className="border-b border-border/20">
                 <TableCell className="font-medium">{plan.duration}</TableCell>
-                <TableCell>{plan.price}</TableCell>
+                <TableCell>{plan.price} Rs</TableCell>
                 <TableCell className="text-right">
                   <Button
                     size="sm"
@@ -261,7 +261,7 @@ export function PurchaseSchedule() {
                         className="rounded-lg border-4 border-white mx-auto my-2"
                       />
                   )}
-                  <p className="font-semibold">Amount: {selectedPlan?.price}</p>
+                  <p className="font-semibold">Amount: {selectedPlan?.price} Rs</p>
                   <div className="flex items-center justify-center gap-2 mt-1">
                       <p className="text-muted-foreground break-all">{UPI_ID}</p>
                        <Button variant="ghost" size="icon" onClick={handleCopyUpiId} className="h-8 w-8">
@@ -320,3 +320,5 @@ export function PurchaseSchedule() {
     </>
   );
 }
+
+    

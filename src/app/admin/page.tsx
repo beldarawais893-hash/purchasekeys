@@ -51,11 +51,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 const plans = [
-  { duration: '1 Day', price: '200 Rs' },
-  { duration: '3 Day', price: '350 Rs' },
-  { duration: '7 Day', price: '500 Rs' },
-  { duration: '15 Day', price: '720 Rs' },
-  { duration: '1 Month', price: '1000 Rs' },
+  { duration: '1 Day', price: '200' },
+  { duration: '3 Day', price: '350' },
+  { duration: '7 Day', price: '500' },
+  { duration: '15 Day', price: '720' },
+  { duration: '1 Month', price: '1000' },
 ];
 
 type Key = {
@@ -187,7 +187,7 @@ export default function AdminPage() {
       total: planKeys.length,
       available,
       claimed,
-      price: plan.price
+      price: `${plan.price} Rs`
     };
   });
 
@@ -203,7 +203,7 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <Dialog open={true} onOpenChange={() => {}}>
+        <Dialog open={true} onOpenChange={(isOpen) => !isOpen && router.push('/')}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Admin Access</DialogTitle>
@@ -488,4 +488,5 @@ export default function AdminPage() {
     </div>
   );
 
+    
     
