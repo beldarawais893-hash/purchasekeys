@@ -138,6 +138,17 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    // Redirect to welcome page on refresh if not authenticated
+    const sessionAuthenticated = sessionStorage.getItem('adminAuthenticated');
+    if (sessionAuthenticated === 'true') {
+        setIsAuthenticated(true);
+    } else {
+        router.push('/');
+    }
+  }, [router]);
+
+
+  useEffect(() => {
     if (isAuthenticated) {
       try {
         const storedKeys = localStorage.getItem('appKeys');
@@ -161,6 +172,7 @@ export default function AdminPage() {
 
   const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
+      sessionStorage.setItem('adminAuthenticated', 'true');
       setIsAuthenticated(true);
       toast({
         title: 'Success',
@@ -226,6 +238,7 @@ export default function AdminPage() {
   };
 
   const handleBack = () => {
+    sessionStorage.removeItem('adminAuthenticated');
     router.push('/home');
   }
 
@@ -292,7 +305,8 @@ export default function AdminPage() {
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={(open) => {
           if(!open && !isAuthenticated) {
-            router.push('/home');
+             sessionStorage.removeItem('adminAuthenticated');
+             router.push('/home');
           }
         }}>
           <DialogContent className="sm:max-w-md">
@@ -614,7 +628,7 @@ export default function AdminPage() {
               <Label htmlFor="plan" className="text-right">
                 Plan
               </Label>
-              <Select onValuechange={setSelectedPlan} value={selectedPlan}>
+              <Select onValueChange={setSelectedPlan} value={selectedPlan}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
@@ -673,7 +687,3 @@ export default function AdminPage() {
   );
 
     
-
-    
-
-
