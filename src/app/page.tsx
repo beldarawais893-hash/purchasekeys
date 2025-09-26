@@ -43,16 +43,6 @@ export default function Home() {
   const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  useEffect(() => {
-    const section = document.getElementById('purchase-schedule');
-    if (section) {
-      // Using a timeout to ensure the page has had time to layout, especially on slower devices
-      setTimeout(() => {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, []);
-
   const handleCopy = () => {
     if (foundKeyInfo) {
       navigator.clipboard.writeText(foundKeyInfo.value);
