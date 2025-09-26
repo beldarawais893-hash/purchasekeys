@@ -82,10 +82,10 @@ export default function SuccessPageContent() {
                 <span className='text-4xl animate-pulse'>🎉</span>
             </div>
             <CardTitle className="text-3xl font-bold animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
-              Purchase Complete! Your Key is Forged.
+              Congratulations! Purchase Complete!
             </CardTitle>
             <CardDescription className="pt-2 text-base text-muted-foreground">
-              Your premium access key is now ready. Copy it below and unlock the full potential. Thank you for your purchase!
+              Your premium access key is now ready. Copy it below and unlock the full potential.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 py-6">
