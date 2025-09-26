@@ -37,6 +37,7 @@ const WelcomePage = () => {
             setTimeout(() => setShowButton(true), 500); // Show button after a short delay
           }
         }, 100);
+        // This return is crucial for cleanup
         return () => clearInterval(typingInterval2);
       }
     }, 100);
@@ -58,7 +59,7 @@ const WelcomePage = () => {
         
         <h1 className="text-3xl md:text-5xl font-bold text-primary mb-4 font-headline [text-shadow:0_0_8px_hsl(var(--primary))] h-16">
             {line1}
-            <span className="animate-pulse">|</span>
+            {line1.length < fullLine1.length && <span className="animate-pulse">|</span>}
         </h1>
         
         <p className="text-xl md:text-3xl text-foreground mb-8 h-12">
