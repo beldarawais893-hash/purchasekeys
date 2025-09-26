@@ -30,6 +30,7 @@ import {
   Boxes,
   IndianRupee,
   ShieldCheck,
+  History,
 } from 'lucide-react';
 import {
   Dialog,
@@ -71,6 +72,37 @@ type Key = {
 
 const ADMIN_PASSWORD = '3131';
 
+const isKeyExpired = (key: Key): boolean => {
+    if (key.status !== 'claimed' || !key.claimedAt) {
+        return false;
+    }
+    const claimedDate = parseDate(key.claimedAt);
+    if (!claimedDate) return false; // Or handle as not expired
+
+    const expiryDate = new Date(claimedDate);
+    if (key.plan.includes('Day')) {
+        const days = parseInt(key.plan.split(' ')[0]);
+        expiryDate.setDate(claimedDate.getDate() + days);
+    } else if (key.plan.includes('Month')) {
+        const months = parseInt(key.plan.split(' ')[0]);
+        expiryDate.setMonth(claimedDate.getMonth() + months);
+    }
+    
+    return new Date() > expiryDate;
+};
+
+const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    const parts = dateString.split(', ');
+    if (parts.length < 2) return null;
+    const [datePart, timePart] = parts;
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes] = timePart.split(':');
+    if (!year || !month || !day || !hours || !minutes) return null;
+    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+};
+
+
 export default function AdminPage() {
   const [keys, setKeys] = useState<Key[]>([]);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
@@ -82,17 +114,6 @@ export default function AdminPage() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-
-  const parseDate = (dateString: string): Date | null => {
-    if (!dateString) return null;
-    const parts = dateString.split(', ');
-    if (parts.length < 2) return null;
-    const [datePart, timePart] = parts;
-    const [day, month, year] = datePart.split('/');
-    const [hours, minutes] = timePart.split(':');
-    if (!year || !month || !day || !hours || !minutes) return null;
-    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
-  };
 
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -106,32 +127,7 @@ export default function AdminPage() {
         if (storedKeys) {
           const parsedKeys: Key[] = JSON.parse(storedKeys);
           if (Array.isArray(parsedKeys)) {
-            const now = new Date();
-            const activeKeys = parsedKeys.filter(key => {
-              if (key.status === 'claimed' && key.claimedAt) {
-                const claimedDate = parseDate(key.claimedAt);
-                if (!claimedDate) return true; // Keep if date is invalid
-
-                const expiryDate = new Date(claimedDate);
-                if (key.plan.includes('Day')) {
-                  const days = parseInt(key.plan.split(' ')[0]);
-                  expiryDate.setDate(claimedDate.getDate() + days);
-                } else if (key.plan.includes('Month')) {
-                  const months = parseInt(key.plan.split(' ')[0]);
-                  expiryDate.setMonth(claimedDate.getMonth() + months);
-                }
-                return now <= expiryDate;
-              }
-              return true; // Keep available keys
-            });
-            
-            // If any keys were filtered out, update localStorage
-            if (activeKeys.length < parsedKeys.length) {
-              persistKeys(activeKeys);
-            } else {
-              setKeys(activeKeys);
-            }
-
+            setKeys(parsedKeys);
           } else {
              setKeys([]);
           }
@@ -139,11 +135,11 @@ export default function AdminPage() {
             setKeys([]);
         }
       } catch (error) {
-        console.error("Failed to parse or filter keys from localStorage", error);
+        console.error("Failed to parse keys from localStorage", error);
         setKeys([]); 
       }
     }
-  }, [isAuthenticated, persistKeys]);
+  }, [isAuthenticated]);
   
 
   const handlePasswordSubmit = () => {
@@ -232,7 +228,10 @@ export default function AdminPage() {
   };
   
   const availableKeys = keys.filter(key => key.status === 'available').sort(sortKeysByPlan);
-  const claimedKeys = keys.filter(key => key.status === 'claimed').sort(sortKeysByPlan);
+  const allClaimedKeys = keys.filter(key => key.status === 'claimed');
+
+  const activeClaimedKeys = allClaimedKeys.filter(key => !isKeyExpired(key)).sort(sortKeysByPlan);
+  const expiredKeysList = allClaimedKeys.filter(key => isKeyExpired(key)).sort(sortKeysByPlan);
 
   const totalKeys = keys.length;
 
@@ -249,7 +248,7 @@ export default function AdminPage() {
     };
   });
 
-  const totalBalance = claimedKeys.reduce((acc, key) => {
+  const totalBalance = allClaimedKeys.reduce((acc, key) => {
     const plan = plans.find(p => p.duration === key.plan);
     if (plan) {
         return acc + parseInt(plan.price);
@@ -381,11 +380,11 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card">
+            <Card className="bg-card mb-8">
               <CardHeader>
-                <CardTitle className="text-primary">Claimed Keys</CardTitle>
+                <CardTitle className="text-primary">Claimed Keys (Active)</CardTitle>
                 <CardDescription>
-                  These keys have already been used.
+                  These keys have been used and are currently active.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -402,10 +401,53 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {claimedKeys.map((key) => (
+                    {activeClaimedKeys.map((key) => (
                       <TableRow key={key.id}>
                         <TableCell>
-                          <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
+                          <Badge variant="outline" className="bg-yellow-800/20 border-yellow-500 text-yellow-400">
+                            {key.value}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{key.utr}</TableCell>
+                        <TableCell>{key.plan}</TableCell>
+                        <TableCell>{key.claimedAt}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card">
+              <CardHeader>
+                <CardTitle className="text-primary flex items-center gap-2"><History className="h-5 w-5"/> Expired Keys</CardTitle>
+                <CardDescription>
+                  These keys have been used and their validity period has ended.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b-0">
+                      <TableHead className="text-foreground font-semibold">Key</TableHead>
+                      <TableHead className="text-foreground font-semibold">UTR</TableHead>
+                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                      <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
+                      <TableHead className="text-right text-foreground font-semibold">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expiredKeysList.map((key) => (
+                      <TableRow key={key.id}>
+                        <TableCell>
+                           <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
                             {key.value}
                           </Badge>
                         </TableCell>
@@ -442,7 +484,7 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">₹{totalBalance}</div>
-                      <p className="text-xs text-muted-foreground">From claimed keys</p>
+                      <p className="text-xs text-muted-foreground">From all claimed keys (active + expired)</p>
                     </CardContent>
                   </Card>
                   <Card className="bg-secondary/50">
@@ -471,8 +513,8 @@ export default function AdminPage() {
                       <XCircle className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{claimedKeys.length}</div>
-                      <p className="text-xs text-muted-foreground">{totalKeys > 0 ? ((claimedKeys.length / totalKeys) * 100).toFixed(0) : 0}% claimed</p>
+                      <div className="text-2xl font-bold">{allClaimedKeys.length}</div>
+                      <p className="text-xs text-muted-foreground">{totalKeys > 0 ? ((allClaimedKeys.length / totalKeys) * 100).toFixed(0) : 0}% claimed</p>
                     </CardContent>
                   </Card>
               </CardContent>
@@ -559,3 +601,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
