@@ -184,11 +184,7 @@ export default function AdminPage() {
     });
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('adminAuthenticated');
-    localStorage.removeItem('adminAuthenticated');
-    setIsAuthenticated(false);
-    setPasswordInput('');
+  const handleBack = () => {
     router.push('/');
   }
 
@@ -287,7 +283,7 @@ export default function AdminPage() {
       <header className="bg-card text-card-foreground p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
             <div className='flex items-center gap-2'>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <Button variant="ghost" size="icon" onClick={handleBack}>
                 <ArrowLeft />
               </Button>
               <ShieldCheck className="text-primary h-6 w-6" />
