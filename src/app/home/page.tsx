@@ -55,7 +55,7 @@ export default function Home() {
       // Clear the status so a refresh will trigger the redirect
       sessionStorage.removeItem('sessionStatus');
     }
-  }, [router]);
+  }, []);
 
 
   const handleCopy = () => {
@@ -314,3 +314,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
