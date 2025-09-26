@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -106,6 +106,11 @@ export default function AdminPage() {
       }
     }
   }, [isAuthenticated]);
+  
+  const persistKeys = useCallback((updatedKeys: Key[]) => {
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+    setKeys(updatedKeys);
+  }, []);
 
   const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
@@ -148,8 +153,7 @@ export default function AdminPage() {
     };
     
     const updatedKeys = [...keys, keyToAdd];
-    setKeys(updatedKeys);
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+    persistKeys(updatedKeys);
 
     setNewKey('');
     setSelectedPlan('');
@@ -162,8 +166,7 @@ export default function AdminPage() {
 
   const handleDeleteKey = (keyId: string) => {
     const updatedKeys = keys.filter((key) => key.id !== keyId);
-    setKeys(updatedKeys);
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+    persistKeys(updatedKeys);
     toast({
       title: 'Success',
       description: 'Key deleted successfully.',
@@ -242,7 +245,7 @@ export default function AdminPage() {
     <div className="bg-background min-h-screen">
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <Button variant="ghost" size="icon" onClick={() => router.push('/')}>
             <ArrowLeft />
           </Button>
           <KeyRound className="text-primary h-6 w-6" />
