@@ -29,6 +29,8 @@ import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { verifyPaymentWithAi } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
+
 
 type Key = {
   id: string;
@@ -59,6 +61,7 @@ const PAYEE_NAME = 'Kaalbhairavmodzowner';
 
 export function PurchaseSchedule() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [copied, setCopied] = useState(false);
@@ -187,13 +190,9 @@ export function PurchaseSchedule() {
       };
 
       localStorage.setItem('appKeys', JSON.stringify(keys));
+      
+      router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);
 
-      toast({
-        title: 'Purchase Successful!',
-        description: `Your key is: ${keyToClaim.value}. It has been copied to your clipboard.`,
-        duration: 9000,
-      });
-      navigator.clipboard.writeText(keyToClaim.value);
 
     } catch (error) {
       console.error("Failed to process purchase with AI verification", error);
