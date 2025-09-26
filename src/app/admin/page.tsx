@@ -27,6 +27,7 @@ import {
   CheckCircle,
   XCircle,
   Boxes,
+  IndianRupee,
 } from 'lucide-react';
 import {
   Dialog,
@@ -204,8 +205,12 @@ export default function AdminPage() {
     };
   });
 
-  const totalBalance = keysByPlan.reduce((acc, plan) => {
-    return acc + (plan.total * parseInt(plan.price));
+  const totalBalance = claimedKeys.reduce((acc, key) => {
+    const plan = plans.find(p => p.duration === key.plan);
+    if (plan) {
+        return acc + parseInt(plan.price);
+    }
+    return acc;
   }, 0);
 
 
@@ -337,7 +342,17 @@ export default function AdminPage() {
                   View payment amounts and available keys.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-3">
+              <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <Card className="bg-secondary/50 border-border">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+                      <IndianRupee className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">₹{totalBalance}</div>
+                      <p className="text-xs text-muted-foreground">From claimed keys</p>
+                    </CardContent>
+                  </Card>
                   <Card className="bg-secondary/50 border-border">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Keys</CardTitle>
@@ -451,3 +466,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
+}
+    
