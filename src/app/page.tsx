@@ -15,15 +15,18 @@ const WelcomePage = () => {
   const text2 = 'Purchase key and Enjoy Games';
 
   useEffect(() => {
+    let typing1: NodeJS.Timeout;
+    let typing2: NodeJS.Timeout;
+
     let i = 0;
-    const typing1 = setInterval(() => {
+    typing1 = setInterval(() => {
       if (i < text1.length) {
         setFirstLine((prev) => prev + text1.charAt(i));
         i++;
       } else {
         clearInterval(typing1);
         let j = 0;
-        const typing2 = setInterval(() => {
+        typing2 = setInterval(() => {
           if (j < text2.length) {
             setSecondLine((prev) => prev + text2.charAt(j));
             j++;
@@ -37,6 +40,9 @@ const WelcomePage = () => {
 
     return () => {
       clearInterval(typing1);
+      if (typing2) {
+        clearInterval(typing2);
+      }
     };
   }, []);
 
