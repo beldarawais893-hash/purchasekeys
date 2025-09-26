@@ -212,10 +212,10 @@ export function PurchaseSchedule() {
       <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-border/50">
-              <TableHead className="w-1/3 text-foreground font-semibold">Days</TableHead>
-              <TableHead className="w-1/3 text-foreground font-semibold">Price</TableHead>
-              <TableHead className="text-right w-1/3 text-foreground font-semibold">Purchase</TableHead>
+            <TableRow className="border-b-2 border-primary/20">
+              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">Days</TableHead>
+              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">Price</TableHead>
+              <TableHead className="text-right w-1/3 text-primary uppercase tracking-wider font-bold">Purchase</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -320,5 +320,3 @@ export function PurchaseSchedule() {
     </>
   );
 }
-
-    
