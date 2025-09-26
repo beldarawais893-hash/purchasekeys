@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Check, Upload, Loader2 } from 'lucide-react';
+import { Copy, Check, Upload, Loader2, ShoppingCart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useRef } from 'react';
 import {
@@ -229,6 +229,7 @@ export function PurchaseSchedule() {
                     className="bg-accent text-accent-foreground hover:bg-accent/90"
                     onClick={() => handlePurchaseClick(plan)}
                   >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
                     Buy
                   </Button>
                 </TableCell>
