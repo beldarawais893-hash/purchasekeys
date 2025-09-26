@@ -84,13 +84,6 @@ export default function AdminPage() {
 
 
   useEffect(() => {
-    const sessionAuth = sessionStorage.getItem('adminAuthenticated');
-    if (sessionAuth === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  useEffect(() => {
     if (isAuthenticated) {
       try {
         const storedKeys = localStorage.getItem('appKeys');
@@ -114,7 +107,6 @@ export default function AdminPage() {
 
   const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
-      sessionStorage.setItem('adminAuthenticated', 'true');
       setIsAuthenticated(true);
       toast({
         title: 'Success',
