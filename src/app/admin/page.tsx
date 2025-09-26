@@ -31,6 +31,7 @@ import {
   IndianRupee,
   ShieldCheck,
   History,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   Dialog,
@@ -40,6 +41,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -51,6 +62,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const plans = [
   { duration: '1 Day', price: '200' },
@@ -77,7 +89,7 @@ const isKeyExpired = (key: Key): boolean => {
         return false;
     }
     const claimedDate = parseDate(key.claimedAt);
-    if (!claimedDate) return false; // Or handle as not expired
+    if (!claimedDate) return false;
 
     const expiryDate = new Date(claimedDate);
     if (key.plan.includes('Day')) {
@@ -114,6 +126,11 @@ export default function AdminPage() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+  
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<Key | null>(null);
+  const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
+
 
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -121,8 +138,6 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    // This effect now only runs when isAuthenticated changes.
-    // It doesn't handle the initial load from localStorage.
     if (isAuthenticated) {
       try {
         const storedKeys = localStorage.getItem('appKeys');
@@ -195,11 +210,10 @@ export default function AdminPage() {
       status: 'available',
     };
     
-    // Load current keys, add new, then persist
     const storedKeys = localStorage.getItem('appKeys');
     const currentKeys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
     const updatedKeys = [...currentKeys, keyToAdd];
-    persistKeys(updatedKeys); // This now sets state too.
+    persistKeys(updatedKeys); 
 
 
     setNewKey('');
@@ -215,14 +229,24 @@ export default function AdminPage() {
     router.push('/');
   }
 
-  const handleDeleteKey = (keyId: string) => {
-    const updatedKeys = keys.filter((key) => key.id !== keyId);
+  const handleDeleteClick = (key: Key) => {
+    setKeyToDelete(key);
+    setIsDeleteDialogOpen(true);
+    setIsDeleteConfirmed(false); // Reset confirmation checkbox
+  };
+
+  const confirmDelete = () => {
+    if (!keyToDelete) return;
+    const updatedKeys = keys.filter((key) => key.id !== keyToDelete.id);
     persistKeys(updatedKeys);
     toast({
       title: 'Success',
       description: 'Key deleted successfully.',
     });
+    setIsDeleteDialogOpen(false);
+    setKeyToDelete(null);
   };
+
 
   const planOrder = plans.reduce((acc, plan, index) => {
     acc[plan.duration] = index;
@@ -244,13 +268,12 @@ export default function AdminPage() {
   const keysByPlan = plans.map(plan => {
     const planKeys = keys.filter(key => key.plan === plan.duration);
     const available = planKeys.filter(k => k.status === 'available').length;
-    const claimed = planKeys.filter(k => k.status === 'claimed' && !isKeyExpired(k)).length;
-    const expired = planKeys.filter(k => k.status === 'claimed' && isKeyExpired(k)).length;
+    const claimed = planKeys.filter(k => k.status === 'claimed').length;
     return {
       name: plan.duration,
       total: planKeys.length,
       available,
-      claimed: claimed + expired,
+      claimed: claimed,
       price: `${plan.price} Rs`
     };
   });
@@ -380,7 +403,7 @@ export default function AdminPage() {
                         <TableCell>{key.plan}</TableCell>
                         <TableCell>{key.createdAt}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
                             <Trash2 className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </TableCell>
@@ -423,7 +446,7 @@ export default function AdminPage() {
                         <TableCell>{key.plan}</TableCell>
                         <TableCell>{key.claimedAt}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
                             <Trash2 className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </TableCell>
@@ -468,7 +491,7 @@ export default function AdminPage() {
                         <TableCell>{key.plan}</TableCell>
                         <TableCell>{key.claimedAt}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
                             <Trash2 className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </TableCell>
@@ -496,7 +519,7 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">₹{totalBalance}</div>
-                      <p className="text-xs text-muted-foreground">From all claimed keys (active + expired)</p>
+                      <p className="text-xs text-muted-foreground">From all claimed keys</p>
                     </CardContent>
                   </Card>
                   <Card className="bg-secondary/50">
@@ -610,9 +633,46 @@ export default function AdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="text-destructive"/>
+              Are you sure you want to permanently delete this key?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the key
+              <Badge variant="secondary" className="mx-1">{keyToDelete?.value}</Badge>
+              from the system. This may have unintended side effects if the key is already in use.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex items-center space-x-2 my-4">
+            <Checkbox id="confirm-delete" checked={isDeleteConfirmed} onCheckedChange={(checked) => setIsDeleteConfirmed(Boolean(checked))} />
+            <label
+              htmlFor="confirm-delete"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              I understand this action is irreversible.
+            </label>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={!isDeleteConfirmed}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 
     
 
     
+
