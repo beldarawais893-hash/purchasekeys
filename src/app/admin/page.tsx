@@ -21,10 +21,9 @@ import { Badge } from '@/components/ui/badge';
 import {
   PlusCircle,
   Trash2,
-  Menu as MenuIcon,
   ArrowLeft,
   KeyRound,
-  Menu,
+  Wallet,
 } from 'lucide-react';
 import {
   Dialog,
@@ -140,6 +139,7 @@ export default function AdminPage() {
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
   const [newKey, setNewKey] = useState('');
   const [selectedPlan, setSelectedPlan] = useState('');
+  const [activeTab, setActiveTab] = useState('keys');
   const { toast } = useToast();
   const router = useRouter();
 
@@ -196,104 +196,128 @@ export default function AdminPage() {
           <KeyRound className="text-primary h-6 w-6" />
           <h1 className="text-xl font-bold">Purchase Key</h1>
         </div>
-        <Button variant="ghost" size="icon">
-          <Menu className="h-6 w-6" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant={activeTab === 'keys' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('keys')}>
+            <KeyRound className="mr-2" />
+            Keys
+          </Button>
+          <Button variant={activeTab === 'balance' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('balance')}>
+            <Wallet className="mr-2" />
+            Balance
+          </Button>
+        </div>
       </header>
       <main className="container mx-auto px-4 py-8">
-        <Card className="bg-card border-none mb-8">
-          <CardHeader>
-            <CardTitle>Key Management</CardTitle>
-            <CardDescription>Add, view, and manage keys here.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="bg-accent" onClick={() => setIsAddKeyDialogOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Key
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-none mb-8">
-          <CardHeader>
-            <CardTitle>Available Keys</CardTitle>
-            <CardDescription>
-              These keys are available for users to purchase.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/50">
-                  <TableHead className="text-foreground font-semibold">Key</TableHead>
-                  <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                  <TableHead className="text-foreground font-semibold">Created At</TableHead>
-                  <TableHead className="text-right text-foreground font-semibold">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {availableKeys.map((key) => (
-                  <TableRow key={key.id} className="border-b border-border/20">
-                    <TableCell>
-                      <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
-                        {key.value}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{key.plan}</TableCell>
-                    <TableCell>{key.createdAt}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {activeTab === 'keys' && (
+          <>
+            <Card className="bg-card border-none mb-8">
+              <CardHeader>
+                <CardTitle>Key Management</CardTitle>
+                <CardDescription>Add, view, and manage keys here.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button className="bg-accent" onClick={() => setIsAddKeyDialogOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add New Key
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-none mb-8">
+              <CardHeader>
+                <CardTitle>Available Keys</CardTitle>
+                <CardDescription>
+                  These keys are available for users to purchase.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border/50">
+                      <TableHead className="text-foreground font-semibold">Key</TableHead>
+                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                      <TableHead className="text-foreground font-semibold">Created At</TableHead>
+                      <TableHead className="text-right text-foreground font-semibold">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {availableKeys.map((key) => (
+                      <TableRow key={key.id} className="border-b border-border/20">
+                        <TableCell>
+                          <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
+                            {key.value}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{key.plan}</TableCell>
+                        <TableCell>{key.createdAt}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
-        <Card className="bg-card border-none">
-          <CardHeader>
-            <CardTitle>Claimed Keys</CardTitle>
-            <CardDescription>
-              These keys have already been used.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/50">
-                  <TableHead className="text-foreground font-semibold">Key</TableHead>
-                  <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                  <TableHead className="text-foreground font-semibold">Created At</TableHead>
-                  <TableHead className="text-right text-foreground font-semibold">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {claimedKeys.map((key) => (
-                  <TableRow key={key.id} className="border-b border-border/20">
-                    <TableCell>
-                      <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
-                        {key.value}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{key.plan}</TableCell>
-                    <TableCell>{key.createdAt}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+            <Card className="bg-card border-none">
+              <CardHeader>
+                <CardTitle>Claimed Keys</CardTitle>
+                <CardDescription>
+                  These keys have already been used.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border/50">
+                      <TableHead className="text-foreground font-semibold">Key</TableHead>
+                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                      <TableHead className="text-foreground font-semibold">Created At</TableHead>
+                      <TableHead className="text-right text-foreground font-semibold">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {claimedKeys.map((key) => (
+                      <TableRow key={key.id} className="border-b border-border/20">
+                        <TableCell>
+                          <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
+                            {key.value}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{key.plan}</TableCell>
+                        <TableCell>{key.createdAt}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </>
+        )}
+        {activeTab === 'balance' && (
+          <Card className="bg-card border-none">
+            <CardHeader>
+              <CardTitle>Balance Information</CardTitle>
+              <CardDescription>
+                View payment amounts and available keys.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Balance page content will go here.</p>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       <Dialog open={isAddKeyDialogOpen} onOpenChange={setIsAddKeyDialogOpen}>
