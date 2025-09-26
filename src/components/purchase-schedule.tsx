@@ -28,6 +28,7 @@ import {
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { verifyPaymentWithAi } from '@/app/actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Key = {
   id: string;
@@ -65,6 +66,7 @@ export function PurchaseSchedule() {
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isQrLoading, setIsQrLoading] = useState(true);
 
 
   const handlePurchaseClick = (plan: Plan) => {
@@ -72,6 +74,7 @@ export function PurchaseSchedule() {
     setUtrNumber('');
     setScreenshotFile(null);
     setIsVerifying(false);
+    setIsQrLoading(true);
     setIsPaymentDialogOpen(true);
   };
   
@@ -253,15 +256,20 @@ export function PurchaseSchedule() {
               {/* QR Code and UPI */}
               <div className="text-center">
                   <p className="font-semibold text-lg">1. Scan & Pay</p>
-                  {selectedPlan && (
-                      <Image
-                        src={qrCodeUrl}
-                        alt="UPI QR Code"
-                        width={180}
-                        height={180}
-                        className="rounded-lg border-4 border-white mx-auto my-2"
-                      />
-                  )}
+                  <div className="relative w-[180px] h-[180px] mx-auto my-2">
+                    {isQrLoading && <Skeleton className="absolute inset-0 rounded-lg" />}
+                    {selectedPlan && (
+                        <Image
+                          src={qrCodeUrl}
+                          alt="UPI QR Code"
+                          width={180}
+                          height={180}
+                          className="rounded-lg border-4 border-white"
+                          onLoad={() => setIsQrLoading(false)}
+                          onError={() => setIsQrLoading(false)}
+                        />
+                    )}
+                  </div>
                   <p className="font-semibold">Amount: {selectedPlan?.price} Rs</p>
                   <div className="flex items-center justify-center gap-2 mt-1">
                       <p className="text-muted-foreground break-all">{UPI_ID}</p>
