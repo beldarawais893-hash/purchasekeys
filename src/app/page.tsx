@@ -96,7 +96,7 @@ export default function Home() {
       <AppHeader />
       <main className="container mx-auto px-4 py-8 md:py-12 flex-grow">
         <header className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2 font-headline [text-shadow:0_0_10px_hsl(204,94%,60%)]">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2 font-headline [text-shadow:0_0_10px_hsl(var(--primary))]">
             Purchase Schedule
           </h1>
         </header>
