@@ -5,9 +5,24 @@ import { AppHeader } from '@/components/header';
 import { PurchaseSchedule } from '@/components/purchase-schedule';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Search, Instagram, Megaphone } from 'lucide-react';
+import {
+  Send,
+  Search,
+  Instagram,
+  Megaphone,
+  Clipboard,
+  ClipboardCheck,
+  ShieldCheck,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -24,6 +39,9 @@ type Key = {
 export default function Home() {
   const [searchKey, setSearchKey] = useState('');
   const { toast } = useToast();
+  const [foundKeyInfo, setFoundKeyInfo] = useState<Key | null>(null);
+  const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     const section = document.getElementById('purchase-schedule');
@@ -35,17 +53,33 @@ export default function Home() {
     }
   }, []);
 
+  const handleCopy = () => {
+    if (foundKeyInfo) {
+      navigator.clipboard.writeText(foundKeyInfo.value);
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    }
+  };
 
   const handleFindKey = () => {
     const searchTerm = searchKey.trim();
     if (!searchTerm) {
-      toast({ title: 'Info', description: 'Please enter a Key or UTR to find.' });
+      toast({
+        title: 'Info',
+        description: 'Please enter a Key or UTR to find.',
+      });
       return;
     }
     try {
       const storedKeys = localStorage.getItem('appKeys');
       if (!storedKeys) {
-        toast({ title: 'Not Found', description: 'No keys found in the system.', variant: 'destructive' });
+        toast({
+          title: 'Not Found',
+          description: 'No keys found in the system.',
+          variant: 'destructive',
+        });
         return;
       }
       const keys: Key[] = JSON.parse(storedKeys);
@@ -53,14 +87,12 @@ export default function Home() {
       let foundKey = keys.find((k) => k.value === searchTerm);
 
       if (!foundKey) {
-        foundKey = keys.find((k) => k.status === 'claimed' && k.utr === searchTerm);
+        foundKey = keys.find(
+          (k) => k.status === 'claimed' && k.utr === searchTerm
+        );
         if (foundKey) {
-          toast({
-            title: 'Key Found via UTR',
-            description: `Your key is: ${foundKey.value}`,
-            duration: 9000,
-          });
-          navigator.clipboard.writeText(foundKey.value);
+          setFoundKeyInfo(foundKey);
+          setIsKeyFoundDialogOpen(true);
           return;
         }
       }
@@ -87,7 +119,11 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Failed to find key', error);
-      toast({ title: 'Error', description: 'Could not perform the search.', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Could not perform the search.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -129,10 +165,12 @@ export default function Home() {
         <section id="contact-owner">
           <Card className="max-w-md mx-auto bg-card">
             <CardHeader>
-              <CardTitle className="text-center text-2xl font-bold">Contact Owner</CardTitle>
+              <CardTitle className="text-center text-2xl font-bold">
+                Contact Owner
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center space-y-4 pt-6">
-               <a
+              <a
                 href="https://t.me/Kaalbhairavmodzowner"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -150,7 +188,7 @@ export default function Home() {
                 <Send className="mr-2 h-4 w-4" />
                 ImpalerVLAED
               </a>
-               <a
+              <a
                 href="https://t.me/+Kv7fEX8f7TFkMjk1"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -175,6 +213,58 @@ export default function Home() {
           Connect on Instagram: @awais_raza.4
         </a>
       </footer>
+
+      <Dialog
+        open={isKeyFoundDialogOpen}
+        onOpenChange={setIsKeyFoundDialogOpen}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-primary">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-center text-2xl">
+              Key Found!
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              We found the access key associated with your UTR.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center space-y-2">
+              <p className="font-semibold">Your Personal Access Key:</p>
+              <div className="flex w-full max-w-sm items-center space-x-2 rounded-lg border border-dashed border-primary/50 bg-secondary/50 p-3">
+                <p className="flex-grow select-all break-all font-mono text-base font-bold text-primary">
+                  {foundKeyInfo?.value}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCopy}
+                  aria-label="Copy key"
+                >
+                  {isCopied ? (
+                    <ClipboardCheck className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <Clipboard className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
+              {isCopied && (
+                <p className="text-sm text-green-400">Copied to clipboard!</p>
+              )}
+            </div>
+            <div className="text-center text-sm text-muted-foreground">
+              <p>
+                UTR: <span className="font-mono">{foundKeyInfo?.utr}</span>
+              </p>
+              <p>
+                Plan: <span>{foundKeyInfo?.plan}</span>
+              </p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
