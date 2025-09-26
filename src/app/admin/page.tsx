@@ -143,6 +143,8 @@ export default function AdminPage() {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
       }).format(new Date()),
       status: 'available',
     };
@@ -241,7 +243,7 @@ export default function AdminPage() {
 
 
   return (
-    <div className="min-h-screen">
+    <div>
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => {
