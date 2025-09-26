@@ -223,14 +223,21 @@ export function PurchaseSchedule() {
           </TableHeader>
           <TableBody>
             {plans.map((plan) => (
-              <TableRow key={plan.id} className="border-b border-border/20 hover:bg-primary/10 transition-colors duration-300">
-                <TableCell className="font-medium">{plan.duration}</TableCell>
-                <TableCell>{plan.price} Rs</TableCell>
+              <TableRow
+                key={plan.id}
+                className="group border-b border-border/20 transition-colors duration-300 cursor-pointer"
+                onClick={() => handlePurchaseClick(plan)}
+              >
+                <TableCell className="font-medium transition-colors duration-300 group-hover:bg-primary/10">{plan.duration}</TableCell>
+                <TableCell className="transition-colors duration-300 group-hover:bg-primary/10">{plan.price} Rs</TableCell>
                 <TableCell className="text-right">
                   <Button
                     size="sm"
                     className="bg-accent text-accent-foreground shadow-lg shadow-purple-500/30 hover:shadow-purple-400/50 hover:bg-accent/90 transition-all duration-300 hover:scale-110"
-                    onClick={() => handlePurchaseClick(plan)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePurchaseClick(plan);
+                    }}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Buy
