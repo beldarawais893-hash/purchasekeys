@@ -206,27 +206,40 @@ export function PurchaseSchedule() {
   };
 
   const handleFindKey = () => {
-    if (!searchKey.trim()) {
-      toast({ title: 'Info', description: 'Please enter a key to find.' });
+    const searchTerm = searchKey.trim();
+    if (!searchTerm) {
+      toast({ title: 'Info', description: 'Please enter a Key or UTR to find.' });
       return;
     }
     try {
       const storedKeys = localStorage.getItem('appKeys');
       if (!storedKeys) {
-        toast({ title: 'Not Found', description: 'The key you entered does not exist.', variant: 'destructive' });
+        toast({ title: 'Not Found', description: 'No keys found in the system.', variant: 'destructive' });
         return;
       }
       const keys: Key[] = JSON.parse(storedKeys);
-      const foundKey = keys.find(k => k.value === searchKey.trim());
+
+      // Try to find by key value first
+      let foundKey = keys.find(k => k.value === searchTerm);
+      
+      // If not found by key, try to find by UTR
+      if (!foundKey) {
+        foundKey = keys.find(k => k.status === 'claimed' && k.utr === searchTerm);
+        if (foundKey) {
+            toast({ title: 'Key Found via UTR', description: `Your key is: ${foundKey.value}`, duration: 9000 });
+            navigator.clipboard.writeText(foundKey.value);
+            return;
+        }
+      }
 
       if (foundKey) {
         if (foundKey.status === 'claimed') {
-          toast({ title: 'Key Already Claimed', description: `This key was claimed on ${foundKey.claimedAt}.`, variant: 'destructive' });
+          toast({ title: 'Key Already Claimed', description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`, variant: 'destructive' });
         } else {
           toast({ title: 'Key Available', description: `This key is valid and available for the ${foundKey.plan} plan.` });
         }
       } else {
-        toast({ title: 'Invalid Key', description: 'The key you entered does not exist.', variant: 'destructive' });
+        toast({ title: 'Invalid Key or UTR', description: 'The Key or UTR you entered does not exist.', variant: 'destructive' });
       }
     } catch (error) {
       console.error("Failed to find key", error);
@@ -243,7 +256,7 @@ export function PurchaseSchedule() {
        <div className="relative w-full max-w-xs">
          <Input
           type="text"
-          placeholder="Find Your Key"
+          placeholder="Find by Key or UTR"
           className="bg-transparent pr-10"
           value={searchKey}
           onChange={(e) => setSearchKey(e.target.value)}
@@ -366,5 +379,3 @@ export function PurchaseSchedule() {
     </>
   );
 }
-
-    
