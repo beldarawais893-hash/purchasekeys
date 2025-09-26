@@ -14,9 +14,18 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Search } from 'lucide-react';
+import { Search, Copy, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import Image from 'next/image';
 
 type Key = {
   id: string;
@@ -27,7 +36,13 @@ type Key = {
   status: 'available' | 'claimed';
 };
 
-const plans = [
+type Plan = {
+  id: number;
+  duration: string;
+  price: string;
+};
+
+const plans: Plan[] = [
   { id: 1, duration: '1 Day', price: '200 Rs' },
   { id: 2, duration: '3 Day', price: '350 Rs' },
   { id: 3, duration: '7 Day', price: '500 Rs' },
@@ -35,23 +50,44 @@ const plans = [
   { id: 5, duration: '1 Month', price: '1000 Rs' },
 ];
 
+const UPI_ID = '9058895955-c289@axl';
+const PAYEE_NAME = 'Kaalbhairavmodzowner';
+
 export function PurchaseSchedule() {
   const { toast } = useToast();
   const [searchKey, setSearchKey] = useState('');
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const handlePurchase = (plan: { duration: string }) => {
+  const handlePurchaseClick = (plan: Plan) => {
+    setSelectedPlan(plan);
+    setIsPaymentDialogOpen(true);
+  };
+  
+  const handleCopyUpiId = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleConfirmPurchase = () => {
+     if (!selectedPlan) return;
+
     try {
       const storedKeys = localStorage.getItem('appKeys');
       if (!storedKeys) {
         toast({ title: 'Error', description: 'No keys available.', variant: 'destructive' });
+        setIsPaymentDialogOpen(false);
         return;
       }
       
       let keys: Key[] = JSON.parse(storedKeys);
-      const availableKeyIndex = keys.findIndex(k => k.plan === plan.duration && k.status === 'available');
+      const availableKeyIndex = keys.findIndex(k => k.plan === selectedPlan.duration && k.status === 'available');
 
       if (availableKeyIndex === -1) {
-        toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${plan.duration} plan are currently sold out.`, variant: 'destructive' });
+        toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${selectedPlan.duration} plan are currently sold out.`, variant: 'destructive' });
+        setIsPaymentDialogOpen(false);
         return;
       }
 
@@ -73,11 +109,15 @@ export function PurchaseSchedule() {
       toast({
         title: 'Purchase Successful!',
         description: `Your key is: ${keyToClaim.value}`,
+        duration: 9000,
       });
 
     } catch (error) {
       console.error("Failed to process purchase", error);
       toast({ title: 'Error', description: 'Could not process the purchase.', variant: 'destructive' });
+    } finally {
+      setIsPaymentDialogOpen(false);
+      setSelectedPlan(null);
     }
   };
 
@@ -109,6 +149,9 @@ export function PurchaseSchedule() {
       toast({ title: 'Error', description: 'Could not perform the search.', variant: 'destructive' });
     }
   };
+  
+  const qrCodeUrl = selectedPlan ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=${PAYEE_NAME}&am=${selectedPlan.price.split(' ')[0]}&cu=INR&tn=Payment for ${selectedPlan.duration}` : '';
+
 
   return (
     <>
@@ -146,7 +189,7 @@ export function PurchaseSchedule() {
                   <Button
                     size="sm"
                     className="bg-accent text-accent-foreground hover:bg-accent/90"
-                    onClick={() => handlePurchase(plan)}
+                    onClick={() => handlePurchaseClick(plan)}
                   >
                     Buy
                   </Button>
@@ -157,8 +200,43 @@ export function PurchaseSchedule() {
         </Table>
       </CardContent>
     </Card>
+
+    <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold">Scan to Pay</DialogTitle>
+            <DialogDescription className="text-center">
+              Use any UPI app to scan the QR code and pay for the {selectedPlan?.duration} plan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-4 space-y-4">
+             {selectedPlan && (
+                <Image
+                  src={qrCodeUrl}
+                  alt="UPI QR Code"
+                  width={200}
+                  height={200}
+                  className="rounded-lg border-4 border-white"
+                />
+            )}
+            <div className="text-center">
+                <p className="font-semibold text-lg">Amount: {selectedPlan?.price}</p>
+                <div className="flex items-center gap-2 mt-2">
+                    <p className="text-muted-foreground break-all">{UPI_ID}</p>
+                     <Button variant="ghost" size="icon" onClick={handleCopyUpiId} className="h-8 w-8">
+                      {copied ? <Check className="text-green-500" /> : <Copy />}
+                    </Button>
+                </div>
+            </div>
+             <p className="text-xs text-muted-foreground text-center">After successful payment, click the button below to receive your key.</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90">
+              I have paid, get my key
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
-
-    
