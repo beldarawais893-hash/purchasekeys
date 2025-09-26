@@ -61,7 +61,7 @@ const prompt = ai.definePrompt({
   *   **Font and Style Consistency:** Ensure that the font type, size, and color are consistent throughout the screenshot, as they would be in a real app. Any deviation could indicate tampering.
 
   **Final Decision Logic:**
-  -   If the primary verification passes BUT you detect **any sign of tampering or illegal content**, you MUST set 'isVerified' to 'false'. The reason should clearly state the suspicion, e.g., "Screenshot appears to be edited or tampered with," or "Suspicious watermark detected on screenshot."
+  -   If the primary verification passes BUT you detect **any sign of tampering or illegal content**, you MUST set 'isVerified' to 'false'. The reason should clearly state the suspicion, e.g., "The uploaded image appears to be edited. Please upload the original, unaltered payment screenshot."
   -   If the image is unclear, invalid, or not a payment screenshot at all, set 'isVerified' to 'false' and state the reason.
   -   Only if **all** primary details match AND there are **zero signs of tampering** should you set 'isVerified' to 'true' with the reason "Payment verified successfully.".
 
