@@ -90,6 +90,11 @@ export default function AdminPage() {
     }
   }, []);
 
+  const persistKeys = useCallback((updatedKeys: Key[]) => {
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+    setKeys(updatedKeys);
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
       sessionStorage.setItem('adminAuthenticated', 'true');
@@ -99,7 +104,11 @@ export default function AdminPage() {
           const parsedKeys = JSON.parse(storedKeys);
           if (Array.isArray(parsedKeys)) {
             setKeys(parsedKeys);
+          } else {
+             setKeys([]);
           }
+        } else {
+            setKeys([]);
         }
       } catch (error) {
         console.error("Failed to parse keys from localStorage", error);
@@ -110,10 +119,6 @@ export default function AdminPage() {
     }
   }, [isAuthenticated]);
   
-  const persistKeys = useCallback((updatedKeys: Key[]) => {
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
-    setKeys(updatedKeys);
-  }, []);
 
   const handlePasswordSubmit = () => {
     if (passwordInput === ADMIN_PASSWORD) {
@@ -508,4 +513,6 @@ export default function AdminPage() {
   );
 }
     
+    
+
     
