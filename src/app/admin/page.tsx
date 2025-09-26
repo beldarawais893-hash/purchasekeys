@@ -75,7 +75,7 @@ const initialKeys: Key[] = [
     value: '24HxMahakaalx1gMKbm1jN',
     plan: '1 Day',
     createdAt: '25/09/2025',
-    status: 'available',
+    status: 'claimed',
   },
   {
     id: '3',
@@ -89,7 +89,7 @@ const initialKeys: Key[] = [
     value: '24HxMahakaalx1Cn5eREDI',
     plan: '1 Day',
     createdAt: '25/09/2025',
-    status: 'available',
+    status: 'claimed',
   },
   {
     id: '5',
@@ -110,7 +110,7 @@ const initialKeys: Key[] = [
     value: '3DAYxMahakaalxRANDOM3',
     plan: '3 Day',
     createdAt: '25/09/2025',
-    status: 'available',
+    status: 'claimed',
   },
   {
     id: '8',
@@ -131,7 +131,7 @@ const initialKeys: Key[] = [
     value: '7DAYxMahakaalxtBzbH4Ys',
     plan: '7 Day',
     createdAt: '25/09/2025',
-    status: 'available',
+    status: 'claimed',
   },
 ];
 
@@ -182,6 +182,9 @@ export default function AdminPage() {
       description: 'Key deleted successfully.',
     });
   };
+  
+  const availableKeys = keys.filter(key => key.status === 'available');
+  const claimedKeys = keys.filter(key => key.status === 'claimed');
 
   return (
     <div className="bg-background min-h-screen">
@@ -214,7 +217,7 @@ export default function AdminPage() {
             </Button>
           </CardContent>
         </Card>
-        <Card className="bg-card border-none">
+        <Card className="bg-card border-none mb-8">
           <CardHeader>
             <CardTitle>Available Keys</CardTitle>
             <CardDescription>
@@ -234,10 +237,51 @@ export default function AdminPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {keys.map((key) => (
+                {availableKeys.map((key) => (
                   <TableRow key={key.id} className="border-b border-border/20">
                     <TableCell>
                       <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
+                        {key.value}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{key.plan}</TableCell>
+                    <TableCell>{key.createdAt}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card border-none">
+          <CardHeader>
+            <CardTitle>Claimed Keys</CardTitle>
+            <CardDescription>
+              These keys have already been used.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b border-border/50">
+                  <TableHead className="text-foreground font-semibold">Key</TableHead>
+                  <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                  <TableHead className="text-foreground font-semibold">Created At</TableHead>
+                  <TableHead className="text-right text-foreground font-semibold">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {claimedKeys.map((key) => (
+                  <TableRow key={key.id} className="border-b border-border/20">
+                    <TableCell>
+                      <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
                         {key.value}
                       </Badge>
                     </TableCell>
