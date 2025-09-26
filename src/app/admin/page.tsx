@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -75,6 +75,22 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('keys');
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    const storedKeys = localStorage.getItem('appKeys');
+    if (storedKeys) {
+      try {
+        setKeys(JSON.parse(storedKeys));
+      } catch (error) {
+        console.error("Failed to parse keys from localStorage", error);
+        setKeys([]);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('appKeys', JSON.stringify(keys));
+  }, [keys]);
 
   const handleAddKey = () => {
     if (!newKey.trim() || !selectedPlan) {
@@ -348,7 +364,7 @@ export default function AdminPage() {
             <DialogDescription>
               Enter the key details and select a plan.
             </DialogDescription>
-          </DialogHeader>
+          </Header>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="new-key" className="text-right">
@@ -387,5 +403,4 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-
-    
+}
