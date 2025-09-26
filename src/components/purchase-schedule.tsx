@@ -61,7 +61,6 @@ export function PurchaseSchedule() {
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [copied, setCopied] = useState(false);
-  const [paymentStep, setPaymentStep] = useState(1);
   const [utrNumber, setUtrNumber] = useState('');
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -70,7 +69,6 @@ export function PurchaseSchedule() {
 
   const handlePurchaseClick = (plan: Plan) => {
     setSelectedPlan(plan);
-    setPaymentStep(1);
     setUtrNumber('');
     setScreenshotFile(null);
     setIsVerifying(false);
@@ -82,10 +80,6 @@ export function PurchaseSchedule() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const handleProceedToVerification = () => {
-    setPaymentStep(2);
-  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -199,7 +193,6 @@ export function PurchaseSchedule() {
       setIsVerifying(false);
       setIsPaymentDialogOpen(false);
       setSelectedPlan(null);
-      setPaymentStep(1);
       setUtrNumber('');
       setScreenshotFile(null);
     }
@@ -287,53 +280,41 @@ export function PurchaseSchedule() {
 
     <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent className="sm:max-w-md bg-card border-border">
-           {paymentStep === 1 && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-center text-2xl font-bold">Scan to Pay</DialogTitle>
-                <DialogDescription className="text-center">
-                  Use any UPI app to scan the QR code and pay for the {selectedPlan?.duration} plan.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col items-center justify-center p-4 space-y-4">
-                 {selectedPlan && (
-                    <Image
-                      src={qrCodeUrl}
-                      alt="UPI QR Code"
-                      width={200}
-                      height={200}
-                      className="rounded-lg border-4 border-white"
-                    />
-                )}
-                <div className="text-center">
-                    <p className="font-semibold text-lg">Amount: {selectedPlan?.price}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                        <p className="text-muted-foreground break-all">{UPI_ID}</p>
-                         <Button variant="ghost" size="icon" onClick={handleCopyUpiId} className="h-8 w-8">
-                          {copied ? <Check className="text-green-500" /> : <Copy />}
-                        </Button>
-                    </div>
-                </div>
-                 <p className="text-xs text-muted-foreground text-center">After successful payment, click the button below to verify your payment.</p>
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold">Complete Your Purchase</DialogTitle>
+            <DialogDescription className="text-center">
+              Pay for the {selectedPlan?.duration} plan, then enter details to verify.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center justify-center p-4 space-y-4">
+              {/* QR Code and UPI */}
+              <div className="text-center">
+                  <p className="font-semibold text-lg">1. Scan & Pay</p>
+                  {selectedPlan && (
+                      <Image
+                        src={qrCodeUrl}
+                        alt="UPI QR Code"
+                        width={180}
+                        height={180}
+                        className="rounded-lg border-4 border-white mx-auto my-2"
+                      />
+                  )}
+                  <p className="font-semibold">Amount: {selectedPlan?.price}</p>
+                  <div className="flex items-center justify-center gap-2 mt-1">
+                      <p className="text-muted-foreground break-all">{UPI_ID}</p>
+                       <Button variant="ghost" size="icon" onClick={handleCopyUpiId} className="h-8 w-8">
+                        {copied ? <Check className="text-green-500" /> : <Copy />}
+                      </Button>
+                  </div>
               </div>
-              <DialogFooter>
-                <Button onClick={handleProceedToVerification} className="w-full bg-primary hover:bg-primary/90">
-                  I have paid, verify my payment
-                </Button>
-              </DialogFooter>
-            </>
-          )}
 
-          {paymentStep === 2 && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-center text-2xl font-bold">Verify Your Payment</DialogTitle>
-                <DialogDescription className="text-center">
-                  Enter your payment UTR number and upload a screenshot to receive your key.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col items-center justify-center p-4 space-y-4">
-                <div className="w-full space-y-2">
+              <div className="w-full border-t border-border/50"></div>
+
+              {/* Verification Inputs */}
+              <div className="w-full space-y-4 text-center">
+                <p className="font-semibold text-lg">2. Verify Payment</p>
+                <div className="w-full space-y-2 text-left">
                     <Label htmlFor="utr-number">UTR/Transaction ID</Label>
                     <Input 
                         id="utr-number" 
@@ -341,9 +322,10 @@ export function PurchaseSchedule() {
                         value={utrNumber}
                         onChange={(e) => setUtrNumber(e.target.value)}
                         disabled={isVerifying}
+                        className="bg-background"
                     />
                 </div>
-                <div className="w-full space-y-2">
+                <div className="w-full space-y-2 text-left">
                     <Label htmlFor="screenshot">Payment Screenshot</Label>
                     <Input 
                         id="screenshot"
@@ -356,25 +338,22 @@ export function PurchaseSchedule() {
                     />
                     <Button 
                         variant="outline" 
-                        className="w-full"
+                        className="w-full justify-start text-muted-foreground"
                         onClick={() => fileInputRef.current?.click()}
                         disabled={isVerifying}
                     >
                         <Upload className="mr-2 h-4 w-4" />
                         {screenshotFile ? screenshotFile.name : 'Upload Screenshot'}
                     </Button>
-                    <p className="text-xs text-muted-foreground">Note: Please check UPI ID, amount and UTR number in screenshot.</p>
                 </div>
               </div>
-              <DialogFooter className="flex-col gap-2 sm:flex-row">
-                 <Button onClick={() => setPaymentStep(1)} variant="outline" className="w-full" disabled={isVerifying}>Back</Button>
-                <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90" disabled={isVerifying}>
-                  {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Purchase'}
-                </Button>
-              </DialogFooter>
-            </>
-          )}
-
+          </div>
+          
+          <DialogFooter>
+            <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90" disabled={isVerifying}>
+              {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify & Confirm Purchase'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
