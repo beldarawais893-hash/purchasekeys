@@ -201,10 +201,6 @@ export default function AdminPage() {
         </Button>
       </header>
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-2 mb-8">
-          <MenuIcon className="text-primary h-6 w-6" />
-          <h2 className="text-2xl font-bold">Admin</h2>
-        </div>
         <Card className="bg-card border-none mb-8">
           <CardHeader>
             <CardTitle>Key Management</CardTitle>
