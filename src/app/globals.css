@@ -44,6 +44,9 @@
   * {
     @apply border-border;
   }
+  html {
+    @apply scroll-smooth;
+  }
   body {
     @apply bg-background text-foreground;
     background-image: linear-gradient(to bottom right, hsl(240, 50%, 8%), hsl(270, 60%, 5%));
