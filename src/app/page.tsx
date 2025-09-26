@@ -9,15 +9,12 @@ import { KeyRound } from 'lucide-react';
 const WelcomePage = () => {
   const router = useRouter();
   const [firstLine, setFirstLine] = useState('');
-  const [secondLine, setSecondLine] = useState('');
   const [showButton, setShowButton] = useState(false);
 
   const text1 = 'Welcome To My Site';
-  const text2 = 'Purchase Key And Enjoy Games';
 
   useEffect(() => {
     let typing1: NodeJS.Timeout;
-    let typing2: NodeJS.Timeout;
 
     let i = 0;
     typing1 = setInterval(() => {
@@ -26,24 +23,12 @@ const WelcomePage = () => {
         i++;
       } else {
         clearInterval(typing1);
-        let j = 0;
-        typing2 = setInterval(() => {
-          if (j < text2.length) {
-            setSecondLine((prev) => prev + text2.charAt(j));
-            j++;
-          } else {
-            clearInterval(typing2);
-            setShowButton(true);
-          }
-        }, 100);
+        setShowButton(true);
       }
     }, 100);
 
     return () => {
       clearInterval(typing1);
-      if (typing2) {
-        clearInterval(typing2);
-      }
     };
   }, []);
 
@@ -61,17 +46,16 @@ const WelcomePage = () => {
         <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4 font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))] h-20">
           <span className="typing-effect">{firstLine}</span>
         </h1>
-        <p className="text-xl md:text-3xl text-foreground mb-8 h-12">
-          <span className="typing-effect">{secondLine}</span>
-        </p>
         {showButton && (
-          <Button
-            onClick={handleEnter}
-            size="lg"
-            className="animate-fade-in bg-accent text-accent-foreground hover:bg-accent/90"
-          >
-            Enter
-          </Button>
+          <div className="h-12 mt-8">
+            <Button
+              onClick={handleEnter}
+              size="lg"
+              className="animate-fade-in bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              Enter
+            </Button>
+          </div>
         )}
       </div>
        <style jsx>{`
