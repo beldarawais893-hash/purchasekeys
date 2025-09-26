@@ -14,6 +14,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const plans = [
   { id: 1, duration: '1 DAY', price: '200 Rs' },
@@ -34,6 +36,19 @@ export function PurchaseSchedule() {
   };
 
   return (
+    <>
+    <div className="flex justify-end items-center mb-4">
+       <div className="relative w-full max-w-xs">
+         <Input
+          type="text"
+          placeholder="Find Your Key"
+          className="bg-transparent pr-10"
+        />
+        <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+            <Search className="w-5 h-5 text-primary" />
+        </Button>
+       </div>
+    </div>
     <Card className="bg-card border-none">
       <CardContent className="p-0">
         <Table>
@@ -64,5 +79,6 @@ export function PurchaseSchedule() {
         </Table>
       </CardContent>
     </Card>
+    </>
   );
 }
