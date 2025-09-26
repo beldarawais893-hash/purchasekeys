@@ -47,7 +47,6 @@ const WelcomePage = () => {
   }, []);
 
   const handleEnter = () => {
-    sessionStorage.setItem('sessionStatus', 'entered');
     router.push('/home');
   };
 

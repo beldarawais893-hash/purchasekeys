@@ -143,11 +143,9 @@ export default function AdminPage() {
     const sessionAuthenticated = sessionStorage.getItem('adminAuthenticated');
     if (sessionAuthenticated === 'true') {
       setIsAuthenticated(true);
-    } else {
-      router.push('/');
     }
     setIsCheckingAuth(false);
-  }, [router]);
+  }, []);
 
 
   useEffect(() => {
@@ -309,8 +307,8 @@ export default function AdminPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={(open) => {
-          if(!open && !isAuthenticated) {
-             router.push('/');
+          if(!open) {
+             router.push('/home');
           }
         }}>
           <DialogContent className="sm:max-w-md">
@@ -444,7 +442,7 @@ export default function AdminPage() {
                   <TableHeader>
                     <TableRow className="border-b-0">
                       <TableHead className="text-foreground font-semibold">Key</TableHead>
-                      <TableHead className="text-foreground font-semibold">UTR</TableHead>
+                      <TableHead className="text-foreground fontsemibold">UTR</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
                       <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
                       <TableHead className="text-right text-foreground font-semibold">
