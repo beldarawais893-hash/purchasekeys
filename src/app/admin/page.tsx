@@ -138,13 +138,20 @@ export default function AdminPage() {
     setKeys(updatedKeys);
   }, []);
 
- useEffect(() => {
+  useEffect(() => {
+    const visited = sessionStorage.getItem('visitedWelcome');
+    const onWelcome = sessionStorage.getItem('onWelcomePage');
+    if (!visited && !onWelcome) {
+      router.replace('/');
+      return;
+    }
+
     const sessionAuthenticated = sessionStorage.getItem('adminAuthenticated');
     if (sessionAuthenticated === 'true') {
       setIsAuthenticated(true);
     }
     setIsCheckingAuth(false);
-  }, []);
+  }, [router]);
 
 
   useEffect(() => {
