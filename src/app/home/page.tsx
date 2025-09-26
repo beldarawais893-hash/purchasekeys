@@ -163,7 +163,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="container mx-auto px-4 py-8 md:py-12 flex-grow animate-fade-in">
+      <main className="container mx-auto px-4 py-8 md:py-12 flex-grow">
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2 font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
             Purchase Schedule

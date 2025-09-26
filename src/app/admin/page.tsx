@@ -373,7 +373,7 @@ export default function AdminPage() {
           </Button>
         </div>
       </header>
-      <main className="container mx-auto px-4 py-8 animate-fade-in">
+      <main className="container mx-auto px-4 py-8">
         {activeTab === 'keys' && (
           <>
             <Card className="bg-card mb-8">

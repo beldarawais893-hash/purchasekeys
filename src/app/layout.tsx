@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${robotoSlab.variable} font-body antialiased`}
       >
-        {children}
+        <div className="animate-fade-in">{children}</div>
         <Toaster />
       </body>
     </html>

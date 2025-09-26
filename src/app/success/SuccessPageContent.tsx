@@ -75,7 +75,7 @@ export default function SuccessPageContent() {
     <>
       <ConfettiStyles />
       <div className="confetti-container">{confettiPieces}</div>
-      <div className="relative z-20 flex min-h-screen flex-col items-center justify-center p-4 text-center animate-fade-in">
+      <div className="relative z-20 flex min-h-screen flex-col items-center justify-center p-4 text-center">
         <Card className="w-full max-w-lg overflow-hidden bg-card/80 backdrop-blur-sm shadow-2xl shadow-primary/20">
           <CardHeader className="pt-8">
              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 text-primary animate-pulse">
