@@ -236,11 +236,10 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Dialog open={true} onOpenChange={() => {
-            if (isAuthenticated) {
-              setIsAuthenticated(false);
-            }
+        <Dialog open={true} onOpenChange={(open) => {
+          if(!open && !isAuthenticated) {
             router.push('/');
+          }
         }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
