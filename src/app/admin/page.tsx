@@ -77,22 +77,24 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedKeys = localStorage.getItem('appKeys');
-    if (storedKeys) {
-      try {
+    try {
+      const storedKeys = localStorage.getItem('appKeys');
+      if (storedKeys) {
         const parsedKeys = JSON.parse(storedKeys);
         if (Array.isArray(parsedKeys)) {
           setKeys(parsedKeys);
         }
-      } catch (error) {
-        console.error("Failed to parse keys from localStorage", error);
-        setKeys([]);
       }
+    } catch (error) {
+      console.error("Failed to parse keys from localStorage", error);
+      setKeys([]);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('appKeys', JSON.stringify(keys));
+    if (keys.length > 0) {
+      localStorage.setItem('appKeys', JSON.stringify(keys));
+    }
   }, [keys]);
 
   const handleAddKey = () => {
@@ -117,7 +119,7 @@ export default function AdminPage() {
       status: 'available',
     };
 
-    setKeys((prevKeys) => [keyToAdd, ...prevKeys]);
+    setKeys((prevKeys) => [...prevKeys, keyToAdd]);
     setNewKey('');
     setSelectedPlan('');
     setIsAddKeyDialogOpen(false);
@@ -128,7 +130,11 @@ export default function AdminPage() {
   };
 
   const handleDeleteKey = (keyId: string) => {
-    setKeys((prevKeys) => prevKeys.filter((key) => key.id !== keyId));
+    setKeys((prevKeys) => {
+        const updatedKeys = prevKeys.filter((key) => key.id !== keyId);
+        localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+        return updatedKeys;
+    });
     toast({
       title: 'Success',
       description: 'Key deleted successfully.',
