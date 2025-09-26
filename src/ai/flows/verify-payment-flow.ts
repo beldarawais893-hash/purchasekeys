@@ -45,25 +45,19 @@ const prompt = ai.definePrompt({
   name: 'verifyPaymentPrompt',
   input: { schema: VerifyPaymentInputSchema },
   output: { schema: VerifyPaymentOutputSchema },
-  prompt: `You are an advanced payment verification expert with a keen eye for fraudulent and tampered screenshots. Your task is to meticulously analyze a payment screenshot and verify it against the provided details.
+  prompt: `You are a payment verification expert. Your task is to analyze a payment screenshot and verify it against the provided details.
 
-  **Primary Verification Steps:**
+  **Verification Steps:**
   1.  **Examine the Screenshot for Key Details:** Look for the receiver's UPI ID, the amount paid, and the UTR/Transaction ID in the image.
   2.  **Compare Details:**
       *   Does the UPI ID in the screenshot match the expected UPI ID ('{{expectedUpiId}}')?
       *   Does the amount in the screenshot match the expected amount ('{{expectedAmount}}')?
       *   Does the UTR/Transaction ID in the screenshot match the user-provided UTR ('{{utrNumber}}')?
-  3.  **If any of the above details do not match, immediately fail the verification.** Provide a clear reason like "Amount does not match.", "UTR not found in screenshot.", or "UPI ID mismatch."
+  3.  **Decision Logic:**
+      *   If all three details (UPI ID, amount, and UTR) match, set 'isVerified' to 'true' and 'reason' to "Payment verified successfully.".
+      *   If any of the details do not match, set 'isVerified' to 'false' and provide a clear reason, such as "Amount does not match.", "UTR not found in screenshot.", or "UPI ID mismatch.".
+      *   If the image is unclear, invalid, or not a payment screenshot at all, set 'isVerified' to 'false' and state a clear reason like "The uploaded file is not a valid payment screenshot."
 
-  **Fraud & Tampering Detection (Crucial Second-Level Check):**
-  *   **Analyze Image Integrity:** Scrutinize the screenshot for any signs of digital alteration. Look for mismatched fonts, inconsistent text alignment, pixelation around key text areas (Amount, UTR), or unnatural spacing.
-  *   **Check for Illegal Content:** Inspect the image for any unprofessional watermarks (like "PhoText", "InShot", etc.), irrelevant or suspicious text, or any visual elements that are not typical for a genuine payment confirmation screen.
-  *   **Font and Style Consistency:** Ensure that the font type, size, and color are consistent throughout the screenshot, as they would be in a real app. Any deviation could indicate tampering.
-
-  **Final Decision Logic:**
-  -   If the primary verification passes BUT you detect **any sign of tampering or illegal content** (like watermarks, edited text, etc.), you MUST set 'isVerified' to 'false' and the 'reason' MUST BE EXACTLY: "The uploaded image appears to be edited. Please upload the original."
-  -   If the image is unclear, invalid, or not a payment screenshot at all, set 'isVerified' to 'false' and state a clear reason like "The uploaded file is not a valid payment screenshot."
-  -   Only if **all** primary details match AND there are **zero signs of tampering** should you set 'isVerified' to 'true' with the reason "Payment verified successfully.".
 
   **Input Data:**
   -   Expected UPI ID: {{{expectedUpiId}}}
@@ -71,7 +65,7 @@ const prompt = ai.definePrompt({
   -   User-entered UTR: {{{utrNumber}}}
   -   Payment Screenshot: {{media url=screenshotDataUri}}
 
-  Analyze the screenshot with extreme prejudice for fraud and provide your verification result in the specified JSON format.`,
+  Analyze the screenshot and provide your verification result in the specified JSON format.`,
 });
 
 const verifyPaymentFlow = ai.defineFlow(
