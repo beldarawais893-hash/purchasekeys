@@ -94,7 +94,7 @@ export default function Home() {
             <Input
               type="text"
               placeholder="Find by Key or UTR"
-              className="bg-transparent pr-10"
+              className="pr-10"
               value={searchKey}
               onChange={(e) => setSearchKey(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleFindKey()}
