@@ -140,7 +140,7 @@ export default function Home() {
                 ImpalerVLAED
               </a>
                <a
-                href="https://t.me/your_channel_name"
+                href="https://t.me/+Kv7fEX8f7TFkMjk1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
