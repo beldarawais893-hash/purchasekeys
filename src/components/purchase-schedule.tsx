@@ -226,7 +226,7 @@ export function PurchaseSchedule() {
                 <TableCell className="text-right">
                   <Button
                     size="sm"
-                    className="bg-accent text-accent-foreground hover:bg-accent/90 transition-transform duration-200 hover:scale-105"
+                    className="bg-accent text-accent-foreground shadow-lg shadow-purple-500/30 hover:shadow-purple-400/50 hover:bg-accent/90 transition-all duration-300 hover:scale-110"
                     onClick={() => handlePurchaseClick(plan)}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
