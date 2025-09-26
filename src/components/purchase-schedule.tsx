@@ -211,7 +211,7 @@ export function PurchaseSchedule() {
 
   return (
     <>
-    <Card className="bg-card overflow-hidden">
+    <Card className="bg-card overflow-hidden shadow-lg shadow-primary/20 border border-primary/30">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
@@ -227,12 +227,12 @@ export function PurchaseSchedule() {
                 key={plan.id}
                 className="border-b border-border/20"
               >
-                <TableCell className="font-medium transition-colors duration-300 peer-hover:bg-primary/10">{plan.duration}</TableCell>
-                <TableCell className="transition-colors duration-300 peer-hover:bg-primary/10">{plan.price} Rs</TableCell>
+                <TableCell className="font-medium peer-hover:bg-primary/10 transition-colors duration-300">{plan.duration}</TableCell>
+                <TableCell className="peer-hover:bg-primary/10 transition-colors duration-300">{plan.price} Rs</TableCell>
                 <TableCell className="text-right transition-colors duration-300">
                   <Button
                     size="sm"
-                    className="peer bg-accent text-accent-foreground shadow-lg shadow-purple-500/30 hover:shadow-purple-400/50 hover:bg-accent/90 transition-all duration-300 hover:scale-110 active:scale-125"
+                    className="peer bg-accent text-accent-foreground shadow-md shadow-accent/20 hover:shadow-lg hover:shadow-accent/40 hover:bg-accent/90 transition-all duration-300 hover:scale-110 active:scale-125"
                     onClick={() => handlePurchaseClick(plan)}
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
