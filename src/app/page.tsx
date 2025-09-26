@@ -1,4 +1,5 @@
 import { AiRecommender } from '@/components/ai-recommender';
+import { SimpleTable } from '@/components/simple-table';
 import { SubscriptionPlans } from '@/components/subscription-plans';
 
 export default function Home() {
@@ -17,6 +18,10 @@ export default function Home() {
         <section id="plans">
           <h2 className="text-3xl font-bold text-center mb-8">Our Plans</h2>
           <SubscriptionPlans />
+        </section>
+
+        <section id="simple-table" className="mt-20">
+          <SimpleTable />
         </section>
 
         <section id="ai-recommender" className="mt-20">
