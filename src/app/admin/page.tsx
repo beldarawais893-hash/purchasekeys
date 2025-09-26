@@ -203,7 +203,7 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <Dialog open={true} onOpenChange={(isOpen) => !isOpen && router.push('/')}>
+        <Dialog open={true} onOpenChange={() => router.push('/')}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Admin Access</DialogTitle>
@@ -265,7 +265,7 @@ export default function AdminPage() {
       <main className="container mx-auto px-4 py-8">
         {activeTab === 'keys' && (
           <>
-            <Card className="bg-card border-none mb-8">
+            <Card className="bg-card mb-8">
               <CardHeader>
                 <CardTitle>Key Management</CardTitle>
                 <CardDescription>Add, view, and manage keys here.</CardDescription>
@@ -277,7 +277,7 @@ export default function AdminPage() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="bg-card border-none mb-8">
+            <Card className="bg-card mb-8">
               <CardHeader>
                 <CardTitle>Available Keys</CardTitle>
                 <CardDescription>
@@ -318,7 +318,7 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card border-none">
+            <Card className="bg-card">
               <CardHeader>
                 <CardTitle>Claimed Keys</CardTitle>
                 <CardDescription>
@@ -356,7 +356,7 @@ export default function AdminPage() {
         )}
         {activeTab === 'balance' && (
           <div className="space-y-8">
-            <Card className="bg-card border-none">
+            <Card className="bg-card">
               <CardHeader>
                 <CardTitle>Balance Information</CardTitle>
                 <CardDescription>
@@ -407,7 +407,7 @@ export default function AdminPage() {
               </CardContent>
             </Card>
 
-            <Card className="bg-card border-none">
+            <Card className="bg-card">
               <CardHeader>
                 <CardTitle>Keys by Plan</CardTitle>
                 <CardDescription>Breakdown of keys for each subscription plan.</CardDescription>

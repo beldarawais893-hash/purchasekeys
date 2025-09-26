@@ -208,7 +208,7 @@ export function PurchaseSchedule() {
 
   return (
     <>
-    <Card className="bg-card border-none">
+    <Card className="bg-card">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
