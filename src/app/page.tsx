@@ -68,7 +68,7 @@ const WelcomePage = () => {
             <Button
               onClick={handleEnter}
               size="lg"
-              className="animate-fade-in bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary hover:shadow-primary/50 hover:scale-105"
+              className="animate-fade-in bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-primary/50 hover:scale-105"
             >
               Enter
             </Button>
