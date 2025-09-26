@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -62,84 +63,12 @@ type Key = {
   value: string;
   plan: string;
   createdAt: string;
+  claimedAt?: string;
   status: 'available' | 'claimed';
 };
 
-const initialKeys: Key[] = [
-  {
-    id: '1',
-    value: '24HxMahakaalx1xzvasT8Be',
-    plan: '1 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '2',
-    value: '24HxMahakaalx1gMKbm1jN',
-    plan: '1 Day',
-    createdAt: '25/09/2025',
-    status: 'claimed',
-  },
-  {
-    id: '3',
-    value: '24HxMahakaalx1DJ20UzOB',
-    plan: '1 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '4',
-    value: '24HxMahakaalx1Cn5eREDI',
-    plan: '1 Day',
-    createdAt: '25/09/2025',
-    status: 'claimed',
-  },
-  {
-    id: '5',
-    value: '3DAYxMahakaalxRANDOM1',
-    plan: '3 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '6',
-    value: '3DAYxMahakaalxRANDOM2',
-    plan: '3 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '7',
-    value: '3DAYxMahakaalxRANDOM3',
-    plan: '3 Day',
-    createdAt: '25/09/2025',
-    status: 'claimed',
-  },
-  {
-    id: '8',
-    value: '3DAYxMahakaalxRANDOM4',
-    plan: '3 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '9',
-    value: '3DAYxMahakaalxRANDOM5',
-    plan: '3 Day',
-    createdAt: '25/09/2025',
-    status: 'available',
-  },
-  {
-    id: '10',
-    value: '7DAYxMahakaalxtBzbH4Ys',
-    plan: '7 Day',
-    createdAt: '25/09/2025',
-    status: 'claimed',
-  },
-];
-
 export default function AdminPage() {
-  const [keys, setKeys] = useState<Key[]>(initialKeys);
+  const [keys, setKeys] = useState<Key[]>([]);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
   const [newKey, setNewKey] = useState('');
   const [selectedPlan, setSelectedPlan] = useState('');
@@ -304,10 +233,7 @@ export default function AdminPage() {
                     <TableRow className="border-b border-border/50">
                       <TableHead className="text-foreground font-semibold">Key</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                      <TableHead className="text-foreground font-semibold">Created At</TableHead>
-                      <TableHead className="text-right text-foreground font-semibold">
-                        Actions
-                      </TableHead>
+                      <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -319,12 +245,7 @@ export default function AdminPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>{key.plan}</TableCell>
-                        <TableCell>{key.createdAt}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteKey(key.id)}>
-                            <Trash2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TableCell>
+                        <TableCell>{key.claimedAt}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -466,5 +387,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-}
+
     
