@@ -49,13 +49,15 @@ const prompt = ai.definePrompt({
 
   **Verification Steps:**
   1.  **Examine the Screenshot for Key Details:** Look for the receiver's UPI ID, the amount paid, and the UTR/Transaction ID in the image.
-  2.  **Compare Details:**
+  2.  **Check for Authenticity:** Analyze the screenshot for any signs of digital editing or tampering. Look for inconsistencies in fonts, colors, watermarks, or pixel artifacts that suggest the image has been altered.
+  3.  **Compare Details:**
       *   Does the UPI ID in the screenshot match the expected UPI ID ('{{expectedUpiId}}')?
       *   Does the amount in the screenshot match the expected amount ('{{expectedAmount}}')?
       *   Does the UTR/Transaction ID in the screenshot match the user-provided UTR ('{{utrNumber}}')?
-  3.  **Decision Logic:**
-      *   If all three details (UPI ID, amount, and UTR) match, set 'isVerified' to 'true' and 'reason' to "Payment verified successfully.".
-      *   If any of the details do not match, set 'isVerified' to 'false' and provide a clear reason, such as "Amount does not match.", "UTR not found in screenshot.", or "UPI ID mismatch.".
+  4.  **Decision Logic:**
+      *   If the image appears authentic AND all three details (UPI ID, amount, and UTR) match, set 'isVerified' to 'true' and 'reason' to "Payment verified successfully.".
+      *   If the image appears to be edited or tampered with, set 'isVerified' to 'false' and set 'reason' to "The uploaded image appears to be edited. Please upload the original.".
+      *   If any of the payment details do not match, set 'isVerified' to 'false' and provide a clear reason, such as "Amount does not match.", "UTR not found in screenshot.", or "UPI ID mismatch.".
       *   If the image is unclear, invalid, or not a payment screenshot at all, set 'isVerified' to 'false' and state a clear reason like "The uploaded file is not a valid payment screenshot."
 
 
