@@ -82,10 +82,10 @@ export default function SuccessPageContent() {
                 <span className='text-4xl animate-pulse'>🎉</span>
             </div>
             <CardTitle className="text-3xl font-bold animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
-              Access Granted! Welcome to the Elite Club!
+              Purchase Complete! Your Key is Forged.
             </CardTitle>
             <CardDescription className="pt-2 text-base text-muted-foreground">
-              Your gateway to premium features is now unlocked. Use it wisely and dominate the game!
+              Your premium access key is now ready. Copy it below and unlock the full potential. Thank you for your purchase!
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 py-6">
