@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Check, Upload, Loader2, ShoppingCart } from 'lucide-react';
+import { Copy, Check, Upload, Loader2, ShoppingCart, CalendarDays, IndianRupee } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useRef } from 'react';
 import {
@@ -216,9 +216,24 @@ export function PurchaseSchedule() {
         <Table>
           <TableHeader>
             <TableRow className="border-b-2 border-primary/20 bg-primary/10 hover:bg-primary/20">
-              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">Days</TableHead>
-              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">Price</TableHead>
-              <TableHead className="text-right w-1/3 text-primary uppercase tracking-wider font-bold">Purchase</TableHead>
+              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  <span>Days</span>
+                </div>
+              </TableHead>
+              <TableHead className="w-1/3 text-primary uppercase tracking-wider font-bold">
+                <div className="flex items-center gap-2">
+                  <IndianRupee className="h-4 w-4" />
+                  <span>Price</span>
+                </div>
+              </TableHead>
+              <TableHead className="text-right w-1/3 text-primary uppercase tracking-wider font-bold">
+                <div className="flex items-center justify-end gap-2">
+                  <ShoppingCart className="h-4 w-4" />
+                  <span>Purchase</span>
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
