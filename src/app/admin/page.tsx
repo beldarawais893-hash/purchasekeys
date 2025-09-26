@@ -49,7 +49,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 const plans = [
-  { duration: '1 Day', price: '19 Rs' },
+  { duration: '1 Day', price: '200 Rs' },
   { duration: '3 Day', price: '350 Rs' },
   { duration: '7 Day', price: '500 Rs' },
   { duration: '15 Day', price: '720 Rs' },

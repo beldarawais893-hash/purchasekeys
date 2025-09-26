@@ -16,7 +16,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const plans = [
-  { id: 1, duration: '1 DAY', price: '19 Rs' },
+  { id: 1, duration: '1 DAY', price: '200 Rs' },
   { id: 2, duration: '3 DAY', price: '350 Rs' },
   { id: 3, duration: '7 DAY', price: '500 Rs' },
   { id: 4, duration: '15 DAY', price: '720 Rs' },
