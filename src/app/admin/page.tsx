@@ -92,16 +92,6 @@ export default function AdminPage() {
     }
   }, []);
 
-  useEffect(() => {
-    // This effect ensures that any time the 'keys' state changes,
-    // it's saved to localStorage. But we check to avoid writing
-    // the initial empty array before keys are loaded.
-    const storedKeys = localStorage.getItem('appKeys');
-    if (keys.length > 0 || (storedKeys && JSON.parse(storedKeys).length > 0)) {
-        localStorage.setItem('appKeys', JSON.stringify(keys));
-    }
-  }, [keys]);
-
   const handleAddKey = () => {
     if (!newKey.trim() || !selectedPlan) {
       toast({
@@ -123,10 +113,11 @@ export default function AdminPage() {
       }).format(new Date()),
       status: 'available',
     };
-
+    
+    // Create new array, update state, and then save to localStorage
     const updatedKeys = [...keys, keyToAdd];
     setKeys(updatedKeys);
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys)); // Explicitly save here
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
 
     setNewKey('');
     setSelectedPlan('');
