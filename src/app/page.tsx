@@ -8,10 +8,6 @@ export default function Home() {
   return (
     <div className="bg-background min-h-screen">
       <main className="container mx-auto px-4 py-8 md:py-12">
-        <div className="bg-green-500/10 border border-green-500 text-green-400 text-sm rounded-lg p-4 mb-8">
-          Success: Access granted. Redirecting to admin panel...
-        </div>
-
         <section id="ai-recommender" className="mb-12">
           <AiRecommender />
         </section>
