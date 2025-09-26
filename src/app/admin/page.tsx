@@ -315,12 +315,16 @@ export default function AdminPage() {
         </div>
         <div className="flex items-center gap-2 justify-center">
           <Button className="flex-1 sm:flex-initial" variant={activeTab === 'keys' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('keys')}>
-            <KeyRound className="mr-2" />
+            <KeyRound className="mr-2 h-4 w-4" />
             Keys
           </Button>
           <Button className="flex-1 sm:flex-initial" variant={activeTab === 'balance' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('balance')}>
-            <Wallet className="mr-2" />
+            <Wallet className="mr-2 h-4 w-4" />
             Balance
+          </Button>
+           <Button className="flex-1 sm:flex-initial" variant={activeTab === 'expired' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('expired')}>
+            <History className="mr-2 h-4 w-4" />
+            Expired
           </Button>
         </div>
       </header>
@@ -422,8 +426,10 @@ export default function AdminPage() {
                 </Table>
               </CardContent>
             </Card>
-
-            <Card className="bg-card">
+          </>
+        )}
+        {activeTab === 'expired' && (
+           <Card className="bg-card">
               <CardHeader>
                 <CardTitle className="text-primary flex items-center gap-2"><History className="h-5 w-5"/> Expired Keys</CardTitle>
                 <CardDescription>
@@ -465,7 +471,6 @@ export default function AdminPage() {
                 </Table>
               </CardContent>
             </Card>
-          </>
         )}
         {activeTab === 'balance' && (
           <div className="space-y-8">
@@ -600,6 +605,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-}
 
     
