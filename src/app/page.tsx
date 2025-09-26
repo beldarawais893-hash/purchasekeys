@@ -13,7 +13,7 @@ const WelcomePage = () => {
   const [showButton, setShowButton] = useState(false);
 
   const text1 = 'Welcome To My Site';
-  const text2 = 'Purchase key and Enjoy Games';
+  const text2 = 'Purchase Key And Enjoy Games';
 
   useEffect(() => {
     let typing1: NodeJS.Timeout;
