@@ -84,25 +84,22 @@ export default function AdminPage() {
 
 
   useEffect(() => {
-    // This effect runs only when isAuthenticated becomes true.
     if (isAuthenticated) {
       try {
         const storedKeys = localStorage.getItem('appKeys');
         if (storedKeys) {
           const parsedKeys = JSON.parse(storedKeys);
-          // Basic check to see if we have an array of keys
           if (Array.isArray(parsedKeys)) {
             setKeys(parsedKeys);
           }
         }
       } catch (error) {
         console.error("Failed to parse keys from localStorage", error);
-        setKeys([]); // Reset to empty array on error
+        setKeys([]); 
       }
     }
   }, [isAuthenticated]);
   
-  // A function to abstract away saving to localStorage and updating state
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
     setKeys(updatedKeys);
@@ -201,8 +198,9 @@ export default function AdminPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={() => {
-            // When the dialog is closed, de-authenticate and go to home
-            setIsAuthenticated(false);
+            if (isAuthenticated) {
+              setIsAuthenticated(false);
+            }
             router.push('/');
         }}>
           <DialogContent className="sm:max-w-md">
@@ -244,23 +242,25 @@ export default function AdminPage() {
 
   return (
     <div>
-      <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => {
-              setIsAuthenticated(false);
-              router.push('/');
-          }}>
-            <ArrowLeft />
-          </Button>
-          <KeyRound className="text-primary h-6 w-6" />
-          <h1 className="text-xl font-bold">Purchase Key</h1>
+      <header className="bg-card text-card-foreground p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+            <div className='flex items-center gap-2'>
+              <Button variant="ghost" size="icon" onClick={() => {
+                  setIsAuthenticated(false);
+                  router.push('/');
+              }}>
+                <ArrowLeft />
+              </Button>
+              <KeyRound className="text-primary h-6 w-6" />
+              <h1 className="text-xl font-bold whitespace-nowrap">Purchase Key</h1>
+            </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant={activeTab === 'keys' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('keys')}>
+        <div className="flex items-center gap-2 justify-center">
+          <Button className="flex-1 sm:flex-initial" variant={activeTab === 'keys' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('keys')}>
             <KeyRound className="mr-2" />
             Keys
           </Button>
-          <Button variant={activeTab === 'balance' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('balance')}>
+          <Button className="flex-1 sm:flex-initial" variant={activeTab === 'balance' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('balance')}>
             <Wallet className="mr-2" />
             Balance
           </Button>
@@ -493,3 +493,4 @@ export default function AdminPage() {
   );
 
     
+
