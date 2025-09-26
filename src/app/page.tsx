@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { KeyRound } from 'lucide-react';
 
@@ -11,41 +11,42 @@ const WelcomePage = () => {
   const [text1, setText1] = useState('');
   const [text2, setText2] = useState('');
   const [showButton, setShowButton] = useState(false);
+  const effectRan = useRef(false);
 
   const line1 = "Welcome To My Site";
   const line2 = "Purchase key and Enjoy Games";
 
   useEffect(() => {
-    // Set a flag that we are on the welcome page, so other pages don't redirect.
+    if (effectRan.current) return;
+    
     sessionStorage.setItem('onWelcomePage', 'true');
 
-    const typeLine1 = () => {
+    const typeLine = (line: string, setText: React.Dispatch<React.SetStateAction<string>>, onComplete: () => void) => {
       let i = 0;
+      setText(''); // Reset text before starting
       const typingInterval = setInterval(() => {
-        if (i < line1.length) {
-          setText1((prev) => prev + line1.charAt(i));
+        if (i < line.length) {
+          setText((prev) => prev + line.charAt(i));
           i++;
         } else {
           clearInterval(typingInterval);
-          typeLine2();
+          onComplete();
         }
       }, 100);
+      return typingInterval;
     };
 
-    const typeLine2 = () => {
-      let i = 0;
-      const typingInterval = setInterval(() => {
-        if (i < line2.length) {
-          setText2((prev) => prev + line2.charAt(i));
-          i++;
-        } else {
-          clearInterval(typingInterval);
+    const startAnimations = () => {
+      const interval1 = typeLine(line1, setText1, () => {
+        const interval2 = typeLine(line2, setText2, () => {
           setShowButton(true);
-        }
-      }, 100);
+        });
+      });
     };
+    
+    startAnimations();
+    effectRan.current = true;
 
-    typeLine1();
   }, []);
 
   const handleEnter = () => {
