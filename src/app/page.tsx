@@ -3,12 +3,14 @@
 
 import { AppHeader } from '@/components/header';
 import { PurchaseSchedule } from '@/components/purchase-schedule';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Search, Instagram } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 type Key = {
   id: string;
@@ -120,14 +122,24 @@ export default function Home() {
               <CardTitle className="text-center text-2xl font-bold">Contact Owner</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center space-y-4 pt-6">
-              <Button variant="ghost" className="w-full">
+               <a
+                href="https://t.me/Kaalbhairavmodzowner"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}
+              >
                 <Send className="mr-2 h-4 w-4" />
                 Kaalbhairavmodzowner
-              </Button>
-              <Button variant="ghost" className="w-full">
+              </a>
+              <a
+                href="https://t.me/ImpalerVLAED"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}
+              >
                 <Send className="mr-2 h-4 w-4" />
                 ImpalerVLAED
-              </Button>
+              </a>
             </CardContent>
           </Card>
         </section>
