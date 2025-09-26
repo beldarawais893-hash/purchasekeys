@@ -208,7 +208,7 @@ export function PurchaseSchedule() {
 
   return (
     <>
-    <Card className="bg-card">
+    <Card className="bg-card overflow-hidden">
       <CardContent className="p-0">
         <Table>
           <TableHeader>
@@ -220,7 +220,7 @@ export function PurchaseSchedule() {
           </TableHeader>
           <TableBody>
             {plans.map((plan) => (
-              <TableRow key={plan.id} className="border-b border-border/20">
+              <TableRow key={plan.id} className="border-b border-border/20 hover:bg-primary/10 transition-colors duration-300">
                 <TableCell className="font-medium">{plan.duration}</TableCell>
                 <TableCell>{plan.price} Rs</TableCell>
                 <TableCell className="text-right">
