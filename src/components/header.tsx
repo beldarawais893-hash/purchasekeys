@@ -24,9 +24,6 @@ export function AppHeader() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem>
-            Owner
-          </DropdownMenuItem>
-          <DropdownMenuItem>
             <Lock className="mr-2 h-4 w-4" />
             <span>Owner privicy</span>
           </DropdownMenuItem>
