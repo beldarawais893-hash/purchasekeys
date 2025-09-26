@@ -44,15 +44,6 @@ export default function Home() {
   const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
-
-  useEffect(() => {
-    if (sessionStorage.getItem('visitedWelcome') !== 'true') {
-      router.replace('/');
-    } else {
-      setIsCheckingSession(false);
-    }
-  }, [router]);
 
   const handleCopy = () => {
     if (foundKeyInfo) {
@@ -168,10 +159,6 @@ export default function Home() {
       });
     }
   };
-
-  if (isCheckingSession) {
-    return <div className="min-h-screen bg-background"></div>;
-  }
 
   return (
     <div className="min-h-screen flex flex-col">

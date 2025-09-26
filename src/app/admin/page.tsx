@@ -132,15 +132,6 @@ export default function AdminPage() {
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
-
-  useEffect(() => {
-    if (sessionStorage.getItem('visitedWelcome') !== 'true') {
-      router.replace('/');
-    } else {
-      setIsCheckingSession(false);
-    }
-  }, [router]);
 
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -307,7 +298,7 @@ export default function AdminPage() {
     return acc;
   }, 0);
 
-  if (isCheckingSession || isCheckingAuth) {
+  if (isCheckingAuth) {
     return <div className="min-h-screen bg-background"></div>;
   }
 
