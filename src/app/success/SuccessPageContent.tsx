@@ -4,7 +4,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clipboard, ClipboardCheck, Send } from 'lucide-react';
+import { Clipboard, ClipboardCheck, Send, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -79,10 +79,10 @@ export default function SuccessPageContent() {
         <Card className="w-full max-w-lg overflow-hidden bg-card/80 backdrop-blur-sm shadow-2xl shadow-primary/20">
           <CardHeader className="pt-8">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 text-primary">
-                <span className='text-4xl animate-pulse'>🎉</span>
+                <ShieldCheck className="h-8 w-8 animate-pulse" />
             </div>
             <CardTitle className="text-3xl font-bold animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
-              Congratulations! Purchase Complete!
+              Purchase Complete! Your Key is Forged.
             </CardTitle>
             <CardDescription className="pt-2 text-base text-muted-foreground">
               Your premium access key is now ready. Copy it below and unlock the full potential.
