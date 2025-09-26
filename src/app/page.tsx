@@ -53,12 +53,16 @@ export default function Home() {
     }
   };
   
-  const parseDate = (dateString: string) => {
-    const [datePart, timePart] = dateString.split(', ');
+  const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    const parts = dateString.split(', ');
+    if (parts.length < 2) return null;
+    const [datePart, timePart] = parts;
     const [day, month, year] = datePart.split('/');
     const [hours, minutes] = timePart.split(':');
+    if (!year || !month || !day || !hours || !minutes) return null;
     return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
-  };
+};
 
 
   const handleFindKey = () => {
@@ -93,6 +97,15 @@ export default function Home() {
       if (foundKey) {
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
             const claimedDate = parseDate(foundKey.claimedAt);
+            if (!claimedDate) {
+                 toast({
+                    title: 'Invalid Key Data',
+                    description: `Could not parse claimed date for this key.`,
+                    variant: 'destructive',
+                });
+                return;
+            }
+
             const expiryDate = new Date(claimedDate);
 
             if (foundKey.plan.includes('Day')) {
@@ -159,7 +172,7 @@ export default function Home() {
           <div className="relative w-full max-w-xs">
             <Input
               type="text"
-              placeholder="Find by Key or UTR"
+              placeholder="Enter UTR No & Find your key"
               className="pr-10"
               value={searchKey}
               onChange={(e) => setSearchKey(e.target.value)}
