@@ -1,31 +1,47 @@
 import { AiRecommender } from '@/components/ai-recommender';
-import { SimpleTable } from '@/components/simple-table';
-import { SubscriptionPlans } from '@/components/subscription-plans';
+import { PurchaseSchedule } from '@/components/purchase-schedule';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Send } from 'lucide-react';
 
 export default function Home() {
   return (
     <div className="bg-background min-h-screen">
-      <main className="container mx-auto px-4 py-8 md:py-16">
-        <header className="text-center mb-12">
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <div className="bg-green-500/10 border border-green-500 text-green-400 text-sm rounded-lg p-4 mb-8">
+          Success: Access granted. Redirecting to admin panel...
+        </div>
+
+        <section id="ai-recommender" className="mb-12">
+          <AiRecommender />
+        </section>
+
+        <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2 font-headline">
-            Subscription Selector
+            Purchase Schedule
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Find the perfect plan for your streaming needs.
-          </p>
         </header>
 
-        <section id="plans">
-          <h2 className="text-3xl font-bold text-center mb-8">Our Plans</h2>
-          <SubscriptionPlans />
+        <section id="purchase-schedule" className="mb-12">
+          <PurchaseSchedule />
         </section>
 
-        <section id="simple-table" className="mt-20">
-          <SimpleTable />
-        </section>
-
-        <section id="ai-recommender" className="mt-20">
-          <AiRecommender />
+        <section id="contact-owner">
+          <Card className="max-w-md mx-auto bg-card">
+            <CardHeader>
+              <CardTitle className="text-center text-2xl font-bold">Contact Owner</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center space-y-4">
+                <Button variant="ghost" className="w-full">
+                  <Send className="mr-2 h-4 w-4" />
+                  Kaalbhairavmodzowner
+                </Button>
+                <Button variant="ghost" className="w-full">
+                  <Send className="mr-2 h-4 w-4" />
+                  ImpalerVLAED
+                </Button>
+            </CardContent>
+          </Card>
         </section>
       </main>
     </div>
