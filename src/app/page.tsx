@@ -4,6 +4,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { KeyRound } from 'lucide-react';
 
 const WelcomePage = () => {
   const router = useRouter();
@@ -54,6 +55,9 @@ const WelcomePage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-center p-4">
       <div className="w-full max-w-2xl">
+        <div className="flex justify-center mb-6">
+            <KeyRound className="h-16 w-16 text-primary animate-pulse" />
+        </div>
         <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4 font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))] h-20">
           <span className="typing-effect">{firstLine}</span>
         </h1>
@@ -91,7 +95,7 @@ const WelcomePage = () => {
         .animate-fade-in {
             animation: fadeIn 1s ease-in;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
