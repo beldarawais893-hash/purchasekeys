@@ -121,6 +121,8 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    // This effect now only runs when isAuthenticated changes.
+    // It doesn't handle the initial load from localStorage.
     if (isAuthenticated) {
       try {
         const storedKeys = localStorage.getItem('appKeys');
@@ -193,8 +195,12 @@ export default function AdminPage() {
       status: 'available',
     };
     
-    const updatedKeys = [...keys, keyToAdd];
-    persistKeys(updatedKeys);
+    // Load current keys, add new, then persist
+    const storedKeys = localStorage.getItem('appKeys');
+    const currentKeys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+    const updatedKeys = [...currentKeys, keyToAdd];
+    persistKeys(updatedKeys); // This now sets state too.
+
 
     setNewKey('');
     setSelectedPlan('');
@@ -238,12 +244,13 @@ export default function AdminPage() {
   const keysByPlan = plans.map(plan => {
     const planKeys = keys.filter(key => key.plan === plan.duration);
     const available = planKeys.filter(k => k.status === 'available').length;
-    const claimed = planKeys.filter(k => k.status === 'claimed').length;
+    const claimed = planKeys.filter(k => k.status === 'claimed' && !isKeyExpired(k)).length;
+    const expired = planKeys.filter(k => k.status === 'claimed' && isKeyExpired(k)).length;
     return {
       name: plan.duration,
       total: planKeys.length,
       available,
-      claimed,
+      claimed: claimed + expired,
       price: `${plan.price} Rs`
     };
   });
