@@ -16,8 +16,6 @@ const WelcomePage = () => {
   const fullLine2 = "Purchase Key And Enjoy Games";
 
   useEffect(() => {
-    // Set a flag in sessionStorage to indicate the user has seen the welcome screen.
-    // This helps in routing logic on other pages.
     sessionStorage.setItem('visitedWelcome', 'true');
 
     let i = 0;
@@ -34,15 +32,13 @@ const WelcomePage = () => {
             j++;
           } else {
             clearInterval(typingInterval2);
-            setTimeout(() => setShowButton(true), 500); // Show button after a short delay
+            setTimeout(() => setShowButton(true), 500); 
           }
         }, 100);
-        // This return is crucial for cleanup
         return () => clearInterval(typingInterval2);
       }
     }, 100);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(typingInterval1);
   }, []);
 
@@ -72,7 +68,7 @@ const WelcomePage = () => {
             <Button
               onClick={handleEnter}
               size="lg"
-              className="animate-fade-in bg-accent text-accent-foreground hover:bg-accent/90"
+              className="animate-fade-in bg-primary/90 text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary hover:shadow-primary/50 hover:scale-105"
             >
               Enter
             </Button>
@@ -85,8 +81,8 @@ const WelcomePage = () => {
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
       `}</style>
     </div>
