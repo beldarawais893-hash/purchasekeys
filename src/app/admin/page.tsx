@@ -131,6 +131,8 @@ export default function AdminPage() {
   const [keyToDelete, setKeyToDelete] = useState<Key | null>(null);
   const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
 
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
 
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -144,6 +146,7 @@ export default function AdminPage() {
     } else {
       router.push('/');
     }
+    setIsCheckingAuth(false);
   }, [router]);
 
 
@@ -298,6 +301,9 @@ export default function AdminPage() {
     return acc;
   }, 0);
 
+  if (isCheckingAuth) {
+    return <div className="min-h-screen bg-background"></div>;
+  }
 
   if (!isAuthenticated) {
     return (
