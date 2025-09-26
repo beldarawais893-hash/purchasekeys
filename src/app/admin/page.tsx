@@ -84,13 +84,6 @@ export default function AdminPage() {
   const [passwordInput, setPasswordInput] = useState('');
 
 
-  useEffect(() => {
-    const authStatus = sessionStorage.getItem('adminAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
     setKeys(updatedKeys);
@@ -98,7 +91,6 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      sessionStorage.setItem('adminAuthenticated', 'true');
       try {
         const storedKeys = localStorage.getItem('appKeys');
         if (storedKeys) {
@@ -115,8 +107,6 @@ export default function AdminPage() {
         console.error("Failed to parse keys from localStorage", error);
         setKeys([]); 
       }
-    } else {
-        sessionStorage.removeItem('adminAuthenticated');
     }
   }, [isAuthenticated]);
   
