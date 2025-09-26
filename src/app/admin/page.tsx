@@ -68,6 +68,8 @@ type Key = {
   utr?: string;
 };
 
+const ADMIN_PASSWORD = '3131';
+
 export default function AdminPage() {
   const [keys, setKeys] = useState<Key[]>([]);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
@@ -77,20 +79,51 @@ export default function AdminPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+
+
   useEffect(() => {
-    try {
-      const storedKeys = localStorage.getItem('appKeys');
-      if (storedKeys) {
-        const parsedKeys = JSON.parse(storedKeys);
-        if (Array.isArray(parsedKeys)) {
-          setKeys(parsedKeys);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to parse keys from localStorage", error);
-      setKeys([]);
+    const sessionAuth = sessionStorage.getItem('adminAuthenticated');
+    if (sessionAuth === 'true') {
+      setIsAuthenticated(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      try {
+        const storedKeys = localStorage.getItem('appKeys');
+        if (storedKeys) {
+          const parsedKeys = JSON.parse(storedKeys);
+          if (Array.isArray(parsedKeys)) {
+            setKeys(parsedKeys);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to parse keys from localStorage", error);
+        setKeys([]);
+      }
+    }
+  }, [isAuthenticated]);
+
+  const handlePasswordSubmit = () => {
+    if (passwordInput === ADMIN_PASSWORD) {
+      sessionStorage.setItem('adminAuthenticated', 'true');
+      setIsAuthenticated(true);
+      toast({
+        title: 'Success',
+        description: 'Access granted.',
+      });
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Incorrect password.',
+        variant: 'destructive',
+      });
+      setPasswordInput('');
+    }
+  };
 
   const handleAddKey = () => {
     if (!newKey.trim() || !selectedPlan) {
@@ -114,7 +147,6 @@ export default function AdminPage() {
       status: 'available',
     };
     
-    // Create new array, update state, and then save to localStorage
     const updatedKeys = [...keys, keyToAdd];
     setKeys(updatedKeys);
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -163,6 +195,48 @@ export default function AdminPage() {
     }
     return acc;
   }, 0);
+
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Dialog open={true} onOpenChange={() => {}}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Admin Access</DialogTitle>
+              <DialogDescription>
+                Please enter the password to access the owner panel.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="password" className="sr-only">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="****"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                />
+              </div>
+            </div>
+            <DialogFooter className="sm:justify-start">
+               <Button type="submit" onClick={handlePasswordSubmit}>
+                  Unlock
+                </Button>
+              <Button type="button" variant="secondary" onClick={() => router.push('/')}>
+                Go Back
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
 
   return (
     <div className="bg-background min-h-screen">
@@ -410,4 +484,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-}
+
+    
