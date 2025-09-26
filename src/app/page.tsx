@@ -3,14 +3,13 @@
 
 import { AppHeader } from '@/components/header';
 import { PurchaseSchedule } from '@/components/purchase-schedule';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Search, Instagram } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 
 type Key = {
   id: string;
@@ -126,7 +125,7 @@ export default function Home() {
                 href="https://t.me/Kaalbhairavmodzowner"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}
+                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
               >
                 <Send className="mr-2 h-4 w-4" />
                 Kaalbhairavmodzowner
@@ -135,7 +134,7 @@ export default function Home() {
                 href="https://t.me/ImpalerVLAED"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}
+                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
               >
                 <Send className="mr-2 h-4 w-4" />
                 ImpalerVLAED
