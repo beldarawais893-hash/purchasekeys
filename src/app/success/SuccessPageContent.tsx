@@ -78,14 +78,15 @@ export default function SuccessPageContent() {
       <div className="relative z-20 flex min-h-screen flex-col items-center justify-center p-4 text-center">
         <Card className="w-full max-w-lg overflow-hidden bg-card/80 backdrop-blur-sm shadow-2xl shadow-primary/20">
           <CardHeader className="pt-8">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 text-primary">
-                <ShieldCheck className="h-8 w-8 animate-pulse" />
+             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 text-primary animate-pulse">
+                <ShieldCheck className="h-8 w-8" />
             </div>
+             <p className="text-2xl font-semibold text-foreground">Congratulations! 🎉</p>
             <CardTitle className="text-3xl font-bold animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
-              Purchase Complete! Your Key is Forged.
+               Purchase Complete! Your Key is Forged.
             </CardTitle>
             <CardDescription className="pt-2 text-base text-muted-foreground">
-              Your premium access key is now ready. Copy it below and unlock the full potential.
+              Your premium access key is now ready. Copy it below and unlock the full potential. Thank you for your purchase!
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 py-6">
