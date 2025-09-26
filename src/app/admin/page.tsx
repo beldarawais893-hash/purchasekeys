@@ -80,7 +80,10 @@ export default function AdminPage() {
     const storedKeys = localStorage.getItem('appKeys');
     if (storedKeys) {
       try {
-        setKeys(JSON.parse(storedKeys));
+        const parsedKeys = JSON.parse(storedKeys);
+        if (Array.isArray(parsedKeys)) {
+          setKeys(parsedKeys);
+        }
       } catch (error) {
         console.error("Failed to parse keys from localStorage", error);
         setKeys([]);
@@ -402,5 +405,4 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-
-    
+}
