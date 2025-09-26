@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Search, Instagram, Megaphone } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 type Key = {
@@ -24,6 +24,17 @@ type Key = {
 export default function Home() {
   const [searchKey, setSearchKey] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const section = document.getElementById('purchase-schedule');
+    if (section) {
+      // Using a timeout to ensure the page has had time to layout, especially on slower devices
+      setTimeout(() => {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, []);
+
 
   const handleFindKey = () => {
     const searchTerm = searchKey.trim();
