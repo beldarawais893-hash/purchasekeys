@@ -1,10 +1,84 @@
+
+'use client';
+
 import { AppHeader } from '@/components/header';
 import { PurchaseSchedule } from '@/components/purchase-schedule';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Send } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { Send, Search } from 'lucide-react';
+import { useState } from 'react';
+
+type Key = {
+  id: string;
+  value: string;
+  plan: string;
+  createdAt: string;
+  claimedAt?: string;
+  status: 'available' | 'claimed';
+  utr?: string;
+};
 
 export default function Home() {
+  const [searchKey, setSearchKey] = useState('');
+  const { toast } = useToast();
+
+  const handleFindKey = () => {
+    const searchTerm = searchKey.trim();
+    if (!searchTerm) {
+      toast({ title: 'Info', description: 'Please enter a Key or UTR to find.' });
+      return;
+    }
+    try {
+      const storedKeys = localStorage.getItem('appKeys');
+      if (!storedKeys) {
+        toast({ title: 'Not Found', description: 'No keys found in the system.', variant: 'destructive' });
+        return;
+      }
+      const keys: Key[] = JSON.parse(storedKeys);
+
+      let foundKey = keys.find((k) => k.value === searchTerm);
+
+      if (!foundKey) {
+        foundKey = keys.find((k) => k.status === 'claimed' && k.utr === searchTerm);
+        if (foundKey) {
+          toast({
+            title: 'Key Found via UTR',
+            description: `Your key is: ${foundKey.value}`,
+            duration: 9000,
+          });
+          navigator.clipboard.writeText(foundKey.value);
+          return;
+        }
+      }
+
+      if (foundKey) {
+        if (foundKey.status === 'claimed') {
+          toast({
+            title: 'Key Already Claimed',
+            description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`,
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Key Available',
+            description: `This key is valid and available for the ${foundKey.plan} plan.`,
+          });
+        }
+      } else {
+        toast({
+          title: 'Invalid Key or UTR',
+          description: 'The Key or UTR you entered does not exist.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to find key', error);
+      toast({ title: 'Error', description: 'Could not perform the search.', variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="bg-background min-h-screen flex flex-col">
       <AppHeader />
@@ -14,6 +88,27 @@ export default function Home() {
             Purchase Schedule
           </h1>
         </header>
+
+        <div className="flex justify-end items-center mb-4">
+          <div className="relative w-full max-w-xs">
+            <Input
+              type="text"
+              placeholder="Find by Key or UTR"
+              className="bg-transparent pr-10"
+              value={searchKey}
+              onChange={(e) => setSearchKey(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleFindKey()}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+              onClick={handleFindKey}
+            >
+              <Search className="w-5 h-5 text-primary" />
+            </Button>
+          </div>
+        </div>
 
         <section id="purchase-schedule" className="mb-12">
           <PurchaseSchedule />

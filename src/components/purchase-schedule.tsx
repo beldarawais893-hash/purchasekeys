@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Copy, Check, Upload, Loader2 } from 'lucide-react';
+import { Copy, Check, Upload, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useRef } from 'react';
 import {
@@ -58,7 +58,6 @@ const PAYEE_NAME = 'Kaalbhairavmodzowner';
 
 export function PurchaseSchedule() {
   const { toast } = useToast();
-  const [searchKey, setSearchKey] = useState('');
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [copied, setCopied] = useState(false);
@@ -205,68 +204,10 @@ export function PurchaseSchedule() {
     }
   };
 
-  const handleFindKey = () => {
-    const searchTerm = searchKey.trim();
-    if (!searchTerm) {
-      toast({ title: 'Info', description: 'Please enter a Key or UTR to find.' });
-      return;
-    }
-    try {
-      const storedKeys = localStorage.getItem('appKeys');
-      if (!storedKeys) {
-        toast({ title: 'Not Found', description: 'No keys found in the system.', variant: 'destructive' });
-        return;
-      }
-      const keys: Key[] = JSON.parse(storedKeys);
-
-      // Try to find by key value first
-      let foundKey = keys.find(k => k.value === searchTerm);
-      
-      // If not found by key, try to find by UTR
-      if (!foundKey) {
-        foundKey = keys.find(k => k.status === 'claimed' && k.utr === searchTerm);
-        if (foundKey) {
-            toast({ title: 'Key Found via UTR', description: `Your key is: ${foundKey.value}`, duration: 9000 });
-            navigator.clipboard.writeText(foundKey.value);
-            return;
-        }
-      }
-
-      if (foundKey) {
-        if (foundKey.status === 'claimed') {
-          toast({ title: 'Key Already Claimed', description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`, variant: 'destructive' });
-        } else {
-          toast({ title: 'Key Available', description: `This key is valid and available for the ${foundKey.plan} plan.` });
-        }
-      } else {
-        toast({ title: 'Invalid Key or UTR', description: 'The Key or UTR you entered does not exist.', variant: 'destructive' });
-      }
-    } catch (error) {
-      console.error("Failed to find key", error);
-      toast({ title: 'Error', description: 'Could not perform the search.', variant: 'destructive' });
-    }
-  };
-  
   const qrCodeUrl = selectedPlan ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=${PAYEE_NAME}&am=${selectedPlan.price.split(' ')[0]}&cu=INR&tn=Payment for ${selectedPlan.duration}` : '';
-
 
   return (
     <>
-    <div className="flex justify-end items-center mb-4">
-       <div className="relative w-full max-w-xs">
-         <Input
-          type="text"
-          placeholder="Find by Key or UTR"
-          className="bg-transparent pr-10"
-          value={searchKey}
-          onChange={(e) => setSearchKey(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleFindKey()}
-        />
-        <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" onClick={handleFindKey}>
-            <Search className="w-5 h-5 text-primary" />
-        </Button>
-       </div>
-    </div>
     <Card className="bg-card border-none">
       <CardContent className="p-0">
         <Table>
