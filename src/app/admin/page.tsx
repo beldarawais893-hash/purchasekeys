@@ -29,6 +29,7 @@ import {
   XCircle,
   Boxes,
   IndianRupee,
+  Trash,
 } from 'lucide-react';
 import {
   Dialog,
@@ -38,6 +39,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -190,6 +202,15 @@ export default function AdminPage() {
     });
   };
   
+  const handleClearAllKeys = () => {
+    localStorage.removeItem('appKeys');
+    setKeys([]);
+    toast({
+      title: 'Success',
+      description: 'All keys have been deleted.',
+    });
+  };
+  
   const availableKeys = keys.filter(key => key.status === 'available');
   const claimedKeys = keys.filter(key => key.status === 'claimed');
 
@@ -294,11 +315,32 @@ export default function AdminPage() {
                 <CardTitle className="text-primary">Key Management</CardTitle>
                 <CardDescription>Add, view, and manage keys here.</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-wrap gap-2">
                 <Button className="bg-accent" onClick={() => setIsAddKeyDialogOpen(true)}>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add New Key
                 </Button>
+                 <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete All Keys
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all
+                        available and claimed keys from storage.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearAllKeys}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
             </Card>
             <Card className="bg-card mb-8">
@@ -460,7 +502,7 @@ export default function AdminPage() {
                   </TableBody>
                 </Table>
               </CardContent>
-            </Card>
+            </card>
           </div>
         )}
       </main>
