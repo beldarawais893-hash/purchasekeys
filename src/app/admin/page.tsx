@@ -24,6 +24,9 @@ import {
   ArrowLeft,
   KeyRound,
   Wallet,
+  CheckCircle,
+  XCircle,
+  Boxes,
 } from 'lucide-react';
 import {
   Dialog,
@@ -186,6 +189,26 @@ export default function AdminPage() {
   const availableKeys = keys.filter(key => key.status === 'available');
   const claimedKeys = keys.filter(key => key.status === 'claimed');
 
+  const totalKeys = keys.length;
+
+  const keysByPlan = plans.map(plan => {
+    const planKeys = keys.filter(key => key.plan === plan.duration);
+    const available = planKeys.filter(k => k.status === 'available').length;
+    const claimed = planKeys.filter(k => k.status === 'claimed').length;
+    return {
+      name: plan.duration,
+      total: planKeys.length,
+      available,
+      claimed,
+      price: plan.price
+    };
+  });
+
+  const totalBalance = keysByPlan.reduce((acc, plan) => {
+    return acc + (plan.total * parseInt(plan.price));
+  }, 0);
+
+
   return (
     <div className="bg-background min-h-screen">
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
@@ -306,17 +329,79 @@ export default function AdminPage() {
           </>
         )}
         {activeTab === 'balance' && (
-          <Card className="bg-card border-none">
-            <CardHeader>
-              <CardTitle>Balance Information</CardTitle>
-              <CardDescription>
-                View payment amounts and available keys.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p>Balance page content will go here.</p>
-            </CardContent>
-          </Card>
+          <div className="space-y-8">
+            <Card className="bg-card border-none">
+              <CardHeader>
+                <CardTitle>Balance Information</CardTitle>
+                <CardDescription>
+                  View payment amounts and available keys.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-3">
+                  <Card className="bg-secondary/50 border-border">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Keys</CardTitle>
+                      <Boxes className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{totalKeys}</div>
+                      <p className="text-xs text-muted-foreground">All generated keys</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-secondary/50 border-border">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Available Keys</CardTitle>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{availableKeys.length}</div>
+                       <p className="text-xs text-muted-foreground">{((availableKeys.length / totalKeys) * 100).toFixed(0) || 0}% available</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-secondary/50 border-border">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Claimed Keys</CardTitle>
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{claimedKeys.length}</div>
+                      <p className="text-xs text-muted-foreground">{((claimedKeys.length / totalKeys) * 100).toFixed(0) || 0}% claimed</p>
+                    </CardContent>
+                  </Card>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-none">
+              <CardHeader>
+                <CardTitle>Keys by Plan</CardTitle>
+                <CardDescription>Breakdown of keys for each subscription plan.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-border/50">
+                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                      <TableHead className="text-foreground font-semibold">Price</TableHead>
+                      <TableHead className="text-center text-foreground font-semibold">Total Keys</TableHead>
+                      <TableHead className="text-center text-foreground font-semibold">Available</TableHead>
+                      <TableHead className="text-center text-foreground font-semibold">Claimed</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {keysByPlan.map((plan) => (
+                      <TableRow key={plan.name} className="border-b border-border/20">
+                        <TableCell className="font-medium">{plan.name}</TableCell>
+                        <TableCell>{plan.price}</TableCell>
+                        <TableCell className="text-center">{plan.total}</TableCell>
+                        <TableCell className="text-center text-green-400">{plan.available}</TableCell>
+                        <TableCell className="text-center text-red-400">{plan.claimed}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
         )}
       </main>
 
@@ -366,4 +451,3 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-}
