@@ -202,7 +202,7 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={() => router.push('/')}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -242,8 +242,8 @@ export default function AdminPage() {
 
 
   return (
-    <div className="bg-background min-h-screen">
-      <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
+    <div className="min-h-screen">
+      <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => router.push('/')}>
             <ArrowLeft />
@@ -287,7 +287,7 @@ export default function AdminPage() {
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-b border-border/50">
+                    <TableRow className="border-b-0">
                       <TableHead className="text-foreground font-semibold">Key</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
                       <TableHead className="text-foreground font-semibold">Created At</TableHead>
@@ -298,7 +298,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {availableKeys.map((key) => (
-                      <TableRow key={key.id} className="border-b border-border/20">
+                      <TableRow key={key.id} className="border-b-0">
                         <TableCell>
                           <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
                             {key.value}
@@ -328,7 +328,7 @@ export default function AdminPage() {
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-b border-border/50">
+                    <TableRow className="border-b-0">
                       <TableHead className="text-foreground font-semibold">Key</TableHead>
                       <TableHead className="text-foreground font-semibold">UTR</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
@@ -337,7 +337,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {claimedKeys.map((key) => (
-                      <TableRow key={key.id} className="border-b border-border/20">
+                      <TableRow key={key.id} className="border-b-0">
                         <TableCell>
                           <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
                             {key.value}
@@ -364,7 +364,7 @@ export default function AdminPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <Card className="bg-secondary/50 border-border">
+                  <Card className="bg-secondary/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
                       <IndianRupee className="h-4 w-4 text-muted-foreground" />
@@ -374,7 +374,7 @@ export default function AdminPage() {
                       <p className="text-xs text-muted-foreground">From claimed keys</p>
                     </CardContent>
                   </Card>
-                  <Card className="bg-secondary/50 border-border">
+                  <Card className="bg-secondary/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Keys</CardTitle>
                       <Boxes className="h-4 w-4 text-muted-foreground" />
@@ -384,7 +384,7 @@ export default function AdminPage() {
                       <p className="text-xs text-muted-foreground">All generated keys</p>
                     </CardContent>
                   </Card>
-                  <Card className="bg-secondary/50 border-border">
+                  <Card className="bg-secondary/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Available Keys</CardTitle>
                       <CheckCircle className="h-4 w-4 text-green-500" />
@@ -394,7 +394,7 @@ export default function AdminPage() {
                        <p className="text-xs text-muted-foreground">{totalKeys > 0 ? ((availableKeys.length / totalKeys) * 100).toFixed(0) : 0}% available</p>
                     </CardContent>
                   </Card>
-                  <Card className="bg-secondary/50 border-border">
+                  <Card className="bg-secondary/50">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Claimed Keys</CardTitle>
                       <XCircle className="h-4 w-4 text-red-500" />
@@ -415,7 +415,7 @@ export default function AdminPage() {
               <CardContent>
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-b border-border/50">
+                    <TableRow className="border-b-0">
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
                       <TableHead className="text-foreground font-semibold">Price</TableHead>
                       <TableHead className="text-center text-foreground font-semibold">Total Keys</TableHead>
@@ -425,7 +425,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {keysByPlan.map((plan) => (
-                      <TableRow key={plan.name} className="border-b border-border/20">
+                      <TableRow key={plan.name} className="border-b-0">
                         <TableCell className="font-medium">{plan.name}</TableCell>
                         <TableCell>{plan.price}</TableCell>
                         <TableCell className="text-center">{plan.total}</TableCell>

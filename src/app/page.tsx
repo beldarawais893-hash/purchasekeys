@@ -80,7 +80,7 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-background min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <AppHeader />
       <main className="container mx-auto px-4 py-8 md:py-12 flex-grow">
         <header className="text-center mb-8">
