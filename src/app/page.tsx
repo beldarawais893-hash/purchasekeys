@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Search, Instagram, Newspaper } from 'lucide-react';
+import { Send, Search, Instagram, Megaphone } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -145,7 +145,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
               >
-                <Newspaper className="mr-2 h-4 w-4" />
+                <Megaphone className="mr-2 h-4 w-4" />
                 Join Channel
               </a>
             </CardContent>
