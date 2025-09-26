@@ -10,6 +10,12 @@ import {
   type VerifyPaymentInput,
   type VerifyPaymentOutput,
 } from '@/ai/flows/verify-payment-flow';
+import {
+  editScreenshot,
+  type EditScreenshotInput,
+  type EditScreenshotOutput,
+} from '@/ai/flows/edit-screenshot-flow';
+
 
 export async function getAiRecommendation(
   input: RecommendSubscriptionPlanInput
@@ -48,6 +54,24 @@ export async function verifyPaymentWithAi(
     console.error('Error during AI payment verification:', error);
     throw new Error(
       'Failed to verify payment with AI. Please try again later.'
+    );
+  }
+}
+
+export async function editScreenshotWithAi(
+  input: EditScreenshotInput
+): Promise<EditScreenshotOutput> {
+  if (!input.screenshotDataUri || !input.prompt) {
+    throw new Error('Screenshot and prompt are required.');
+  }
+
+  try {
+    const result = await editScreenshot(input);
+    return result;
+  } catch (error) {
+    console.error('Error during AI screenshot editing:', error);
+    throw new Error(
+      'Failed to edit screenshot with AI. Please try again later.'
     );
   }
 }
