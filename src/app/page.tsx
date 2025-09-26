@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Send, Search } from 'lucide-react';
+import { Send, Search, Instagram } from 'lucide-react';
 import { useState } from 'react';
 
 type Key = {
@@ -132,6 +132,18 @@ export default function Home() {
           </Card>
         </section>
       </main>
+      <footer className="text-center p-4 text-muted-foreground text-sm">
+        <p>Designed & Developed by – Awais Raza</p>
+        <a
+          href="https://www.instagram.com/awais_raza.4"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 hover:text-primary transition-colors"
+        >
+          <Instagram className="w-4 h-4" />
+          Connect on Instagram: @awais_raza.4
+        </a>
+      </footer>
     </div>
   );
 }
