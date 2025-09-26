@@ -324,7 +324,7 @@ export default function AdminPage() {
           </Button>
            <Button className="flex-1 sm:flex-initial" variant={activeTab === 'expired' ? 'secondary' : 'ghost'} onClick={() => setActiveTab('expired')}>
             <History className="mr-2 h-4 w-4" />
-            Expired
+            Expired Keys
           </Button>
         </div>
       </header>
@@ -605,5 +605,7 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
+
+    
 
     
