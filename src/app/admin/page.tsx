@@ -298,7 +298,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {availableKeys.map((key) => (
-                      <TableRow key={key.id} className="border-b-0">
+                      <TableRow key={key.id}>
                         <TableCell>
                           <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
                             {key.value}
@@ -337,7 +337,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {claimedKeys.map((key) => (
-                      <TableRow key={key.id} className="border-b-0">
+                      <TableRow key={key.id}>
                         <TableCell>
                           <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
                             {key.value}
@@ -425,7 +425,7 @@ export default function AdminPage() {
                   </TableHeader>
                   <TableBody>
                     {keysByPlan.map((plan) => (
-                      <TableRow key={plan.name} className="border-b-0">
+                      <TableRow key={plan.name}>
                         <TableCell className="font-medium">{plan.name}</TableCell>
                         <TableCell>{plan.price}</TableCell>
                         <TableCell className="text-center">{plan.total}</TableCell>
