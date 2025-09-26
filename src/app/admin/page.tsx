@@ -137,13 +137,12 @@ export default function AdminPage() {
     setKeys(updatedKeys);
   }, []);
 
-  useEffect(() => {
-    // Redirect to welcome page on refresh if not authenticated
+ useEffect(() => {
     const sessionAuthenticated = sessionStorage.getItem('adminAuthenticated');
     if (sessionAuthenticated === 'true') {
-        setIsAuthenticated(true);
+      setIsAuthenticated(true);
     } else {
-        router.push('/');
+      router.push('/');
     }
   }, [router]);
 
@@ -305,8 +304,7 @@ export default function AdminPage() {
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={(open) => {
           if(!open && !isAuthenticated) {
-             sessionStorage.removeItem('adminAuthenticated');
-             router.push('/home');
+             router.push('/');
           }
         }}>
           <DialogContent className="sm:max-w-md">
@@ -685,5 +683,4 @@ export default function AdminPage() {
 
     </div>
   );
-
-    
+}

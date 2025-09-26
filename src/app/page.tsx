@@ -46,6 +46,11 @@ const WelcomePage = () => {
     };
   }, []);
 
+  const handleEnter = () => {
+    sessionStorage.setItem('sessionStatus', 'entered');
+    router.push('/home');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-center p-4">
       <div className="w-full max-w-2xl">
@@ -57,7 +62,7 @@ const WelcomePage = () => {
         </p>
         {showButton && (
           <Button
-            onClick={() => router.push('/home')}
+            onClick={handleEnter}
             size="lg"
             className="animate-fade-in bg-accent text-accent-foreground hover:bg-accent/90"
           >

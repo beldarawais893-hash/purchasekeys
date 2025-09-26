@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 
 type Key = {
   id: string;
@@ -42,6 +44,19 @@ export default function Home() {
   const [foundKeyInfo, setFoundKeyInfo] = useState<Key | null>(null);
   const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const router = useRouter();
+
+
+  useEffect(() => {
+    const status = sessionStorage.getItem('sessionStatus');
+    if (status !== 'entered') {
+      router.push('/');
+    } else {
+      // Clear the status so a refresh will trigger the redirect
+      sessionStorage.removeItem('sessionStatus');
+    }
+  }, [router]);
+
 
   const handleCopy = () => {
     if (foundKeyInfo) {
