@@ -28,7 +28,7 @@ export function AppHeader() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Lock className="mr-2 h-4 w-4" />
-            <span>Privacy</span>
+            <span>Owner privicy</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
