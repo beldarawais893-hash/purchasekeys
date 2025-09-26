@@ -84,7 +84,15 @@ export default function AdminPage() {
 
 
   useEffect(() => {
+    const authStatus = sessionStorage.getItem('adminAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
     if (isAuthenticated) {
+      sessionStorage.setItem('adminAuthenticated', 'true');
       try {
         const storedKeys = localStorage.getItem('appKeys');
         if (storedKeys) {
@@ -97,6 +105,8 @@ export default function AdminPage() {
         console.error("Failed to parse keys from localStorage", error);
         setKeys([]); 
       }
+    } else {
+        sessionStorage.removeItem('adminAuthenticated');
     }
   }, [isAuthenticated]);
   
@@ -157,6 +167,12 @@ export default function AdminPage() {
       description: 'Key added successfully.',
     });
   };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setPasswordInput('');
+    router.push('/');
+  }
 
   const handleDeleteKey = (keyId: string) => {
     const updatedKeys = keys.filter((key) => key.id !== keyId);
@@ -245,10 +261,7 @@ export default function AdminPage() {
       <header className="bg-card text-card-foreground p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
             <div className='flex items-center gap-2'>
-              <Button variant="ghost" size="icon" onClick={() => {
-                  setIsAuthenticated(false);
-                  router.push('/');
-              }}>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <ArrowLeft />
               </Button>
               <KeyRound className="text-primary h-6 w-6" />
@@ -362,7 +375,7 @@ export default function AdminPage() {
           <div className="space-y-8">
             <Card className="bg-card">
               <CardHeader>
-                <CardTitle>Balance Information</CardTitle>
+                <CardTitle className="text-primary">Balance Information</CardTitle>
                 <CardDescription>
                   View payment amounts and available keys.
                 </CardDescription>
@@ -413,7 +426,7 @@ export default function AdminPage() {
 
             <Card className="bg-card">
               <CardHeader>
-                <CardTitle>Keys by Plan</CardTitle>
+                <CardTitle className="text-primary">Keys by Plan</CardTitle>
                 <CardDescription>Breakdown of keys for each subscription plan.</CardDescription>
               </CardHeader>
               <CardContent>
@@ -493,4 +506,5 @@ export default function AdminPage() {
   );
 
     
+
 
