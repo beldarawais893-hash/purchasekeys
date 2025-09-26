@@ -36,6 +36,7 @@ type Key = {
   createdAt: string;
   claimedAt?: string;
   status: 'available' | 'claimed';
+  utr?: string;
 };
 
 type Plan = {
@@ -121,10 +122,25 @@ export function PurchaseSchedule() {
     setIsVerifying(true);
 
     try {
+        const enteredUtr = utrNumber.trim();
+        const storedKeys = localStorage.getItem('appKeys');
+        let keys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+        
+        const isUtrUsed = keys.some(key => key.status === 'claimed' && key.utr === enteredUtr);
+        if (isUtrUsed) {
+            toast({
+                title: 'Duplicate UTR',
+                description: 'This UTR number has already been used for a purchase.',
+                variant: 'destructive',
+            });
+            setIsVerifying(false);
+            return;
+        }
+
         const screenshotDataUri = await fileToDataUri(screenshotFile);
         const verificationResult = await verifyPaymentWithAi({
             screenshotDataUri,
-            utrNumber: utrNumber.trim(),
+            utrNumber: enteredUtr,
             expectedAmount: selectedPlan.price.split(' ')[0],
             expectedUpiId: UPI_ID,
         });
@@ -144,17 +160,7 @@ export function PurchaseSchedule() {
           title: 'Payment Verified!',
           description: 'Your payment has been successfully verified. Issuing key...',
         });
-
-
-      const storedKeys = localStorage.getItem('appKeys');
-      if (!storedKeys) {
-        toast({ title: 'Error', description: 'No keys available.', variant: 'destructive' });
-        setIsVerifying(false);
-        setIsPaymentDialogOpen(false);
-        return;
-      }
       
-      let keys: Key[] = JSON.parse(storedKeys);
       const availableKeyIndex = keys.findIndex(k => k.plan === selectedPlan.duration && k.status === 'available');
 
       if (availableKeyIndex === -1) {
@@ -168,6 +174,7 @@ export function PurchaseSchedule() {
       keys[availableKeyIndex] = {
         ...keyToClaim,
         status: 'claimed',
+        utr: enteredUtr,
         claimedAt: new Intl.DateTimeFormat('en-GB', {
           day: '2-digit',
           month: '2-digit',

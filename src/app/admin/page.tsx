@@ -65,6 +65,7 @@ type Key = {
   createdAt: string;
   claimedAt?: string;
   status: 'available' | 'claimed';
+  utr?: string;
 };
 
 export default function AdminPage() {
@@ -261,6 +262,7 @@ export default function AdminPage() {
                   <TableHeader>
                     <TableRow className="border-b border-border/50">
                       <TableHead className="text-foreground font-semibold">Key</TableHead>
+                      <TableHead className="text-foreground font-semibold">UTR</TableHead>
                       <TableHead className="text-foreground font-semibold">Plan</TableHead>
                       <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
                     </TableRow>
@@ -273,6 +275,7 @@ export default function AdminPage() {
                             {key.value}
                           </Badge>
                         </TableCell>
+                        <TableCell>{key.utr}</TableCell>
                         <TableCell>{key.plan}</TableCell>
                         <TableCell>{key.claimedAt}</TableCell>
                       </TableRow>
@@ -417,5 +420,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
