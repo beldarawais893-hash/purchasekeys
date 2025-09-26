@@ -29,6 +29,7 @@ import {
   XCircle,
   Boxes,
   IndianRupee,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   Dialog,
@@ -145,6 +146,16 @@ export default function AdminPage() {
         variant: 'destructive',
       });
       return;
+    }
+
+    const keyExists = keys.some(key => key.value === newKey.trim());
+    if (keyExists) {
+        toast({
+            title: 'Error',
+            description: 'Key already exists.',
+            variant: 'destructive',
+        });
+        return;
     }
 
     const keyToAdd: Key = {
@@ -270,7 +281,7 @@ export default function AdminPage() {
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <ArrowLeft />
               </Button>
-              <KeyRound className="text-primary h-6 w-6" />
+              <ShieldCheck className="text-primary h-6 w-6" />
               <h1 className="text-xl font-bold whitespace-nowrap">Purchase Key</h1>
             </div>
         </div>
