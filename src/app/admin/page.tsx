@@ -83,6 +83,16 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
 
+  const parseDate = (dateString: string): Date | null => {
+    if (!dateString) return null;
+    const parts = dateString.split(', ');
+    if (parts.length < 2) return null;
+    const [datePart, timePart] = parts;
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes] = timePart.split(':');
+    if (!year || !month || !day || !hours || !minutes) return null;
+    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+  };
 
   const persistKeys = useCallback((updatedKeys: Key[]) => {
     localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
@@ -94,9 +104,34 @@ export default function AdminPage() {
       try {
         const storedKeys = localStorage.getItem('appKeys');
         if (storedKeys) {
-          const parsedKeys = JSON.parse(storedKeys);
+          const parsedKeys: Key[] = JSON.parse(storedKeys);
           if (Array.isArray(parsedKeys)) {
-            setKeys(parsedKeys);
+            const now = new Date();
+            const activeKeys = parsedKeys.filter(key => {
+              if (key.status === 'claimed' && key.claimedAt) {
+                const claimedDate = parseDate(key.claimedAt);
+                if (!claimedDate) return true; // Keep if date is invalid
+
+                const expiryDate = new Date(claimedDate);
+                if (key.plan.includes('Day')) {
+                  const days = parseInt(key.plan.split(' ')[0]);
+                  expiryDate.setDate(claimedDate.getDate() + days);
+                } else if (key.plan.includes('Month')) {
+                  const months = parseInt(key.plan.split(' ')[0]);
+                  expiryDate.setMonth(claimedDate.getMonth() + months);
+                }
+                return now <= expiryDate;
+              }
+              return true; // Keep available keys
+            });
+            
+            // If any keys were filtered out, update localStorage
+            if (activeKeys.length < parsedKeys.length) {
+              persistKeys(activeKeys);
+            } else {
+              setKeys(activeKeys);
+            }
+
           } else {
              setKeys([]);
           }
@@ -104,11 +139,11 @@ export default function AdminPage() {
             setKeys([]);
         }
       } catch (error) {
-        console.error("Failed to parse keys from localStorage", error);
+        console.error("Failed to parse or filter keys from localStorage", error);
         setKeys([]); 
       }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, persistKeys]);
   
 
   const handlePasswordSubmit = () => {
