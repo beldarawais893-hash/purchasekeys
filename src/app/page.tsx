@@ -47,6 +47,7 @@ const WelcomePage = () => {
   }, []);
 
   const handleEnter = () => {
+    sessionStorage.setItem('visitedWelcome', 'true');
     router.push('/home');
   };
 

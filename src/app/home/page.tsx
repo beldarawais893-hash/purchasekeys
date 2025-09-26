@@ -23,8 +23,9 @@ import {
   ClipboardCheck,
   ShieldCheck,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type Key = {
   id: string;
@@ -42,6 +43,16 @@ export default function Home() {
   const [foundKeyInfo, setFoundKeyInfo] = useState<Key | null>(null);
   const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const router = useRouter();
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('visitedWelcome') !== 'true') {
+      router.replace('/');
+    } else {
+      setIsCheckingSession(false);
+    }
+  }, [router]);
 
   const handleCopy = () => {
     if (foundKeyInfo) {
@@ -157,6 +168,10 @@ export default function Home() {
       });
     }
   };
+
+  if (isCheckingSession) {
+    return <div className="min-h-screen bg-background"></div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
