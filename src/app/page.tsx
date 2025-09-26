@@ -52,6 +52,14 @@ export default function Home() {
       }, 2000);
     }
   };
+  
+  const parseDate = (dateString: string) => {
+    const [datePart, timePart] = dateString.split(', ');
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes] = timePart.split(':');
+    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
+  };
+
 
   const handleFindKey = () => {
     const searchTerm = searchKey.trim();
@@ -80,21 +88,41 @@ export default function Home() {
         foundKey = keys.find(
           (k) => k.status === 'claimed' && k.utr === searchTerm
         );
-        if (foundKey) {
-          setFoundKeyInfo(foundKey);
-          setIsKeyFoundDialogOpen(true);
-          return;
-        }
       }
-
+      
       if (foundKey) {
-        if (foundKey.status === 'claimed') {
-          toast({
-            title: 'Key Already Claimed',
-            description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`,
-            variant: 'destructive',
-          });
-        } else {
+        if (foundKey.status === 'claimed' && foundKey.claimedAt) {
+            const claimedDate = parseDate(foundKey.claimedAt);
+            const expiryDate = new Date(claimedDate);
+
+            if (foundKey.plan.includes('Day')) {
+                const days = parseInt(foundKey.plan.split(' ')[0]);
+                expiryDate.setDate(claimedDate.getDate() + days);
+            } else if (foundKey.plan.includes('Month')) {
+                const months = parseInt(foundKey.plan.split(' ')[0]);
+                expiryDate.setMonth(claimedDate.getMonth() + months);
+            }
+
+            if (new Date() > expiryDate) {
+                toast({
+                    title: 'Key Expired',
+                    description: 'This key has expired. Please purchase a new key.',
+                    variant: 'destructive',
+                });
+                return;
+            }
+             if (foundKey.utr === searchTerm) {
+                setFoundKeyInfo(foundKey);
+                setIsKeyFoundDialogOpen(true);
+             } else {
+                 toast({
+                    title: 'Key Already Claimed',
+                    description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`,
+                    variant: 'destructive',
+                });
+             }
+
+        } else { // Key is available
           toast({
             title: 'Key Available',
             description: `This key is valid and available for the ${foundKey.plan} plan.`,
