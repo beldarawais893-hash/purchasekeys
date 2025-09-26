@@ -201,8 +201,17 @@ export default function AdminPage() {
     });
   };
 
-  const availableKeys = keys.filter(key => key.status === 'available');
-  const claimedKeys = keys.filter(key => key.status === 'claimed');
+  const planOrder = plans.reduce((acc, plan, index) => {
+    acc[plan.duration] = index;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const sortKeysByPlan = (a: Key, b: Key) => {
+    return (planOrder[a.plan] ?? 99) - (planOrder[b.plan] ?? 99);
+  };
+  
+  const availableKeys = keys.filter(key => key.status === 'available').sort(sortKeysByPlan);
+  const claimedKeys = keys.filter(key => key.status === 'claimed').sort(sortKeysByPlan);
 
   const totalKeys = keys.length;
 
