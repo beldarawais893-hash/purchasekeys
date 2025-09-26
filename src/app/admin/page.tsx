@@ -87,8 +87,10 @@ export default function AdminPage() {
     const authStatus = sessionStorage.getItem('adminAuthenticated');
     if (authStatus === 'true') {
       setIsAuthenticated(true);
+    } else {
+        router.replace('/');
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -170,6 +172,7 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('adminAuthenticated');
+    localStorage.removeItem('adminAuthenticated');
     setIsAuthenticated(false);
     setPasswordInput('');
     router.push('/');
@@ -212,6 +215,13 @@ export default function AdminPage() {
 
 
   if (!isAuthenticated) {
+     if (typeof window !== 'undefined') {
+      const authStatus = sessionStorage.getItem('adminAuthenticated');
+      if (authStatus !== 'true') {
+        return null; // Don't render anything while redirecting
+      }
+    }
+
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Dialog open={true} onOpenChange={() => {
@@ -505,9 +515,5 @@ export default function AdminPage() {
       </Dialog>
     </div>
   );
-
+}
     
-
-
-
-
