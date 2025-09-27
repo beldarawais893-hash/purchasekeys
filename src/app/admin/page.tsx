@@ -163,7 +163,12 @@ export default function AdminPage() {
             const data = doc.data();
             return {
                 id: doc.id,
-                ...data,
+                value: data.value,
+                plan: data.plan,
+                createdAt: data.createdAt,
+                claimedAt: data.claimedAt,
+                status: data.status,
+                utr: data.utr,
             } as Key;
         });
         setKeys(keysData);
@@ -172,13 +177,12 @@ export default function AdminPage() {
         console.error('Failed to fetch keys from Firestore with real-time listener', error);
         toast({
             title: 'Error Loading Keys',
-            description: 'Could not load keys from the database. Please check your connection and permissions.',
+            description: 'Could not load keys. Check console.',
             variant: 'destructive',
         });
         setIsLoading(false);
     });
 
-    // Cleanup subscription on component unmount
     return () => unsubscribe();
 }, [isAuthenticated, toast]);
 
@@ -210,12 +214,18 @@ export default function AdminPage() {
     try {
       const keysCollection = collection(db, 'keys');
       
-      const createdAtTimestamp = Timestamp.fromDate(new Date());
+      const q = query(keysCollection, where("value", "==", newKey.trim()));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        toast({ title: 'Duplicate Key', description: 'This key already exists.', variant: 'destructive' });
+        return;
+      }
 
       await addDoc(keysCollection, {
         value: newKey.trim(),
         plan: selectedPlan,
-        createdAt: createdAtTimestamp,
+        createdAt: Timestamp.fromDate(new Date()),
         status: 'available' as const,
         claimedAt: null,
         utr: '',
@@ -227,7 +237,7 @@ export default function AdminPage() {
       toast({ title: 'Success', description: 'Key added successfully.' });
     } catch (error) {
       console.error('Failed to add key to Firestore', error);
-      toast({ title: 'Error Adding Key', description: 'Could not add key. Check console for details.', variant: 'destructive', duration: 9000 });
+      toast({ title: 'Error Adding Key', description: 'Could not add key. You may need to create a Firestore index on the `value` field.', variant: 'destructive', duration: 9000 });
     }
   };
 
