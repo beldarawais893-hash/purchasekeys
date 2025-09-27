@@ -6,63 +6,46 @@ import { useRouter } from 'next/navigation';
 import { KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const TEXT_LINES = [
-  "Welcome To My Site",
-  "Purchase key and Enjoy Games"
-];
+const TEXT_LINES = ["Welcome To My Site", "Purchase key and Enjoy Games"];
 
 export default function WelcomePage() {
-  const [currentLineIndex, setCurrentLineIndex] = useState(0);
-  const [typedText, setTypedText] = useState('');
+  const [typedLine1, setTypedLine1] = useState('');
+  const [typedLine2, setTypedLine2] = useState('');
   const [showButton, setShowButton] = useState(false);
   const router = useRouter();
   const animationTriggered = useRef(false);
 
   useEffect(() => {
-    // Clear the flag on initial load, so the welcome screen always runs its animation.
     sessionStorage.removeItem('hasVisitedWelcome');
   }, []);
-  
+
   useEffect(() => {
-    // This ref ensures the animation effect runs only once per component mount,
-    // preventing the double-typing bug caused by React StrictMode's double-invocation.
-    if (animationTriggered.current || currentLineIndex >= TEXT_LINES.length) {
+    if (animationTriggered.current) {
       return;
     }
-
     animationTriggered.current = true;
 
-    const handleTyping = () => {
-      const currentLine = TEXT_LINES[currentLineIndex];
+    const typeLine = (lineIndex: number, text: string, setter: (value: string) => void, callback: () => void) => {
       let charIndex = 0;
-
       const typingInterval = setInterval(() => {
-        if (charIndex < currentLine.length) {
-          setTypedText((prev) => prev + currentLine.charAt(charIndex));
+        if (charIndex < text.length) {
+          setter(text.substring(0, charIndex + 1));
           charIndex++;
         } else {
           clearInterval(typingInterval);
-          // Wait a moment before starting the next line or showing the button
-          setTimeout(() => {
-            if (currentLineIndex < TEXT_LINES.length - 1) {
-              setCurrentLineIndex((prev) => prev + 1);
-              setTypedText('');
-              animationTriggered.current = false; // Reset for the next line
-            } else {
-              setShowButton(true);
-            }
-          }, 1000); 
+          setTimeout(callback, 500); 
         }
       }, 100);
-
-       // Cleanup function to clear interval if component unmounts
       return () => clearInterval(typingInterval);
     };
 
-    handleTyping();
+    typeLine(0, TEXT_LINES[0], setTypedLine1, () => {
+      typeLine(1, TEXT_LINES[1], setTypedLine2, () => {
+        setShowButton(true);
+      });
+    });
     
-  }, [currentLineIndex]);
-
+  }, []);
 
   const handleEnter = () => {
     sessionStorage.setItem('hasVisitedWelcome', 'true');
@@ -76,10 +59,8 @@ export default function WelcomePage() {
       </div>
 
       <div className="mt-8 h-16 text-center text-2xl font-semibold">
-        {currentLineIndex < TEXT_LINES.length && (
-            // Use a key to ensure React re-renders the paragraph for each line
-            <p key={currentLineIndex}>{typedText}<span className="animate-ping">|</span></p>
-        )}
+          <p className="text-primary">{typedLine1}{typedLine1.length < TEXT_LINES[0].length ? <span className="animate-ping">|</span> : ''}</p>
+          <p className="text-accent">{typedLine2}{typedLine1.length === TEXT_LINES[0].length && typedLine2.length < TEXT_LINES[1].length ? <span className="animate-ping">|</span> : ''}</p>
       </div>
 
       {showButton && (
