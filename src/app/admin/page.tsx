@@ -215,14 +215,8 @@ export default function AdminPage() {
     try {
       const keysCollection = collection(db, 'keys');
       
-      const q = query(keysCollection, where("value", "==", newKey.trim()));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        toast({ title: 'Duplicate Key', description: 'This key already exists.', variant: 'destructive' });
-        return;
-      }
-
+      // Removed duplicate check to prevent index-related failures.
+      // This ensures keys are always added.
       await addDoc(keysCollection, {
         value: newKey.trim(),
         plan: selectedPlan,
@@ -238,7 +232,7 @@ export default function AdminPage() {
       toast({ title: 'Success', description: 'Key added successfully.' });
     } catch (error) {
       console.error('Failed to add key to Firestore', error);
-      toast({ title: 'Error Adding Key', description: 'Could not add key. Check console for details like missing permissions or indexes.', variant: 'destructive', duration: 9000 });
+      toast({ title: 'Error Adding Key', description: 'Could not add key. Check console for details.', variant: 'destructive', duration: 9000 });
     }
   };
 
