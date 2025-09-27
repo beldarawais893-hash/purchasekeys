@@ -177,8 +177,9 @@ export default function AdminPage() {
         console.error('Failed to fetch keys from Firestore with real-time listener', error);
         toast({
             title: 'Error Loading Keys',
-            description: 'Could not load keys. Check console.',
+            description: 'Could not load keys. Check console for details like missing permissions or indexes.',
             variant: 'destructive',
+            duration: 9000,
         });
         setIsLoading(false);
     });
@@ -237,7 +238,7 @@ export default function AdminPage() {
       toast({ title: 'Success', description: 'Key added successfully.' });
     } catch (error) {
       console.error('Failed to add key to Firestore', error);
-      toast({ title: 'Error Adding Key', description: 'Could not add key. You may need to create a Firestore index on the `value` field.', variant: 'destructive', duration: 9000 });
+      toast({ title: 'Error Adding Key', description: 'Could not add key. Check console for details like missing permissions or indexes.', variant: 'destructive', duration: 9000 });
     }
   };
 
@@ -305,7 +306,7 @@ export default function AdminPage() {
   }, 0);
 
   if (isCheckingAuth) {
-    return <div className="min-h-screen bg-background"></div>;
+    return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   if (!isAuthenticated) {
@@ -359,16 +360,18 @@ export default function AdminPage() {
               <CardDescription>{description}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            {isLoading && keyList.length === 0 ? (
+            {isLoading ? (
                  <div className="flex justify-center items-center h-40">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                  </div>
+            ) : keyList.length === 0 ? (
+                <div className="text-center py-10 text-muted-foreground">No keys found.</div>
             ) : (
               <Table>
                   <TableHeader>
                       <TableRow className="border-b-0">
                           <TableHead className="text-foreground font-semibold">Key</TableHead>
-                          {isClaimed && <TableHead className="text-foreground fontsemibold">UTR</TableHead>}
+                          {isClaimed && <TableHead className="text-foreground font-semibold">UTR</TableHead>}
                           <TableHead className="text-foreground font-semibold">Plan</TableHead>
                           <TableHead className="text-foreground font-semibold">{isClaimed ? 'Claimed At' : 'Created At'}</TableHead>
                           <TableHead className="text-right text-foreground font-semibold">Actions</TableHead>
