@@ -607,9 +607,9 @@ export default function AdminPage() {
               Are you sure you want to permanently delete this key?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the key
+              <span>This action cannot be undone. This will permanently delete the key
               <Badge variant="secondary" className="mx-1">{keyToDelete?.value}</Badge>
-              from the system. This may have unintended side effects if the key is already in use.
+              from the system. This may have unintended side effects if the key is already in use.</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex items-center space-x-2 my-4">
