@@ -32,6 +32,7 @@ import {
   ShieldCheck,
   History,
   AlertTriangle,
+  Loader2
 } from 'lucide-react';
 import {
   Dialog,
@@ -63,6 +64,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+
 
 const plans = [
   { duration: '1 Day', price: '200' },
@@ -123,6 +127,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('keys');
   const { toast } = useToast();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -147,31 +152,32 @@ export default function AdminPage() {
     setIsCheckingAuth(false);
   }, [router]);
 
-  const persistKeys = useCallback((updatedKeys: Key[]) => {
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
-    setKeys(updatedKeys);
-  }, []);
+
+  const fetchKeys = useCallback(async () => {
+    setIsLoading(true);
+    try {
+        const keysCollection = collection(db, 'keys');
+        const keySnapshot = await getDocs(keysCollection);
+        const keysList = keySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Key));
+        setKeys(keysList);
+    } catch (error) {
+        console.error("Error fetching keys from Firestore: ", error);
+        toast({
+            title: 'Error',
+            description: 'Could not fetch keys from the database.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast]);
+
 
   useEffect(() => {
     if (isAuthenticated) {
-      try {
-        const storedKeys = localStorage.getItem('appKeys');
-        if (storedKeys) {
-          const parsedKeys: Key[] = JSON.parse(storedKeys);
-          if (Array.isArray(parsedKeys)) {
-            setKeys(parsedKeys);
-          } else {
-             setKeys([]);
-          }
-        } else {
-            setKeys([]);
-        }
-      } catch (error) {
-        console.error("Failed to parse keys from localStorage", error);
-        setKeys([]); 
-      }
+      fetchKeys();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchKeys]);
   
 
   const handlePasswordSubmit = () => {
@@ -192,7 +198,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleAddKey = () => {
+  const handleAddKey = async () => {
     if (!newKey.trim() || !selectedPlan) {
       toast({
         title: 'Error',
@@ -202,43 +208,51 @@ export default function AdminPage() {
       return;
     }
 
-    const keyExists = keys.some(key => key.value === newKey.trim());
-    if (keyExists) {
+    try {
+        const keysCollection = collection(db, 'keys');
+        const q = query(keysCollection, where("value", "==", newKey.trim()));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            toast({
+                title: 'Error',
+                description: 'Key already exists.',
+                variant: 'destructive',
+            });
+            return;
+        }
+
+        const keyToAdd = {
+          value: newKey.trim(),
+          plan: selectedPlan,
+          createdAt: new Intl.DateTimeFormat('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }).format(new Date()),
+          status: 'available' as 'available',
+        };
+
+        await addDoc(keysCollection, keyToAdd);
+        
+        fetchKeys(); // Re-fetch keys to update the list
+        setNewKey('');
+        setSelectedPlan('');
+        setIsAddKeyDialogOpen(false);
+        toast({
+          title: 'Success',
+          description: 'Key added successfully.',
+        });
+    } catch (error) {
+        console.error("Error adding key to Firestore: ", error);
         toast({
             title: 'Error',
-            description: 'Key already exists.',
+            description: 'Could not add the key to the database.',
             variant: 'destructive',
         });
-        return;
     }
-
-    const keyToAdd: Key = {
-      id: crypto.randomUUID(),
-      value: newKey.trim(),
-      plan: selectedPlan,
-      createdAt: new Intl.DateTimeFormat('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(new Date()),
-      status: 'available',
-    };
-    
-    const storedKeys = localStorage.getItem('appKeys');
-    const currentKeys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
-    const updatedKeys = [...currentKeys, keyToAdd];
-    persistKeys(updatedKeys); 
-
-
-    setNewKey('');
-    setSelectedPlan('');
-    setIsAddKeyDialogOpen(false);
-    toast({
-      title: 'Success',
-      description: 'Key added successfully.',
-    });
   };
 
   const handleBack = () => {
@@ -249,19 +263,29 @@ export default function AdminPage() {
   const handleDeleteClick = (key: Key) => {
     setKeyToDelete(key);
     setIsDeleteDialogOpen(true);
-    setIsDeleteConfirmed(false); // Reset confirmation checkbox
+    setIsDeleteConfirmed(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!keyToDelete) return;
-    const updatedKeys = keys.filter((key) => key.id !== keyToDelete.id);
-    persistKeys(updatedKeys);
-    toast({
-      title: 'Success',
-      description: 'Key deleted successfully.',
-    });
-    setIsDeleteDialogOpen(false);
-    setKeyToDelete(null);
+    try {
+        await deleteDoc(doc(db, 'keys', keyToDelete.id));
+        fetchKeys(); // Re-fetch to update UI
+        toast({
+          title: 'Success',
+          description: 'Key deleted successfully.',
+        });
+    } catch (error) {
+        console.error("Error deleting key from Firestore: ", error);
+        toast({
+            title: 'Error',
+            description: 'Could not delete the key.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsDeleteDialogOpen(false);
+        setKeyToDelete(null);
+    }
   };
 
 
@@ -351,6 +375,57 @@ export default function AdminPage() {
     );
   }
 
+  const renderKeyTable = (title: string, description: string, keyList: Key[], isClaimed: boolean, isExpired = false) => (
+      <Card className="bg-card mb-8">
+          <CardHeader>
+              <CardTitle className="text-primary">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+               {isLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+              ) : (
+              <Table>
+                  <TableHeader>
+                      <TableRow className="border-b-0">
+                          <TableHead className="text-foreground font-semibold">Key</TableHead>
+                          {isClaimed && <TableHead className="text-foreground fontsemibold">UTR</TableHead>}
+                          <TableHead className="text-foreground font-semibold">Plan</TableHead>
+                          <TableHead className="text-foreground font-semibold">{isClaimed ? 'Claimed At' : 'Created At'}</TableHead>
+                          <TableHead className="text-right text-foreground font-semibold">Actions</TableHead>
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {keyList.map((key) => (
+                          <TableRow key={key.id}>
+                              <TableCell>
+                                  <Badge variant="outline" className={
+                                      isExpired ? "bg-red-800/20 border-red-500 text-red-400" :
+                                      isClaimed ? "bg-yellow-800/20 border-yellow-500 text-yellow-400" :
+                                      "bg-green-800/20 border-green-500 text-green-400"
+                                  }>
+                                      {key.value}
+                                  </Badge>
+                              </TableCell>
+                              {isClaimed && <TableCell>{key.utr}</TableCell>}
+                              <TableCell>{key.plan}</TableCell>
+                              <TableCell>{isClaimed ? key.claimedAt : key.createdAt}</TableCell>
+                              <TableCell className="text-right">
+                                  <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
+                                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                                  </Button>
+                              </TableCell>
+                          </TableRow>
+                      ))}
+                  </TableBody>
+              </Table>
+              )}
+          </CardContent>
+      </Card>
+  );
+
   return (
     <div className="animate-fade-in">
       <header className="bg-card text-card-foreground p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
@@ -393,134 +468,12 @@ export default function AdminPage() {
                 </Button>
               </CardContent>
             </Card>
-            <Card className="bg-card mb-8">
-              <CardHeader>
-                <CardTitle className="text-primary">Available Keys</CardTitle>
-                <CardDescription>
-                  These keys are available for users to purchase.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b-0">
-                      <TableHead className="text-foreground font-semibold">Key</TableHead>
-                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                      <TableHead className="text-foreground font-semibold">Created At</TableHead>
-                      <TableHead className="text-right text-foreground font-semibold">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {availableKeys.map((key) => (
-                      <TableRow key={key.id}>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-green-800/20 border-green-500 text-green-400">
-                            {key.value}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{key.plan}</TableCell>
-                        <TableCell>{key.createdAt}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
-                            <Trash2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card mb-8">
-              <CardHeader>
-                <CardTitle className="text-primary">Claimed Keys (Active)</CardTitle>
-                <CardDescription>
-                  These keys have been used and are currently active.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b-0">
-                      <TableHead className="text-foreground font-semibold">Key</TableHead>
-                      <TableHead className="text-foreground fontsemibold">UTR</TableHead>
-                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                      <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
-                      <TableHead className="text-right text-foreground font-semibold">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {activeClaimedKeys.map((key) => (
-                      <TableRow key={key.id}>
-                        <TableCell>
-                          <Badge variant="outline" className="bg-yellow-800/20 border-yellow-500 text-yellow-400">
-                            {key.value}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{key.utr}</TableCell>
-                        <TableCell>{key.plan}</TableCell>
-                        <TableCell>{key.claimedAt}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
-                            <Trash2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            {renderKeyTable("Available Keys", "These keys are available for users to purchase.", availableKeys, false)}
+            {renderKeyTable("Claimed Keys (Active)", "These keys have been used and are currently active.", activeClaimedKeys, true)}
           </>
         )}
         {activeTab === 'expired' && (
-           <Card className="bg-card">
-              <CardHeader>
-                <CardTitle className="text-primary flex items-center gap-2"><History className="h-5 w-5"/> Expired Keys</CardTitle>
-                <CardDescription>
-                  These keys have been used and their validity period has ended.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-b-0">
-                      <TableHead className="text-foreground font-semibold">Key</TableHead>
-                      <TableHead className="text-foreground font-semibold">UTR</TableHead>
-                      <TableHead className="text-foreground font-semibold">Plan</TableHead>
-                      <TableHead className="text-foreground font-semibold">Claimed At</TableHead>
-                      <TableHead className="text-right text-foreground font-semibold">
-                        Actions
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {expiredKeysList.map((key) => (
-                      <TableRow key={key.id}>
-                        <TableCell>
-                           <Badge variant="outline" className="bg-red-800/20 border-red-500 text-red-400">
-                            {key.value}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{key.utr}</TableCell>
-                        <TableCell>{key.plan}</TableCell>
-                        <TableCell>{key.claimedAt}</TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
-                            <Trash2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+           renderKeyTable("Expired Keys", "These keys have been used and their validity period has ended.", expiredKeysList, true, true)
         )}
         {activeTab === 'balance' && (
           <div className="space-y-8">
@@ -581,6 +534,11 @@ export default function AdminPage() {
                 <CardDescription>Breakdown of keys for each subscription plan.</CardDescription>
               </CardHeader>
               <CardContent>
+                 {isLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+              ) : (
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b-0">
@@ -603,6 +561,7 @@ export default function AdminPage() {
                     ))}
                   </TableBody>
                 </Table>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -692,3 +651,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    

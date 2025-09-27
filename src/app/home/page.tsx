@@ -24,8 +24,9 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 type Key = {
   id: string;
@@ -44,6 +45,7 @@ export default function Home() {
   const [isKeyFoundDialogOpen, setIsKeyFoundDialogOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
@@ -74,7 +76,7 @@ export default function Home() {
 };
 
 
-  const handleFindKey = () => {
+  const handleFindKey = async () => {
     const searchTerm = searchKey.trim();
     if (!searchTerm) {
       toast({
@@ -83,27 +85,27 @@ export default function Home() {
       });
       return;
     }
+
+    setIsSearching(true);
     try {
-      const storedKeys = localStorage.getItem('appKeys');
-      if (!storedKeys) {
-        toast({
-          title: 'Not Found',
-          description: 'No keys found in the system.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      const keys: Key[] = JSON.parse(storedKeys);
+      const keysCollection = collection(db, 'keys');
+      let q;
 
-      let foundKey = keys.find((k) => k.value === searchTerm);
-
-      if (!foundKey) {
-        foundKey = keys.find(
-          (k) => k.status === 'claimed' && k.utr === searchTerm
-        );
-      }
+      // Check if searchTerm is a key value or a UTR
+      q = query(keysCollection, where('value', '==', searchTerm));
+      let querySnapshot = await getDocs(q);
       
-      if (foundKey) {
+      let foundDoc = querySnapshot.docs[0];
+
+      if (!foundDoc) {
+        q = query(keysCollection, where('utr', '==', searchTerm));
+        querySnapshot = await getDocs(q);
+        foundDoc = querySnapshot.docs[0];
+      }
+
+      if (foundDoc) {
+        const foundKey = { id: foundDoc.id, ...foundDoc.data() } as Key;
+
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
             const claimedDate = parseDate(foundKey.claimedAt);
             if (!claimedDate) {
@@ -158,12 +160,14 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Failed to find key', error);
+      console.error('Failed to find key in Firestore', error);
       toast({
         title: 'Error',
         description: 'Could not perform the search.',
         variant: 'destructive',
       });
+    } finally {
+        setIsSearching(false);
     }
   };
 
@@ -186,12 +190,14 @@ export default function Home() {
               value={searchKey}
               onChange={(e) => setSearchKey(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleFindKey()}
+              disabled={isSearching}
             />
             <Button
               variant="ghost"
               size="icon"
               className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
               onClick={handleFindKey}
+              disabled={isSearching}
             >
               <Search className="w-5 h-5 text-primary" />
             </Button>
@@ -308,3 +314,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

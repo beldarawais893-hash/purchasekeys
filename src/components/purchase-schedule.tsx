@@ -30,6 +30,8 @@ import { Label } from '@/components/ui/label';
 import { verifyPaymentWithAi } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where, limit, updateDoc, doc } from 'firebase/firestore';
 
 
 type Key = {
@@ -128,11 +130,11 @@ export function PurchaseSchedule() {
 
     try {
         const enteredUtr = utrNumber.trim();
-        const storedKeys = localStorage.getItem('appKeys');
-        let keys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+        const keysCollection = collection(db, 'keys');
         
-        const isUtrUsed = keys.some(key => key.status === 'claimed' && key.utr === enteredUtr);
-        if (isUtrUsed) {
+        const utrQuery = query(keysCollection, where('utr', '==', enteredUtr));
+        const utrSnapshot = await getDocs(utrQuery);
+        if (!utrSnapshot.empty) {
             toast({
                 title: 'Duplicate UTR',
                 description: 'This UTR number has already been used for a purchase.',
@@ -166,18 +168,26 @@ export function PurchaseSchedule() {
           description: 'Your payment has been successfully verified. Issuing key...',
         });
       
-      const availableKeyIndex = keys.findIndex(k => k.plan === selectedPlan.duration && k.status === 'available');
+      const availableKeyQuery = query(
+        keysCollection,
+        where('plan', '==', selectedPlan.duration),
+        where('status', '==', 'available'),
+        limit(1)
+      );
+      const availableKeySnapshot = await getDocs(availableKeyQuery);
 
-      if (availableKeyIndex === -1) {
+      if (availableKeySnapshot.empty) {
         toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${selectedPlan.duration} plan are currently sold out.`, variant: 'destructive' });
         setIsPaymentDialogOpen(false);
         setIsVerifying(false);
         return;
       }
 
-      const keyToClaim = keys[availableKeyIndex];
-      keys[availableKeyIndex] = {
-        ...keyToClaim,
+      const keyDoc = availableKeySnapshot.docs[0];
+      const keyToClaim = { id: keyDoc.id, ...keyDoc.data() } as Key;
+      
+      const keyRef = doc(db, 'keys', keyDoc.id);
+      await updateDoc(keyRef, {
         status: 'claimed',
         utr: enteredUtr,
         claimedAt: new Intl.DateTimeFormat('en-GB', {
@@ -187,9 +197,7 @@ export function PurchaseSchedule() {
           hour: '2-digit',
           minute: '2-digit'
         }).format(new Date()),
-      };
-
-      localStorage.setItem('appKeys', JSON.stringify(keys));
+      });
       
       router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);
 
@@ -346,6 +354,8 @@ export function PurchaseSchedule() {
     </>
   );
 }
+
+    
 
     
 
