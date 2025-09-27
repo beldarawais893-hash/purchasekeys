@@ -45,6 +45,13 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
+    if (hasVisited !== 'true') {
+      router.replace('/');
+    }
+  }, [router]);
+
   const handleCopy = () => {
     if (foundKeyInfo) {
       navigator.clipboard.writeText(foundKeyInfo.value);

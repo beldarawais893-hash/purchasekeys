@@ -133,12 +133,13 @@ export default function AdminPage() {
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  const persistKeys = useCallback((updatedKeys: Key[]) => {
-    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
-    setKeys(updatedKeys);
-  }, []);
-
   useEffect(() => {
+    const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
+    if (hasVisited !== 'true') {
+      router.replace('/');
+      return;
+    }
+    
     const sessionAuthenticated = sessionStorage.getItem('adminAuthenticated');
     if (sessionAuthenticated === 'true') {
       setIsAuthenticated(true);
@@ -146,6 +147,10 @@ export default function AdminPage() {
     setIsCheckingAuth(false);
   }, [router]);
 
+  const persistKeys = useCallback((updatedKeys: Key[]) => {
+    localStorage.setItem('appKeys', JSON.stringify(updatedKeys));
+    setKeys(updatedKeys);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -347,7 +352,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <header className="bg-card text-card-foreground p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
         <div className="flex items-center justify-between w-full sm:w-auto">
             <div className='flex items-center gap-2'>
