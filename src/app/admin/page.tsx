@@ -210,14 +210,6 @@ export default function AdminPage() {
     try {
       const keysCollection = collection(db, 'keys');
       
-      const q = query(keysCollection, where("value", "==", newKey.trim()));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        toast({ title: 'Error', description: 'This key already exists. You might need to create a Firestore index on the "value" field.', variant: 'destructive' });
-        return;
-      }
-      
       const createdAtTimestamp = Timestamp.fromDate(new Date());
 
       await addDoc(keysCollection, {
@@ -235,7 +227,7 @@ export default function AdminPage() {
       toast({ title: 'Success', description: 'Key added successfully.' });
     } catch (error) {
       console.error('Failed to add key to Firestore', error);
-      toast({ title: 'Error Adding Key', description: 'Could not add key. You may need to create a Firestore index for this operation.', variant: 'destructive', duration: 9000 });
+      toast({ title: 'Error Adding Key', description: 'Could not add key. Check console for details.', variant: 'destructive', duration: 9000 });
     }
   };
 
@@ -626,5 +618,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
