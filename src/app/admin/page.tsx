@@ -368,11 +368,6 @@ export default function AdminPage() {
               <CardDescription>{description}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-               {isLoading ? (
-                  <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-              ) : (
               <Table>
                   <TableHeader>
                       <TableRow className="border-b-0">
@@ -407,7 +402,6 @@ export default function AdminPage() {
                       ))}
                   </TableBody>
               </Table>
-              )}
           </CardContent>
       </Card>
   );
@@ -637,3 +631,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
