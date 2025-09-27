@@ -25,6 +25,9 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+
 
 type Key = {
   id: string;
@@ -86,10 +89,24 @@ export default function Home() {
 
     setIsSearching(true);
     try {
-        const storedKeys = localStorage.getItem('keys');
-        const keys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+        const keysCollection = collection(db, 'keys');
+        const q = query(keysCollection, where('utr', '==', searchTerm));
+        const keyQuery = query(keysCollection, where('value', '==', searchTerm));
         
-        const foundKey = keys.find(k => k.value === searchTerm || k.utr === searchTerm);
+        const [utrSnapshot, keySnapshot] = await Promise.all([getDocs(q), getDocs(keyQuery)]);
+
+        let foundKey: Key | null = null;
+        let foundBy: 'utr' | 'value' | null = null;
+
+        if (!utrSnapshot.empty) {
+            const doc = utrSnapshot.docs[0];
+            foundKey = { id: doc.id, ...doc.data() } as Key;
+            foundBy = 'utr';
+        } else if (!keySnapshot.empty) {
+            const doc = keySnapshot.docs[0];
+            foundKey = { id: doc.id, ...doc.data() } as Key;
+            foundBy = 'value';
+        }
 
       if (foundKey) {
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
@@ -121,10 +138,11 @@ export default function Home() {
                 });
                 return;
             }
-             if (foundKey.utr === searchTerm) {
+
+             if (foundBy === 'utr') {
                 setFoundKeyInfo(foundKey);
                 setIsKeyFoundDialogOpen(true);
-             } else {
+             } else { // found by value
                  toast({
                     title: 'Key Already Claimed',
                     description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`,
@@ -146,10 +164,10 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Failed to find key in localStorage', error);
+      console.error('Failed to find key in Firestore', error);
       toast({
         title: 'Error',
-        description: 'Could not perform the search.',
+        description: 'Could not perform the search. Check connection.',
         variant: 'destructive',
       });
     } finally {
@@ -300,5 +318,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

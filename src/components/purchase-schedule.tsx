@@ -30,6 +30,8 @@ import { Label } from '@/components/ui/label';
 import { verifyPaymentWithAi } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where, doc, updateDoc, limit, getDoc } from 'firebase/firestore';
 
 
 type Key = {
@@ -127,10 +129,21 @@ export function PurchaseSchedule() {
     setIsVerifying(true);
 
     try {
+        const enteredUtr = utrNumber.trim();
+        const keysCollection = collection(db, 'keys');
+        const utrQuery = query(keysCollection, where('utr', '==', enteredUtr));
+        const utrSnapshot = await getDocs(utrQuery);
+
+        if (!utrSnapshot.empty) {
+            toast({ title: 'Duplicate UTR', description: 'This UTR number has already been used.', variant: 'destructive' });
+            setIsVerifying(false);
+            return;
+        }
+        
         const screenshotDataUri = await fileToDataUri(screenshotFile);
         const verificationResult = await verifyPaymentWithAi({
             screenshotDataUri,
-            utrNumber: utrNumber.trim(),
+            utrNumber: enteredUtr,
             expectedAmount: selectedPlan.price,
             expectedUpiId: UPI_ID,
         });
@@ -151,39 +164,36 @@ export function PurchaseSchedule() {
           description: 'Your payment has been successfully verified. Issuing key...',
         });
       
-        const storedKeys = localStorage.getItem('keys');
-        let keys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+        const availableKeyQuery = query(
+          keysCollection,
+          where('plan', '==', selectedPlan.duration),
+          where('status', '==', 'available'),
+          limit(1)
+        );
+        const availableKeySnapshot = await getDocs(availableKeyQuery);
 
-        const enteredUtr = utrNumber.trim();
-        const isUtrDuplicate = keys.some(key => key.utr === enteredUtr);
-        if (isUtrDuplicate) {
-            toast({ title: 'Duplicate UTR', description: 'This UTR number has already been used.', variant: 'destructive' });
-            setIsVerifying(false);
-            return;
-        }
-        
-        const availableKeyIndex = keys.findIndex(key => key.plan === selectedPlan.duration && key.status === 'available');
-
-        if (availableKeyIndex === -1) {
+        if (availableKeySnapshot.empty) {
             toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${selectedPlan.duration} plan are currently sold out.`, variant: 'destructive' });
             setIsPaymentDialogOpen(false);
             setIsVerifying(false);
             return;
         }
 
-        const keyToClaim = keys[availableKeyIndex];
-        keyToClaim.status = 'claimed';
-        keyToClaim.utr = enteredUtr;
-        keyToClaim.claimedAt = new Intl.DateTimeFormat('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).format(new Date());
+        const keyDoc = availableKeySnapshot.docs[0];
+        const keyToClaim = { id: keyDoc.id, ...keyDoc.data() } as Key;
+        const keyRef = doc(db, 'keys', keyDoc.id);
 
-        keys[availableKeyIndex] = keyToClaim;
-        localStorage.setItem('keys', JSON.stringify(keys));
+        await updateDoc(keyRef, {
+            status: 'claimed',
+            utr: enteredUtr,
+            claimedAt: new Intl.DateTimeFormat('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(new Date()),
+        });
 
         router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);
 
@@ -193,10 +203,7 @@ export function PurchaseSchedule() {
       toast({ title: 'Error', description: 'An unexpected error occurred during verification.', variant: 'destructive' });
     } finally {
       setIsVerifying(false);
-      setIsPaymentDialogOpen(false);
-      setSelectedPlan(null);
-      setUtrNumber('');
-      setScreenshotFile(null);
+      // Keep dialog open on failure to allow user to retry, only close on success.
     }
   };
 
@@ -339,5 +346,3 @@ export function PurchaseSchedule() {
     </>
   );
 }
-
-    

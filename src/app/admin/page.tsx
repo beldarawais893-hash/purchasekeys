@@ -64,6 +64,9 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, addDoc, deleteDoc, doc, query, where, Timestamp } from 'firebase/firestore';
+
 
 const plans = [
   { duration: '1 Day', price: '200' },
@@ -150,24 +153,42 @@ export default function AdminPage() {
   }, [router]);
 
 
-  const fetchKeys = useCallback(() => {
+  const fetchKeys = useCallback(async () => {
     setIsLoading(true);
     try {
-      const storedKeys = localStorage.getItem('keys');
-      if (storedKeys) {
-        setKeys(JSON.parse(storedKeys));
-      }
+      const keysCollection = collection(db, 'keys');
+      const querySnapshot = await getDocs(keysCollection);
+      const keysData = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt instanceof Timestamp ? formatFirestoreTimestamp(data.createdAt) : data.createdAt,
+          claimedAt: data.claimedAt instanceof Timestamp ? formatFirestoreTimestamp(data.claimedAt) : data.claimedAt,
+        } as Key;
+      });
+      setKeys(keysData);
     } catch (error) {
-      console.error('Failed to parse keys from localStorage', error);
+      console.error('Failed to fetch keys from Firestore', error);
       toast({
-        title: 'Error',
-        description: 'Could not load keys from your browser storage.',
+        title: 'Error Loading Keys',
+        description: 'Could not load keys from the database. Please check your connection and Firestore rules.',
         variant: 'destructive',
       });
     } finally {
-        setTimeout(() => setIsLoading(false), 500);
+      setIsLoading(false);
     }
   }, [toast]);
+
+  const formatFirestoreTimestamp = (timestamp: Timestamp) => {
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(timestamp.toDate());
+  };
 
 
   useEffect(() => {
@@ -175,21 +196,6 @@ export default function AdminPage() {
       fetchKeys();
     }
   }, [isAuthenticated, fetchKeys]);
-  
-  useEffect(() => {
-    if(isAuthenticated) {
-        try {
-            localStorage.setItem('keys', JSON.stringify(keys));
-        } catch(error) {
-            console.error('Failed to save keys to localStorage', error);
-            toast({
-                title: 'Storage Error',
-                description: 'Could not save key changes to browser storage.',
-                variant: 'destructive',
-            });
-        }
-    }
-  }, [keys, isAuthenticated, toast]);
 
 
   const handlePasswordSubmit = () => {
@@ -210,48 +216,53 @@ export default function AdminPage() {
     }
   };
 
-  const handleAddKey = () => {
+  const handleAddKey = async () => {
     if (!newKey.trim() || !selectedPlan) {
-      toast({
-        title: 'Error',
-        description: 'Please enter a key and select a plan.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Please enter a key and select a plan.', variant: 'destructive' });
       return;
     }
+  
+    try {
+      const keysCollection = collection(db, 'keys');
+      
+      // Check for duplicates
+      const q = query(keysCollection, where("value", "==", newKey.trim()));
+      const querySnapshot = await getDocs(q);
 
-    const isDuplicate = keys.some((key) => key.value === newKey.trim());
-    if (isDuplicate) {
-      toast({
-        title: 'Error',
-        description: 'This key already exists.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const keyToAdd: Key = {
-      id: crypto.randomUUID(),
-      value: newKey.trim(),
-      plan: selectedPlan,
-      createdAt: new Intl.DateTimeFormat('en-GB', {
+      if (!querySnapshot.empty) {
+        toast({ title: 'Error', description: 'This key already exists.', variant: 'destructive' });
+        return;
+      }
+      
+      const createdAtTimestamp = new Date();
+      const createdAtFormatted = new Intl.DateTimeFormat('en-GB', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      }).format(new Date()),
-      status: 'available',
-    };
+      }).format(createdAtTimestamp);
 
-    setKeys((prevKeys) => [...prevKeys, keyToAdd]);
-    setNewKey('');
-    setSelectedPlan('');
-    setIsAddKeyDialogOpen(false);
-    toast({
-      title: 'Success',
-      description: 'Key added successfully.',
-    });
+      const keyToAdd = {
+        value: newKey.trim(),
+        plan: selectedPlan,
+        createdAt: createdAtFormatted,
+        status: 'available' as const,
+        claimedAt: '',
+        utr: '',
+      };
+      
+      const docRef = await addDoc(keysCollection, keyToAdd);
+      
+      setKeys(prevKeys => [...prevKeys, { ...keyToAdd, id: docRef.id }]);
+      setNewKey('');
+      setSelectedPlan('');
+      setIsAddKeyDialogOpen(false);
+      toast({ title: 'Success', description: 'Key added successfully.' });
+    } catch (error) {
+      console.error('Failed to add key to Firestore', error);
+      toast({ title: 'Error', description: 'Could not add key. Check Firestore rules or connection.', variant: 'destructive' });
+    }
   };
 
   const handleBack = () => {
@@ -265,13 +276,16 @@ export default function AdminPage() {
     setIsDeleteConfirmed(false);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!keyToDelete) return;
-    setKeys((prevKeys) => prevKeys.filter((k) => k.id !== keyToDelete.id));
-    toast({
-      title: 'Success',
-      description: 'Key deleted successfully.',
-    });
+    try {
+      await deleteDoc(doc(db, 'keys', keyToDelete.id));
+      setKeys((prevKeys) => prevKeys.filter((k) => k.id !== keyToDelete.id));
+      toast({ title: 'Success', description: 'Key deleted successfully.' });
+    } catch (error) {
+      console.error('Failed to delete key from Firestore', error);
+      toast({ title: 'Error', description: 'Could not delete key.', variant: 'destructive' });
+    }
     setIsDeleteDialogOpen(false);
     setKeyToDelete(null);
   };
@@ -639,5 +653,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
