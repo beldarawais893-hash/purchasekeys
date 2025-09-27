@@ -16,6 +16,7 @@ export default function WelcomePage() {
   const animationTriggered = useRef(false);
 
   useEffect(() => {
+    // Clear the flag when the user lands on the welcome page
     sessionStorage.removeItem('hasVisitedWelcome');
   }, []);
 
