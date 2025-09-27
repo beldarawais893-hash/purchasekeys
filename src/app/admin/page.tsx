@@ -225,43 +225,45 @@ export default function AdminPage() {
     try {
       const keysCollection = collection(db, 'keys');
       
-      // Check for duplicates
       const q = query(keysCollection, where("value", "==", newKey.trim()));
       const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        toast({ title: 'Error', description: 'This key already exists.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'This key already exists. Please create a Firestore index on the "value" field if this persists.', variant: 'destructive' });
         return;
       }
       
-      const createdAtTimestamp = new Date();
-      const createdAtFormatted = new Intl.DateTimeFormat('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(createdAtTimestamp);
+      const createdAtTimestamp = Timestamp.fromDate(new Date());
 
       const keyToAdd = {
         value: newKey.trim(),
         plan: selectedPlan,
-        createdAt: createdAtFormatted,
+        createdAt: createdAtTimestamp,
         status: 'available' as const,
         claimedAt: '',
         utr: '',
       };
       
       const docRef = await addDoc(keysCollection, keyToAdd);
+
+      const newKeyData: Key = {
+        id: docRef.id,
+        value: keyToAdd.value,
+        plan: keyToAdd.plan,
+        createdAt: formatFirestoreTimestamp(keyToAdd.createdAt),
+        status: keyToAdd.status,
+        claimedAt: keyToAdd.claimedAt,
+        utr: keyToAdd.utr,
+      };
       
-      setKeys(prevKeys => [...prevKeys, { ...keyToAdd, id: docRef.id }]);
+      setKeys(prevKeys => [...prevKeys, newKeyData]);
       setNewKey('');
       setSelectedPlan('');
       setIsAddKeyDialogOpen(false);
       toast({ title: 'Success', description: 'Key added successfully.' });
     } catch (error) {
       console.error('Failed to add key to Firestore', error);
-      toast({ title: 'Error', description: 'Could not add key. Check Firestore rules or connection.', variant: 'destructive' });
+      toast({ title: 'Error Adding Key', description: 'Could not add key. You may need to create a Firestore index for this operation.', variant: 'destructive', duration: 9000 });
     }
   };
 
