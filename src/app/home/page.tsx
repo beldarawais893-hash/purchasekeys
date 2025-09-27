@@ -25,8 +25,6 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 type Key = {
   id: string;
@@ -88,24 +86,12 @@ export default function Home() {
 
     setIsSearching(true);
     try {
-      const keysCollection = collection(db, 'keys');
-      let q;
+        const storedKeys = localStorage.getItem('keys');
+        const keys: Key[] = storedKeys ? JSON.parse(storedKeys) : [];
+        
+        const foundKey = keys.find(k => k.value === searchTerm || k.utr === searchTerm);
 
-      // Check if searchTerm is a key value or a UTR
-      q = query(keysCollection, where('value', '==', searchTerm));
-      let querySnapshot = await getDocs(q);
-      
-      let foundDoc = querySnapshot.docs[0];
-
-      if (!foundDoc) {
-        q = query(keysCollection, where('utr', '==', searchTerm));
-        querySnapshot = await getDocs(q);
-        foundDoc = querySnapshot.docs[0];
-      }
-
-      if (foundDoc) {
-        const foundKey = { id: foundDoc.id, ...foundDoc.data() } as Key;
-
+      if (foundKey) {
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
             const claimedDate = parseDate(foundKey.claimedAt);
             if (!claimedDate) {
@@ -160,7 +146,7 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Failed to find key in Firestore', error);
+      console.error('Failed to find key in localStorage', error);
       toast({
         title: 'Error',
         description: 'Could not perform the search.',
