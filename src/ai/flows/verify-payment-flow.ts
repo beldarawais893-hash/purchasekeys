@@ -44,7 +44,7 @@ export async function verifyPayment(
 const prompt = ai.definePrompt({
   name: 'verifyPaymentPrompt',
   input: { schema: VerifyPaymentInputSchema },
-  output: { schema: VerifyPaymentOutputSchema },
+  output: { schema: VerifyPaymentOutputSchema, format: 'json' },
   prompt: `You are a payment verification expert. Your task is to analyze a payment screenshot and verify it against the provided details.
 
   **Verification Steps:**
