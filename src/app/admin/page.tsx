@@ -80,8 +80,8 @@ type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: Timestamp; // Store as Firestore Timestamp
-  claimedAt?: Timestamp; // Store as Firestore Timestamp
+  createdAt: Timestamp;
+  claimedAt?: Timestamp;
   status: 'available' | 'claimed';
   utr?: string;
 };
@@ -631,3 +631,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
