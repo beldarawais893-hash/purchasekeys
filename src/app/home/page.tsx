@@ -26,15 +26,15 @@ import {
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 
 
 type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: string;
-  claimedAt?: string;
+  createdAt: Timestamp;
+  claimedAt?: Timestamp;
   status: 'available' | 'claimed';
   utr?: string;
 };
@@ -65,18 +65,6 @@ export default function Home() {
     }
   };
   
-  const parseDate = (dateString: string): Date | null => {
-    if (!dateString) return null;
-    const parts = dateString.split(', ');
-    if (parts.length < 2) return null;
-    const [datePart, timePart] = parts;
-    const [day, month, year] = datePart.split('/');
-    const [hours, minutes] = timePart.split(':');
-    if (!year || !month || !day || !hours || !minutes) return null;
-    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
-};
-
-
   const handleFindKey = async () => {
     const searchTerm = searchKey.trim();
     if (!searchTerm) {
@@ -90,10 +78,10 @@ export default function Home() {
     setIsSearching(true);
     try {
         const keysCollection = collection(db, 'keys');
-        const q = query(keysCollection, where('utr', '==', searchTerm));
+        const utrQuery = query(keysCollection, where('utr', '==', searchTerm));
         const keyQuery = query(keysCollection, where('value', '==', searchTerm));
         
-        const [utrSnapshot, keySnapshot] = await Promise.all([getDocs(q), getDocs(keyQuery)]);
+        const [utrSnapshot, keySnapshot] = await Promise.all([getDocs(utrQuery), getDocs(keyQuery)]);
 
         let foundKey: Key | null = null;
         let foundBy: 'utr' | 'value' | null = null;
@@ -110,23 +98,14 @@ export default function Home() {
 
       if (foundKey) {
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
-            const claimedDate = parseDate(foundKey.claimedAt);
-            if (!claimedDate) {
-                 toast({
-                    title: 'Invalid Key Data',
-                    description: `Could not parse claimed date for this key.`,
-                    variant: 'destructive',
-                });
-                return;
-            }
-
+            const claimedDate = foundKey.claimedAt.toDate();
             const expiryDate = new Date(claimedDate);
 
             if (foundKey.plan.includes('Day')) {
-                const days = parseInt(foundKey.plan.split(' ')[0]);
+                const days = parseInt(foundKey.plan.split(' ')[0], 10);
                 expiryDate.setDate(claimedDate.getDate() + days);
             } else if (foundKey.plan.includes('Month')) {
-                const months = parseInt(foundKey.plan.split(' ')[0]);
+                const months = parseInt(foundKey.plan.split(' ')[0], 10);
                 expiryDate.setMonth(claimedDate.getMonth() + months);
             }
 
@@ -145,7 +124,7 @@ export default function Home() {
              } else { // found by value
                  toast({
                     title: 'Key Already Claimed',
-                    description: `This key was claimed on ${foundKey.claimedAt}. Your UTR is ${foundKey.utr}.`,
+                    description: `This key was claimed on ${foundKey.claimedAt.toDate().toLocaleString()}. Your UTR is ${foundKey.utr}.`,
                     variant: 'destructive',
                 });
              }

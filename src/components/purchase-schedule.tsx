@@ -31,15 +31,15 @@ import { verifyPaymentWithAi } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, doc, updateDoc, limit, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, updateDoc, limit, Timestamp } from 'firebase/firestore';
 
 
 type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: string;
-  claimedAt?: string;
+  createdAt: Timestamp;
+  claimedAt?: Timestamp;
   status: 'available' | 'claimed';
   utr?: string;
 };
@@ -186,13 +186,7 @@ export function PurchaseSchedule() {
         await updateDoc(keyRef, {
             status: 'claimed',
             utr: enteredUtr,
-            claimedAt: new Intl.DateTimeFormat('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).format(new Date()),
+            claimedAt: Timestamp.fromDate(new Date()),
         });
 
         router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);

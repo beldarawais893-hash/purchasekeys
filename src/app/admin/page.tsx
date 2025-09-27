@@ -80,42 +80,42 @@ type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: string;
-  claimedAt?: string;
+  createdAt: Timestamp; // Store as Firestore Timestamp
+  claimedAt?: Timestamp; // Store as Firestore Timestamp
   status: 'available' | 'claimed';
   utr?: string;
 };
 
 const ADMIN_PASSWORD = '3131';
 
+const formatFirestoreTimestamp = (timestamp?: Timestamp): string => {
+    if (!timestamp) return '';
+    return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(timestamp.toDate());
+};
+
+
 const isKeyExpired = (key: Key): boolean => {
     if (key.status !== 'claimed' || !key.claimedAt) {
         return false;
     }
-    const claimedDate = parseDate(key.claimedAt);
-    if (!claimedDate) return false;
-
+    const claimedDate = key.claimedAt.toDate();
     const expiryDate = new Date(claimedDate);
+
     if (key.plan.includes('Day')) {
-        const days = parseInt(key.plan.split(' ')[0]);
+        const days = parseInt(key.plan.split(' ')[0], 10);
         expiryDate.setDate(claimedDate.getDate() + days);
     } else if (key.plan.includes('Month')) {
-        const months = parseInt(key.plan.split(' ')[0]);
+        const months = parseInt(key.plan.split(' ')[0], 10);
         expiryDate.setMonth(claimedDate.getMonth() + months);
     }
     
     return new Date() > expiryDate;
-};
-
-const parseDate = (dateString: string): Date | null => {
-    if (!dateString) return null;
-    const parts = dateString.split(', ');
-    if (parts.length < 2) return null;
-    const [datePart, timePart] = parts;
-    const [day, month, year] = datePart.split('/');
-    const [hours, minutes] = timePart.split(':');
-    if (!year || !month || !day || !hours || !minutes) return null;
-    return new Date(`${year}-${month}-${day}T${hours}:${minutes}:00`);
 };
 
 
@@ -152,15 +152,6 @@ export default function AdminPage() {
     setIsCheckingAuth(false);
   }, [router]);
 
-  const formatFirestoreTimestamp = (timestamp: Timestamp) => {
-    return new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(timestamp.toDate());
-  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -173,8 +164,6 @@ export default function AdminPage() {
             return {
                 id: doc.id,
                 ...data,
-                createdAt: data.createdAt instanceof Timestamp ? formatFirestoreTimestamp(data.createdAt) : data.createdAt,
-                claimedAt: data.claimedAt instanceof Timestamp ? formatFirestoreTimestamp(data.claimedAt) : data.claimedAt,
             } as Key;
         });
         setKeys(keysData);
@@ -236,7 +225,7 @@ export default function AdminPage() {
         plan: selectedPlan,
         createdAt: createdAtTimestamp,
         status: 'available' as const,
-        claimedAt: '',
+        claimedAt: null,
         utr: '',
       });
       
@@ -368,6 +357,11 @@ export default function AdminPage() {
               <CardDescription>{description}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
+            {isLoading && keyList.length === 0 ? (
+                 <div className="flex justify-center items-center h-40">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                 </div>
+            ) : (
               <Table>
                   <TableHeader>
                       <TableRow className="border-b-0">
@@ -392,7 +386,7 @@ export default function AdminPage() {
                               </TableCell>
                               {isClaimed && <TableCell>{key.utr}</TableCell>}
                               <TableCell>{key.plan}</TableCell>
-                              <TableCell>{isClaimed ? key.claimedAt : key.createdAt}</TableCell>
+                              <TableCell>{isClaimed ? formatFirestoreTimestamp(key.claimedAt) : formatFirestoreTimestamp(key.createdAt)}</TableCell>
                               <TableCell className="text-right">
                                   <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(key)}>
                                       <Trash2 className="h-4 w-4 text-muted-foreground" />
@@ -402,6 +396,7 @@ export default function AdminPage() {
                       ))}
                   </TableBody>
               </Table>
+            )}
           </CardContent>
       </Card>
   );
