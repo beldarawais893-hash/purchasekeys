@@ -30,16 +30,13 @@ import { Label } from '@/components/ui/label';
 import { verifyPaymentWithAi } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, doc, updateDoc, limit, Timestamp } from 'firebase/firestore';
-
 
 type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: Timestamp;
-  claimedAt?: Timestamp;
+  createdAt: string; // ISO string
+  claimedAt?: string; // ISO string
   status: 'available' | 'claimed';
   utr?: string;
 };
@@ -130,11 +127,10 @@ export function PurchaseSchedule() {
 
     try {
         const enteredUtr = utrNumber.trim();
-        const keysCollection = collection(db, 'keys');
-        const utrQuery = query(keysCollection, where('utr', '==', enteredUtr));
-        const utrSnapshot = await getDocs(utrQuery);
+        let allKeys: Key[] = JSON.parse(localStorage.getItem('keys') || '[]');
 
-        if (!utrSnapshot.empty) {
+        const isUtrUsed = allKeys.some(key => key.utr === enteredUtr);
+        if (isUtrUsed) {
             toast({ title: 'Duplicate UTR', description: 'This UTR number has already been used.', variant: 'destructive' });
             setIsVerifying(false);
             return;
@@ -164,31 +160,26 @@ export function PurchaseSchedule() {
           description: 'Your payment has been successfully verified. Issuing key...',
         });
       
-        const availableKeyQuery = query(
-          keysCollection,
-          where('plan', '==', selectedPlan.duration),
-          where('status', '==', 'available'),
-          limit(1)
+        const availableKeyIndex = allKeys.findIndex(
+            key => key.plan === selectedPlan.duration && key.status === 'available'
         );
-        const availableKeySnapshot = await getDocs(availableKeyQuery);
 
-        if (availableKeySnapshot.empty) {
+
+        if (availableKeyIndex === -1) {
             toast({ title: 'Sold Out!', description: `Sorry, all keys for the ${selectedPlan.duration} plan are currently sold out.`, variant: 'destructive' });
             setIsPaymentDialogOpen(false);
             setIsVerifying(false);
             return;
         }
 
-        const keyDoc = availableKeySnapshot.docs[0];
-        const keyToClaim = { id: keyDoc.id, ...keyDoc.data() } as Key;
-        const keyRef = doc(db, 'keys', keyDoc.id);
+        const keyToClaim = allKeys[availableKeyIndex];
+        keyToClaim.status = 'claimed';
+        keyToClaim.utr = enteredUtr;
+        keyToClaim.claimedAt = new Date().toISOString();
 
-        await updateDoc(keyRef, {
-            status: 'claimed',
-            utr: enteredUtr,
-            claimedAt: Timestamp.fromDate(new Date()),
-        });
-
+        allKeys[availableKeyIndex] = keyToClaim;
+        localStorage.setItem('keys', JSON.stringify(allKeys));
+        
         router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);
 
 
@@ -340,5 +331,3 @@ export function PurchaseSchedule() {
     </>
   );
 }
-
-    

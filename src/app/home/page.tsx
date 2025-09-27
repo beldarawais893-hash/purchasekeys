@@ -25,16 +25,14 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 
 
 type Key = {
   id: string;
   value: string;
   plan: string;
-  createdAt: Timestamp;
-  claimedAt?: Timestamp;
+  createdAt: string; // ISO string
+  claimedAt?: string; // ISO string
   status: 'available' | 'claimed';
   utr?: string;
 };
@@ -77,28 +75,14 @@ export default function Home() {
 
     setIsSearching(true);
     try {
-        const keysCollection = collection(db, 'keys');
-        const utrQuery = query(keysCollection, where('utr', '==', searchTerm));
-        const keyQuery = query(keysCollection, where('value', '==', searchTerm));
+        const keys: Key[] = JSON.parse(localStorage.getItem('keys') || '[]');
         
-        const [utrSnapshot, keySnapshot] = await Promise.all([getDocs(utrQuery), getDocs(keyQuery)]);
-
-        let foundKey: Key | null = null;
-        let foundBy: 'utr' | 'value' | null = null;
-
-        if (!utrSnapshot.empty) {
-            const doc = utrSnapshot.docs[0];
-            foundKey = { id: doc.id, ...doc.data() } as Key;
-            foundBy = 'utr';
-        } else if (!keySnapshot.empty) {
-            const doc = keySnapshot.docs[0];
-            foundKey = { id: doc.id, ...doc.data() } as Key;
-            foundBy = 'value';
-        }
+        const foundKey = keys.find(k => k.utr === searchTerm || k.value === searchTerm);
+        const foundBy = foundKey?.utr === searchTerm ? 'utr' : 'value';
 
       if (foundKey) {
         if (foundKey.status === 'claimed' && foundKey.claimedAt) {
-            const claimedDate = foundKey.claimedAt.toDate();
+            const claimedDate = new Date(foundKey.claimedAt);
             const expiryDate = new Date(claimedDate);
 
             if (foundKey.plan.includes('Day')) {
@@ -124,7 +108,7 @@ export default function Home() {
              } else { // found by value
                  toast({
                     title: 'Key Already Claimed',
-                    description: `This key was claimed on ${foundKey.claimedAt.toDate().toLocaleString()}. Your UTR is ${foundKey.utr}.`,
+                    description: `This key was claimed on ${new Date(foundKey.claimedAt).toLocaleString()}. Your UTR is ${foundKey.utr}.`,
                     variant: 'destructive',
                 });
              }
@@ -143,10 +127,10 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Failed to find key in Firestore', error);
+      console.error('Failed to find key in localStorage', error);
       toast({
         title: 'Error',
-        description: 'Could not perform the search. Check connection.',
+        description: 'Could not perform the search. Check console for details.',
         variant: 'destructive',
       });
     } finally {
@@ -297,5 +281,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
