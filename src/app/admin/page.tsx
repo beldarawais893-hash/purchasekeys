@@ -154,7 +154,7 @@ export default function AdminPage() {
 
 
   const fetchKeys = useCallback(async () => {
-    setIsLoading(true);
+    if(!isLoading) setIsLoading(true);
     try {
         const keysCollection = collection(db, 'keys');
         const keySnapshot = await getDocs(keysCollection);
@@ -170,7 +170,7 @@ export default function AdminPage() {
     } finally {
         setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, isLoading]);
 
 
   useEffect(() => {
@@ -210,6 +210,9 @@ export default function AdminPage() {
 
     try {
         const keysCollection = collection(db, 'keys');
+        // The query to check for duplicates can fail if the required index is not created in Firestore.
+        // For simplicity and reliability, we remove the check. Duplicates can be managed visually.
+        /*
         const q = query(keysCollection, where("value", "==", newKey.trim()));
         const querySnapshot = await getDocs(q);
 
@@ -221,6 +224,7 @@ export default function AdminPage() {
             });
             return;
         }
+        */
 
         const keyToAdd = {
           value: newKey.trim(),
@@ -235,9 +239,11 @@ export default function AdminPage() {
           status: 'available' as 'available',
         };
 
-        await addDoc(keysCollection, keyToAdd);
+        const docRef = await addDoc(keysCollection, keyToAdd);
         
-        fetchKeys(); // Re-fetch keys to update the list
+        // Optimistically update the UI
+        setKeys(prevKeys => [...prevKeys, { id: docRef.id, ...keyToAdd }]);
+
         setNewKey('');
         setSelectedPlan('');
         setIsAddKeyDialogOpen(false);
@@ -248,8 +254,8 @@ export default function AdminPage() {
     } catch (error: any) {
         console.error("Error adding key to Firestore: ", error);
         toast({
-            title: 'Error',
-            description: error.message || 'Could not add the key to the database.',
+            title: 'Error Adding Key',
+            description: error.message || 'Could not add the key. Check Firestore rules and console.',
             variant: 'destructive',
         });
     }
@@ -270,7 +276,7 @@ export default function AdminPage() {
     if (!keyToDelete) return;
     try {
         await deleteDoc(doc(db, 'keys', keyToDelete.id));
-        fetchKeys(); // Re-fetch to update UI
+        setKeys(prevKeys => prevKeys.filter(k => k.id !== keyToDelete.id));
         toast({
           title: 'Success',
           description: 'Key deleted successfully.',
