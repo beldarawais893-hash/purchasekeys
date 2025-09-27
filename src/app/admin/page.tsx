@@ -160,11 +160,11 @@ export default function AdminPage() {
         const keySnapshot = await getDocs(keysCollection);
         const keysList = keySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Key));
         setKeys(keysList);
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching keys from Firestore: ", error);
         toast({
-            title: 'Error',
-            description: 'Could not fetch keys from the database.',
+            title: 'Failed to Fetch Keys',
+            description: error.message || 'Could not fetch keys from the database. Check console for details.',
             variant: 'destructive',
         });
     } finally {
@@ -245,11 +245,11 @@ export default function AdminPage() {
           title: 'Success',
           description: 'Key added successfully.',
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error adding key to Firestore: ", error);
         toast({
             title: 'Error',
-            description: 'Could not add the key to the database.',
+            description: error.message || 'Could not add the key to the database.',
             variant: 'destructive',
         });
     }
@@ -275,11 +275,11 @@ export default function AdminPage() {
           title: 'Success',
           description: 'Key deleted successfully.',
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error deleting key from Firestore: ", error);
         toast({
             title: 'Error',
-            description: 'Could not delete the key.',
+            description: error.message || 'Could not delete the key.',
             variant: 'destructive',
         });
     } finally {
