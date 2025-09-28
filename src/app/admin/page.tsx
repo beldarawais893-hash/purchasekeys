@@ -84,7 +84,7 @@ const plans = [
   { duration: '3 Day', price: 350 },
   { duration: '7 Day', price: 500 },
   { duration: '15 Day', price: 720 },
-  { duration: '1 Month', price: 1000 },
+  { duration: '1 Month', price: 900 },
   { duration: '2 Month', price: 1400 },
 ];
 
@@ -731,3 +731,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    

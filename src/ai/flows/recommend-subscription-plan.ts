@@ -4,7 +4,7 @@
 /**
  * @fileOverview This file defines a Genkit flow for recommending a subscription plan based on user viewing habits and preferences.
  *
- * - recommendSubscriptionPlan - A function that takes user viewing habits and preferences as input and returns a recommended subscription plan.
+ * - recommendSubscriptionPlan - a function that takes user viewing habits and preferences as input and returns a recommended subscription plan.
  * - RecommendSubscriptionPlanInput - The input type for the recommendSubscriptionPlan function.
  * - RecommendSubscriptionPlanOutput - The return type for the recommendSubscriptionPlan function.
  */
@@ -53,7 +53,7 @@ Consider the following subscription plans:
 3 ᴅᴀʏ - 350 ʳˢ
 7 ᴅᴀʏ - 500 ʳˢ
 15 ᴅᴀʏ - 720 ʳˢ
-1 ᴍᴏɴᴛʜ - 1000 ʳˢ
+1 ᴍᴏɴᴛʜ - 900 ʳˢ
 2 ᴍᴏɴᴛʜ - 1400 ʳˢ
 
 Viewing Habits: {{{viewingHabits}}}
@@ -73,3 +73,5 @@ const recommendSubscriptionPlanFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
