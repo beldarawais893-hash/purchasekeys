@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Card,
@@ -22,8 +22,7 @@ import {
   IndianRupee,
   CalendarDays,
 } from 'lucide-react';
-import Image from 'next/image';
-import { Skeleton } from '@/components/ui/skeleton';
+import QRCode from 'qrcode';
 
 
 const UPI_ID = '9058895955-c289@axl';
@@ -36,12 +35,19 @@ export default function PaymentPageContent() {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const [isQrLoading, setIsQrLoading] = useState(true);
+  const qrRef = useRef<HTMLCanvasElement>(null);
 
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=Purchase&am=${price}&cu=INR`;
+  useEffect(() => {
+    if (qrRef.current) {
+        const qrCodeUrl = `upi://pay?pa=${UPI_ID}&pn=Purchase&am=${price}&cu=INR`;
+        QRCode.toCanvas(qrRef.current, qrCodeUrl, { width: 200, margin: 2 }, (error) => {
+            if (error) console.error('Error generating QR code:', error);
+        });
+    }
+  }, [price]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -128,16 +134,7 @@ export default function PaymentPageContent() {
             <Label className="text-lg font-medium">Scan QR to Pay</Label>
             <div className="flex flex-col items-center justify-center">
                 <div className="relative h-[200px] w-[200px] rounded-lg bg-white p-2">
-                    {isQrLoading && <Skeleton className="h-full w-full" />}
-                    <Image
-                    src={qrCodeUrl}
-                    alt="UPI QR Code"
-                    width={200}
-                    height={200}
-                    unoptimized
-                    className={`transition-opacity duration-300 ${isQrLoading ? 'opacity-0' : 'opacity-100'}`}
-                    onLoad={() => setIsQrLoading(false)}
-                    />
+                   <canvas ref={qrRef} />
               </div>
               <div className="mt-4 flex w-full max-w-[250px] items-center justify-between rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
