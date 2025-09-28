@@ -333,7 +333,7 @@ export default function AdminPage() {
            ) : (
             <>
               <TabsContent value="keys" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
-                <Card className="mt-4 bg-card/50 backdrop-blur-sm">
+                <Card className="mt-4 bg-card/50 backdrop-blur-sm animate-border-glow">
                   <CardHeader>
                     <div>
                       <CardTitle>Key Management</CardTitle>
@@ -474,7 +474,7 @@ export default function AdminPage() {
 
               <TabsContent value="balance" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <div className="mt-4 space-y-6">
-                  <Card className="bg-card/50 backdrop-blur-sm">
+                  <Card className="bg-card/50 backdrop-blur-sm animate-border-glow">
                     <CardHeader>
                       <CardTitle>Balance Information</CardTitle>
                       <CardDescription>
@@ -549,7 +549,7 @@ export default function AdminPage() {
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-card/50 backdrop-blur-sm">
+                  <Card className="bg-card/50 backdrop-blur-sm animate-border-glow">
                     <CardHeader>
                       <CardTitle>Keys by Plan</CardTitle>
                       <CardDescription>
@@ -591,7 +591,7 @@ export default function AdminPage() {
               </TabsContent>
 
               <TabsContent value="expired" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
-                <Card className="mt-4 bg-card/50 backdrop-blur-sm">
+                <Card className="mt-4 bg-card/50 backdrop-blur-sm animate-border-glow">
                   <CardHeader>
                     <CardTitle>Expired Keys</CardTitle>
                     <CardDescription>
