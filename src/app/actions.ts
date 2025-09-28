@@ -91,8 +91,21 @@ export async function editScreenshotWithAi(
 
 // Vercel KV actions for keys
 export async function getKeys(): Promise<Key[]> {
-  const keys = await kv.get<Key[]>('keys');
-  return keys || [];
+  try {
+    const keys = await kv.get<Key[]>('keys');
+    return keys || [];
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('WRONGTYPE')) {
+      console.warn(
+        'Vercel KV "keys" has wrong type, deleting and resetting. Error:',
+        error.message
+      );
+      await kv.del('keys');
+      return [];
+    }
+    // Re-throw other errors
+    throw error;
+  }
 }
 
 export async function saveKeys(keys: Key[]): Promise<void> {
