@@ -15,6 +15,18 @@ import {
   type EditScreenshotInput,
   type EditScreenshotOutput,
 } from '@/ai/flows/edit-screenshot-flow';
+import { kv } from '@vercel/kv';
+
+export type Key = {
+  id: string;
+  value: string;
+  plan: string;
+  price: number;
+  createdAt: string; // ISO string
+  claimedAt?: string; // ISO string
+  status: 'available' | 'claimed';
+  utr?: string;
+};
 
 
 export async function getAiRecommendation(
@@ -74,4 +86,15 @@ export async function editScreenshotWithAi(
       'Failed to edit screenshot with AI. Please try again later.'
     );
   }
+}
+
+
+// Vercel KV actions for keys
+export async function getKeys(): Promise<Key[]> {
+  const keys = await kv.get<Key[]>('keys');
+  return keys || [];
+}
+
+export async function saveKeys(keys: Key[]): Promise<void> {
+  await kv.set('keys', keys);
 }

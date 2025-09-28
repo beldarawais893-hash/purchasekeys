@@ -27,19 +27,10 @@ import {
 } from '@/components/ui/dialog';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
-import { verifyPaymentWithAi } from '@/app/actions';
+import { verifyPaymentWithAi, getKeys, saveKeys, type Key } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 
-type Key = {
-  id: string;
-  value: string;
-  plan: string;
-  createdAt: string; // ISO string
-  claimedAt?: string; // ISO string
-  status: 'available' | 'claimed';
-  utr?: string;
-};
 
 type Plan = {
   id: number;
@@ -127,7 +118,7 @@ export function PurchaseSchedule() {
 
     try {
         const enteredUtr = utrNumber.trim();
-        let allKeys: Key[] = JSON.parse(localStorage.getItem('keys') || '[]');
+        let allKeys = await getKeys();
 
         const isUtrUsed = allKeys.some(key => key.utr === enteredUtr);
         if (isUtrUsed) {
@@ -178,17 +169,17 @@ export function PurchaseSchedule() {
         keyToClaim.claimedAt = new Date().toISOString();
 
         allKeys[availableKeyIndex] = keyToClaim;
-        localStorage.setItem('keys', JSON.stringify(allKeys));
+        await saveKeys(allKeys);
         
         router.push(`/success?key=${encodeURIComponent(keyToClaim.value)}`);
 
 
     } catch (error) {
       console.error("Failed to process purchase with AI verification", error);
-      toast({ title: 'Error', description: 'An unexpected error occurred during verification.', variant: 'destructive' });
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during verification.';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setIsVerifying(false);
-      // Keep dialog open on failure to allow user to retry, only close on success.
     }
   };
 
@@ -322,7 +313,7 @@ export function PurchaseSchedule() {
           </div>
           
           <DialogFooter>
-            <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90" disabled={isVerifying}>
+            <Button onClick={handleConfirmPurchase} className="w-full bg-primary hover:bg-primary/90" disabled={isVerifying || !screenshotFile || !utrNumber.trim()}>
               {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify & Confirm Purchase'}
             </Button>
           </DialogFooter>

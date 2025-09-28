@@ -16,6 +16,7 @@ import {
   Clock,
   IndianRupee,
   FilePlus,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,7 +43,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
@@ -63,16 +64,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
-
-type Key = {
-  id: string;
-  value: string;
-  plan: string;
-  price: number;
-  createdAt: string; // ISO string
-  claimedAt?: string; // ISO string
-  status: 'available' | 'claimed';
-};
+import { getKeys, saveKeys, type Key } from '@/app/actions';
 
 const plans = [
   { duration: '1 Day', price: 200 },
@@ -106,17 +98,33 @@ export default function AdminPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [keys, setKeys] = useState<Key[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
   
   // States for the 'Add New Key' form
   const [newKeyPlan, setNewKeyPlan] = useState(plans[0].duration);
   const [newKeyValues, setNewKeyValues] = useState('');
 
+  const fetchKeys = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const storedKeys = await getKeys();
+      setKeys(storedKeys);
+    } catch (error) {
+      console.error("Failed to fetch keys from KV store:", error);
+      toast({
+        title: 'Error Loading Keys',
+        description: 'Could not load keys from the online database.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
-    const storedKeys: Key[] = JSON.parse(localStorage.getItem('keys') || '[]');
-    setKeys(storedKeys);
-  }, []);
+    fetchKeys();
+  }, [fetchKeys]);
 
   const availableKeys = useMemo(
     () => keys.filter((k) => k.status === 'available' && !isKeyExpired(k)),
@@ -155,7 +163,7 @@ export default function AdminPage() {
     });
   }, [keys, availableKeys]);
 
-  const handleGenerateKeys = () => {
+  const handleGenerateKeys = async () => {
     if (!newKeyValues.trim() || !newKeyPlan) {
       toast({
         title: 'Validation Error',
@@ -185,11 +193,12 @@ export default function AdminPage() {
       return;
     }
 
+    const currentKeys = await getKeys();
     let generatedKeys: Key[] = [];
     let duplicatesFound = false;
 
     for (const keyValue of keyValues) {
-        const keyExists = keys.some(k => k.value === keyValue);
+        const keyExists = currentKeys.some(k => k.value === keyValue);
         if (keyExists) {
             toast({
                 title: 'Duplicate Key',
@@ -197,7 +206,7 @@ export default function AdminPage() {
                 variant: 'destructive',
             });
             duplicatesFound = true;
-            break; // Stop if any key in the batch already exists
+            break;
         }
 
         const newKey: Key = {
@@ -215,31 +224,33 @@ export default function AdminPage() {
       return;
     }
 
-    const updatedKeys = [...keys, ...generatedKeys];
+    const updatedKeys = [...currentKeys, ...generatedKeys];
+    await saveKeys(updatedKeys);
     setKeys(updatedKeys);
-    localStorage.setItem('keys', JSON.stringify(updatedKeys));
 
     toast({
         title: 'Success!',
         description: `${generatedKeys.length} key(s) have been generated successfully.`,
     })
 
-    // Reset form and close dialog
     setNewKeyValues('');
     setNewKeyPlan(plans[0].duration);
     setIsAddKeyDialogOpen(false);
   };
 
 
-  const handleDeleteKey = (keyId: string) => {
+  const handleDeleteKey = async (keyId: string) => {
     const updatedKeys = keys.filter((k) => k.id !== keyId);
+    await saveKeys(updatedKeys);
     setKeys(updatedKeys);
-    localStorage.setItem('keys', JSON.stringify(updatedKeys));
+     toast({
+        title: 'Key Deleted',
+        description: 'The key has been removed from the database.',
+    })
   };
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
-      {/* Header */}
       <header className="flex items-center p-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft />
@@ -278,85 +289,282 @@ export default function AdminPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Keys Tab Content */}
-          <TabsContent value="keys">
-            <Card className="mt-4 bg-card">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Key Management</CardTitle>
-                    <CardDescription>
-                      Add, view, and manage keys here. Data is saved locally.
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-primary/90 hover:bg-primary"
-                      onClick={() => setIsAddKeyDialogOpen(true)}
-                    >
-                      <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => window.location.reload()}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="available">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="available">
-                      <CheckCircle2 className="mr-2 text-green-500" />{' '}
-                      Available Keys
-                    </TabsTrigger>
-                    <TabsTrigger value="claimed">
-                      <XCircle className="mr-2 text-yellow-500" /> Claimed Keys
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="available" className="mt-4">
-                    <div className="border rounded-md">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Key</TableHead>
-                            <TableHead>Plan</TableHead>
-                            <TableHead>Created At</TableHead>
-                            <TableHead className="text-right">
-                              Actions
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {availableKeys.map((k) => (
-                            <TableRow key={k.id}>
-                              <TableCell>
-                                <Badge variant="secondary">{k.value}</Badge>
-                              </TableCell>
-                              <TableCell>{k.plan}</TableCell>
-                              <TableCell>
-                                {new Date(k.createdAt).toLocaleDateString()}
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteKey(k.id)}
-                                >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+           ) : (
+            <>
+              <TabsContent value="keys">
+                <Card className="mt-4 bg-card">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle>Key Management</CardTitle>
+                        <CardDescription>
+                          Add, view, and manage keys here. Data is saved online.
+                        </CardDescription>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-primary/90 hover:bg-primary"
+                          onClick={() => setIsAddKeyDialogOpen(true)}
+                        >
+                          <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={fetchKeys}
+                          disabled={isLoading}
+                        >
+                          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                        </Button>
+                      </div>
                     </div>
-                  </TabsContent>
-                  <TabsContent value="claimed" className="mt-4">
+                  </CardHeader>
+                  <CardContent>
+                    <Tabs defaultValue="available">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="available">
+                          <CheckCircle2 className="mr-2 text-green-500" />{' '}
+                          Available Keys
+                        </TabsTrigger>
+                        <TabsTrigger value="claimed">
+                          <XCircle className="mr-2 text-yellow-500" /> Claimed Keys
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="available" className="mt-4">
+                        <div className="border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Key</TableHead>
+                                <TableHead>Plan</TableHead>
+                                <TableHead>Created At</TableHead>
+                                <TableHead className="text-right">
+                                  Actions
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {availableKeys.map((k) => (
+                                <TableRow key={k.id}>
+                                  <TableCell>
+                                    <Badge variant="secondary">{k.value}</Badge>
+                                  </TableCell>
+                                  <TableCell>{k.plan}</TableCell>
+                                  <TableCell>
+                                    {new Date(k.createdAt).toLocaleDateString()}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDeleteKey(k.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                               {availableKeys.length === 0 && (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={4}
+                                    className="text-center text-muted-foreground"
+                                  >
+                                    No available keys found.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="claimed" className="mt-4">
+                        <div className="border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Key</TableHead>
+                                <TableHead>Plan</TableHead>
+                                <TableHead>Claimed At</TableHead>
+                                <TableHead className="text-right">
+                                  Actions
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {claimedKeys.map((k) => (
+                                <TableRow key={k.id}>
+                                  <TableCell>
+                                    <Badge variant="secondary">{k.value}</Badge>
+                                  </TableCell>
+                                  <TableCell>{k.plan}</TableCell>
+                                  <TableCell>
+                                    {k.claimedAt
+                                      ? new Date(k.claimedAt).toLocaleDateString()
+                                      : 'N/A'}
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDeleteKey(k.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                               {claimedKeys.length === 0 && (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={4}
+                                    className="text-center text-muted-foreground"
+                                  >
+                                    No claimed keys found.
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="balance">
+                <div className="mt-4 space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Balance Information</CardTitle>
+                      <CardDescription>
+                        View payment amounts and key statistics.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <Card className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Total Balance
+                          </p>
+                          <Wallet className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-2xl font-bold flex items-center">
+                          <IndianRupee className="h-5 w-5 mr-1" />
+                          {totalBalance.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          From all claimed keys
+                        </p>
+                      </Card>
+                      <Card className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Total Keys
+                          </p>
+                          <List className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <p className="text-2xl font-bold">{totalKeys}</p>
+                        <p className="text-xs text-muted-foreground">
+                          All generated keys
+                        </p>
+                      </Card>
+                      <Card className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Available Keys
+                          </p>
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        </div>
+                        <p className="text-2xl font-bold">{availableKeysCount}</p>
+                        <Progress value={availablePercentage} className="h-2 mt-1" />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {availablePercentage.toFixed(0)}% of total
+                        </p>
+                      </Card>
+                      <Card className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Active Claimed
+                          </p>
+                          <XCircle className="h-5 w-5 text-yellow-500" />
+                        </div>
+                        <p className="text-2xl font-bold">{activeClaimedCount}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Currently active keys
+                        </p>
+                      </Card>
+                      <Card className="p-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <p className="text-sm font-medium text-muted-foreground">
+                            Expired Keys
+                          </p>
+                          <Clock className="h-5 w-5 text-red-500" />
+                        </div>
+                        <p className="text-2xl font-bold">{expiredKeysCount}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Total expired keys
+                        </p>
+                      </Card>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Keys by Plan</CardTitle>
+                      <CardDescription>
+                        Breakdown of keys for each subscription plan.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="border rounded-md">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Plan</TableHead>
+                              <TableHead>Price</TableHead>
+                              <TableHead>Total Keys</TableHead>
+                              <TableHead>Available</TableHead>
+                              <TableHead>Claimed</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {keysByPlan.map((plan) => (
+                              <TableRow key={plan.duration}>
+                                <TableCell>{plan.duration}</TableCell>
+                                <TableCell>{plan.price}</TableCell>
+                                <TableCell>{plan.total}</TableCell>
+                                <TableCell className="text-green-500 font-semibold">
+                                  {plan.available}
+                                </TableCell>
+                                <TableCell className="text-red-500 font-semibold">
+                                  {plan.claimed}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="expired">
+                <Card className="mt-4">
+                  <CardHeader>
+                    <CardTitle>Expired Keys</CardTitle>
+                    <CardDescription>
+                      View all keys that have expired.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
                     <div className="border rounded-md">
                       <Table>
                         <TableHeader>
@@ -364,16 +572,14 @@ export default function AdminPage() {
                             <TableHead>Key</TableHead>
                             <TableHead>Plan</TableHead>
                             <TableHead>Claimed At</TableHead>
-                            <TableHead className="text-right">
-                              Actions
-                            </TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {claimedKeys.map((k) => (
+                          {expiredKeys.map((k) => (
                             <TableRow key={k.id}>
                               <TableCell>
-                                <Badge variant="secondary">{k.value}</Badge>
+                                <Badge variant="destructive">{k.value}</Badge>
                               </TableCell>
                               <TableCell>{k.plan}</TableCell>
                               <TableCell>
@@ -392,192 +598,24 @@ export default function AdminPage() {
                               </TableCell>
                             </TableRow>
                           ))}
+                          {expiredKeys.length === 0 && (
+                            <TableRow>
+                              <TableCell
+                                colSpan={4}
+                                className="text-center text-muted-foreground"
+                              >
+                                No expired keys found.
+                              </TableCell>
+                            </TableRow>
+                          )}
                         </TableBody>
                       </Table>
                     </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Balance Tab Content */}
-          <TabsContent value="balance">
-            <div className="mt-4 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Balance Information</CardTitle>
-                  <CardDescription>
-                    View payment amounts and key statistics.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Card className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Total Balance
-                      </p>
-                      <Wallet className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl font-bold flex items-center">
-                      <IndianRupee className="h-5 w-5 mr-1" />
-                      {totalBalance.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      From all claimed keys
-                    </p>
-                  </Card>
-                  <Card className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Total Keys
-                      </p>
-                      <List className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <p className="text-2xl font-bold">{totalKeys}</p>
-                    <p className="text-xs text-muted-foreground">
-                      All generated keys
-                    </p>
-                  </Card>
-                  <Card className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Available Keys
-                      </p>
-                      <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    </div>
-                    <p className="text-2xl font-bold">{availableKeysCount}</p>
-                    <Progress value={availablePercentage} className="h-2 mt-1" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {availablePercentage.toFixed(0)}% of total
-                    </p>
-                  </Card>
-                  <Card className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Active Claimed
-                      </p>
-                      <XCircle className="h-5 w-5 text-yellow-500" />
-                    </div>
-                    <p className="text-2xl font-bold">{activeClaimedCount}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Currently active keys
-                    </p>
-                  </Card>
-                  <Card className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Expired Keys
-                      </p>
-                      <Clock className="h-5 w-5 text-red-500" />
-                    </div>
-                    <p className="text-2xl font-bold">{expiredKeysCount}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Total expired keys
-                    </p>
-                  </Card>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Keys by Plan</CardTitle>
-                  <CardDescription>
-                    Breakdown of keys for each subscription plan.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="border rounded-md">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Plan</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Total Keys</TableHead>
-                          <TableHead>Available</TableHead>
-                          <TableHead>Claimed</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {keysByPlan.map((plan) => (
-                          <TableRow key={plan.duration}>
-                            <TableCell>{plan.duration}</TableCell>
-                            <TableCell>{plan.price}</TableCell>
-                            <TableCell>{plan.total}</TableCell>
-                            <TableCell className="text-green-500 font-semibold">
-                              {plan.available}
-                            </TableCell>
-                            <TableCell className="text-red-500 font-semibold">
-                              {plan.claimed}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="expired">
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle>Expired Keys</CardTitle>
-                <CardDescription>
-                  View all keys that have expired.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="border rounded-md">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Key</TableHead>
-                        <TableHead>Plan</TableHead>
-                        <TableHead>Claimed At</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {expiredKeys.map((k) => (
-                        <TableRow key={k.id}>
-                          <TableCell>
-                            <Badge variant="destructive">{k.value}</Badge>
-                          </TableCell>
-                          <TableCell>{k.plan}</TableCell>
-                          <TableCell>
-                            {k.claimedAt
-                              ? new Date(k.claimedAt).toLocaleDateString()
-                              : 'N/A'}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteKey(k.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {expiredKeys.length === 0 && (
-                        <TableRow>
-                          <TableCell
-                            colSpan={4}
-                            className="text-center text-muted-foreground"
-                          >
-                            No expired keys found.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </>
+          )}
         </Tabs>
       </main>
 

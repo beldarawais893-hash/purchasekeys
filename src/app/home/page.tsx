@@ -25,17 +25,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getKeys, type Key } from '@/app/actions';
 
-
-type Key = {
-  id: string;
-  value: string;
-  plan: string;
-  createdAt: string; // ISO string
-  claimedAt?: string; // ISO string
-  status: 'available' | 'claimed';
-  utr?: string;
-};
 
 export default function Home() {
   const [searchKey, setSearchKey] = useState('');
@@ -75,7 +66,7 @@ export default function Home() {
 
     setIsSearching(true);
     try {
-        const keys: Key[] = JSON.parse(localStorage.getItem('keys') || '[]');
+        const keys = await getKeys();
         
         const foundKey = keys.find(k => k.utr === searchTerm || k.value === searchTerm);
         const foundBy = foundKey?.utr === searchTerm ? 'utr' : 'value';
@@ -127,7 +118,7 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Failed to find key in localStorage', error);
+      console.error('Failed to find key in KV store', error);
       toast({
         title: 'Error',
         description: 'Could not perform the search. Check console for details.',
