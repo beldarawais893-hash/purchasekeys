@@ -112,10 +112,15 @@ export default function AdminPage() {
       setKeys(storedKeys);
     } catch (error) {
       console.error("Failed to fetch keys from KV store:", error);
+      let description = 'Could not load keys from the online database.';
+      if (error instanceof Error && (error.message.includes('KV_REST_API_URL') || error.message.includes('KV_REST_API_TOKEN'))) {
+        description = 'Configuration Error: Could not connect to Vercel KV. Please ensure your environment variables are set correctly.';
+      }
       toast({
         title: 'Error Loading Keys',
-        description: 'Could not load keys from the online database.',
+        description: description,
         variant: 'destructive',
+        duration: 9000,
       });
     } finally {
       setIsLoading(false);
