@@ -6,9 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -133,12 +131,12 @@ export default function PaymentPageContent() {
            <div className="space-y-4 text-center">
             <Label className="text-lg font-medium">Scan QR to Pay</Label>
             <div className="flex flex-col items-center justify-center">
-                <div className="relative h-[200px] w-[200px] rounded-lg bg-white p-2">
+                <div className="bg-white p-4 rounded-lg">
                    <canvas ref={qrRef} />
               </div>
-              <div className="mt-4 flex w-full max-w-[250px] items-center justify-between rounded-md border border-input bg-background/50 p-2">
+              <div className="mt-4 flex w-full max-w-[250px] items-center justify-center rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
-                <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8">
+                <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 ml-2">
                     {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </div>
