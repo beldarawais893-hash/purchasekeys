@@ -47,7 +47,7 @@ export function PurchaseSchedule() {
   };
 
   return (
-    <Card className="w-full bg-card/50 backdrop-blur-sm">
+    <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
       <CardContent className="p-0">
         <div className="overflow-hidden rounded-lg">
           <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
