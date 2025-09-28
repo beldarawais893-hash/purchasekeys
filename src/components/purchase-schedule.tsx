@@ -331,5 +331,3 @@ export function PurchaseSchedule() {
     </>
   );
 }
-
-    
