@@ -167,7 +167,7 @@ export default function Home() {
         </section>
 
         <section id="contact-owner">
-          <Card className="max-w-md mx-auto bg-card">
+          <Card className="max-w-md mx-auto bg-card/50 backdrop-blur-sm animate-border-glow">
             <CardHeader>
               <CardTitle className="text-center text-2xl font-bold">
                 Contact Owner
