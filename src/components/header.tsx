@@ -19,7 +19,22 @@ export function AppHeader() {
         <KeyRound className="text-primary h-6 w-6" />
         <h1 className="text-xl font-bold">Purchase Key</h1>
       </div>
-      {/* Admin Menu Removed */}
+      <div className="relative">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => router.push('/admin')}>
+              <Lock className="mr-2 h-4 w-4" />
+              <span>Owner Privacy</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }
