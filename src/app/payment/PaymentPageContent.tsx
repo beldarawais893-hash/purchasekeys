@@ -96,7 +96,7 @@ export default function PaymentPageContent() {
             title: 'Submission Received!',
             description: 'Your payment is being verified. You will receive your key shortly.',
         });
-        router.push('/success');
+        router.push('/home'); // Redirect to home after submission
     }, 2000);
 
   };
@@ -133,7 +133,7 @@ export default function PaymentPageContent() {
                 />
               </div>
             </div>
-             <div className="relative rounded-md border border-input bg-secondary/30 p-3">
+             <div className="relative rounded-md border border-input p-3">
                 <p className="text-sm text-muted-foreground">Or use UPI ID</p>
                 <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-base text-foreground break-all">{UPI_ID}</span>
