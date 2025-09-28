@@ -17,6 +17,7 @@ import {
   IndianRupee,
   FilePlus,
   Loader2,
+  ShieldAlert,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +54,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
@@ -65,6 +76,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { getKeys, saveKeys, type Key } from '@/app/actions';
+import { Checkbox } from '@/components/ui/checkbox';
+
 
 const plans = [
   { duration: '1 Day', price: 200 },
@@ -100,6 +113,8 @@ export default function AdminPage() {
   const [keys, setKeys] = useState<Key[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<Key | null>(null);
+  const [deleteConfirmationChecked, setDeleteConfirmationChecked] = useState(false);
   
   // States for the 'Add New Key' form
   const [newKeyPlan, setNewKeyPlan] = useState(plans[0].duration);
@@ -245,15 +260,22 @@ export default function AdminPage() {
     setIsAddKeyDialogOpen(false);
   };
 
+  const handleOpenDeleteDialog = (key: Key) => {
+    setKeyToDelete(key);
+    setDeleteConfirmationChecked(false); // Reset checkbox on open
+  };
 
-  const handleDeleteKey = async (keyId: string) => {
-    const updatedKeys = keys.filter((k) => k.id !== keyId);
+  const confirmDeleteKey = async () => {
+    if (!keyToDelete) return;
+
+    const updatedKeys = keys.filter((k) => k.id !== keyToDelete.id);
     await saveKeys(updatedKeys);
     setKeys(updatedKeys);
-     toast({
+    toast({
         title: 'Key Deleted',
-        description: 'The key has been removed from the database.',
-    })
+        description: `The key "${keyToDelete.value}" has been removed.`,
+    });
+    setKeyToDelete(null); // Close the dialog
   };
 
   return (
@@ -371,7 +393,7 @@ export default function AdminPage() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => handleDeleteKey(k.id)}
+                                      onClick={() => handleOpenDeleteDialog(k)}
                                     >
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
@@ -421,7 +443,7 @@ export default function AdminPage() {
                                     <Button
                                       variant="ghost"
                                       size="icon"
-                                      onClick={() => handleDeleteKey(k.id)}
+                                      onClick={() => handleOpenDeleteDialog(k)}
                                     >
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
@@ -600,7 +622,7 @@ export default function AdminPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleDeleteKey(k.id)}
+                                  onClick={() => handleOpenDeleteDialog(k)}
                                 >
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
@@ -673,6 +695,35 @@ export default function AdminPage() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <AlertDialog open={!!keyToDelete} onOpenChange={(open) => !open && setKeyToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2">
+                        <ShieldAlert className="text-destructive" /> Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                        You are about to delete the key <span className="font-bold text-foreground">{keyToDelete?.value}</span> for the <span className="font-bold text-foreground">{keyToDelete?.plan}</span> plan. This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="flex items-center space-x-2 my-4">
+                    <Checkbox id="delete-confirm" checked={deleteConfirmationChecked} onCheckedChange={(checked) => setDeleteConfirmationChecked(Boolean(checked))} />
+                    <Label htmlFor="delete-confirm" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        I understand, delete this key.
+                    </Label>
+                </div>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setKeyToDelete(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                        onClick={confirmDeleteKey}
+                        disabled={!deleteConfirmationChecked}
+                        className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                        Delete Key
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
 
     </div>
   );
