@@ -287,13 +287,13 @@ export default function AdminPage() {
       <main className="flex-grow p-4 md:p-6">
         <Tabs defaultValue="keys" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="keys">
+            <TabsTrigger value="keys" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <KeyRound className="mr-2" /> Keys
             </TabsTrigger>
-            <TabsTrigger value="balance">
+            <TabsTrigger value="balance" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <Wallet className="mr-2" /> Balance
             </TabsTrigger>
-            <TabsTrigger value="expired">
+            <TabsTrigger value="expired" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <History className="mr-2" /> Expired Keys
             </TabsTrigger>
           </TabsList>
@@ -336,11 +336,11 @@ export default function AdminPage() {
                   <CardContent>
                     <Tabs defaultValue="available">
                       <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="available">
+                        <TabsTrigger value="available" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                           <CheckCircle2 className="mr-2 text-green-500" />{' '}
                           Available Keys
                         </TabsTrigger>
-                        <TabsTrigger value="claimed">
+                        <TabsTrigger value="claimed" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                           <XCircle className="mr-2 text-yellow-500" /> Claimed Keys
                         </TabsTrigger>
                       </TabsList>
@@ -677,5 +677,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
