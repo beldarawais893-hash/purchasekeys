@@ -703,7 +703,7 @@ export default function AdminPage() {
                         <ShieldAlert className="text-destructive" /> Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        You are about to delete the key <span className="font-bold text-foreground">{keyToDelete?.value}</span> for the <span className="font-bold text-foreground">{keyToDelete?.plan}</span> plan. This action cannot be undone.
+                        You are about to permanently delete the key <span className="font-bold text-foreground">{keyToDelete?.value}</span> from the database. This will remove it from all associated lists (Available, Claimed, Expired). This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="flex items-center space-x-2 my-4">
