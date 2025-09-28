@@ -361,7 +361,7 @@ export default function AdminPage() {
                               {availableKeys.map((k) => (
                                 <TableRow key={k.id}>
                                   <TableCell>
-                                    <Badge variant="secondary">{k.value}</Badge>
+                                    <Badge variant="default" className="bg-green-600 hover:bg-green-700">{k.value}</Badge>
                                   </TableCell>
                                   <TableCell>{k.plan}</TableCell>
                                   <TableCell>
@@ -409,7 +409,7 @@ export default function AdminPage() {
                               {claimedKeys.map((k) => (
                                 <TableRow key={k.id}>
                                   <TableCell>
-                                    <Badge variant="secondary">{k.value}</Badge>
+                                    <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-black">{k.value}</Badge>
                                   </TableCell>
                                   <TableCell>{k.plan}</TableCell>
                                   <TableCell>
@@ -677,3 +677,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
