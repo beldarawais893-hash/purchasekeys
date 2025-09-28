@@ -115,6 +115,8 @@ export default function AdminPage() {
       let description = 'Could not load keys from the online database.';
       if (error instanceof Error && (error.message.includes('KV_REST_API_URL') || error.message.includes('KV_REST_API_TOKEN'))) {
         description = 'Configuration Error: Could not connect to Vercel KV. Please ensure your environment variables are set correctly.';
+      } else if (error instanceof Error && error.message.includes('WRONGTYPE')) {
+         description = 'Database Error: The data format in Vercel KV is incorrect. The app tried to fix it. Please refresh.';
       }
       toast({
         title: 'Error Loading Keys',
@@ -215,7 +217,7 @@ export default function AdminPage() {
         }
 
         const newKey: Key = {
-            id: `key_${Date.now()}_${keyValue}`,
+            id: `key_${Date.now()}_${keyValue.slice(0, 5)}`,
             value: keyValue,
             plan: planDetails.duration,
             price: planDetails.price,
@@ -300,7 +302,7 @@ export default function AdminPage() {
             </div>
            ) : (
             <>
-              <TabsContent value="keys">
+              <TabsContent value="keys" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <Card className="mt-4 bg-card">
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -443,7 +445,7 @@ export default function AdminPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="balance">
+              <TabsContent value="balance" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <div className="mt-4 space-y-6">
                   <Card>
                     <CardHeader>
@@ -561,7 +563,7 @@ export default function AdminPage() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="expired">
+              <TabsContent value="expired" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <Card className="mt-4">
                   <CardHeader>
                     <CardTitle>Expired Keys</CardTitle>
@@ -673,3 +675,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
