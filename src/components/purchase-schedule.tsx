@@ -43,14 +43,14 @@ export function PurchaseSchedule() {
   const { toast } = useToast();
 
   const handlePay = (plan: Omit<SubscriptionPlan, 'id' | 'currency'>) => {
-    router.push(`/payment?plan=${plan.duration}&price=${plan.price}`);
+    // router.push(`/payment?plan=${plan.duration}&price=${plan.price}`);
   };
 
   return (
     <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
       <CardContent className="p-0">
         <div className="overflow-hidden rounded-lg">
-          <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
+          <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 font-semibold text-primary">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
               <span>DAYS</span>
@@ -59,30 +59,17 @@ export function PurchaseSchedule() {
               <IndianRupee className="h-5 w-5" />
               <span>PRICE</span>
             </div>
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              <span>PURCHASE</span>
-            </div>
           </div>
           <div className="flex flex-col">
             {plans.map((plan, index) => (
               <div
                 key={plan.duration}
-                className={`grid grid-cols-3 items-center gap-4 p-4 ${
+                className={`grid grid-cols-2 items-center gap-4 p-4 ${
                   index < plans.length - 1 ? 'border-b border-border' : ''
                 }`}
               >
                 <div className="font-medium">{plan.duration}</div>
                 <div>{plan.price} Rs</div>
-                <div>
-                  <Button
-                    size="sm"
-                    className="bg-accent text-accent-foreground hover:bg-accent/90"
-                    onClick={() => handlePay(plan)}
-                  >
-                    <ShoppingCart className="mr-2 h-4 w-4" /> Buy Now
-                  </Button>
-                </div>
               </div>
             ))}
           </div>
