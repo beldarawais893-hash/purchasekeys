@@ -120,26 +120,27 @@ export default function PaymentPageContent() {
           
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2 text-center">
-            <Label className="text-lg">Scan QR or use UPI ID</Label>
-            <div className="flex justify-center rounded-lg bg-white p-4">
-              <Image
-                src={qrCodeUrl}
-                alt="UPI QR Code"
-                width={200}
-                height={200}
-                unoptimized
-              />
+          <div className="space-y-4 text-center">
+            <Label className="text-lg font-medium">Scan QR to Pay</Label>
+            <div className="flex justify-center">
+              <div className="rounded-lg bg-white p-2">
+                <Image
+                  src={qrCodeUrl}
+                  alt="UPI QR Code"
+                  width={200}
+                  height={200}
+                  unoptimized
+                />
+              </div>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-             <Label htmlFor="upi-id">UPI ID</Label>
-             <div className="flex items-center gap-2">
-               <Input id="upi-id" readOnly value={UPI_ID} className="font-mono text-base"/>
-               <Button variant="outline" size="icon" onClick={handleCopy}>
-                 {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-               </Button>
+             <div className="relative rounded-md border border-input bg-secondary/30 p-3">
+                <p className="text-sm text-muted-foreground">Or use UPI ID</p>
+                <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-base text-foreground break-all">{UPI_ID}</span>
+                    <Button variant="ghost" size="icon" onClick={handleCopy}>
+                        {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                </div>
             </div>
           </div>
           
@@ -180,4 +181,3 @@ export default function PaymentPageContent() {
     </div>
   );
 }
-
