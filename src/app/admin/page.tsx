@@ -309,13 +309,13 @@ export default function AdminPage() {
       <main className="flex-grow p-4 md:p-6">
         <Tabs defaultValue="keys" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="keys" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <TabsTrigger value="keys" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
               <KeyRound className="mr-2" /> Keys
             </TabsTrigger>
-            <TabsTrigger value="balance" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <TabsTrigger value="balance" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
               <Wallet className="mr-2" /> Balance
             </TabsTrigger>
-            <TabsTrigger value="expired" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+            <TabsTrigger value="expired" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
               <History className="mr-2" /> Expired Keys
             </TabsTrigger>
           </TabsList>
@@ -355,11 +355,11 @@ export default function AdminPage() {
                   <CardContent>
                     <Tabs defaultValue="available">
                       <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="available" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                        <TabsTrigger value="available" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
                           <CheckCircle2 className="mr-2 text-green-500" />{' '}
                           Available Keys
                         </TabsTrigger>
-                        <TabsTrigger value="claimed" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                        <TabsTrigger value="claimed" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
                           <XCircle className="mr-2 text-yellow-500" /> Claimed Keys
                         </TabsTrigger>
                       </TabsList>
@@ -725,6 +725,8 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
 
