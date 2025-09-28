@@ -44,6 +44,7 @@ const plans: Plan[] = [
   { id: 3, duration: '7 Day', price: '500' },
   { id: 4, duration: '15 Day', price: '720' },
   { id: 5, duration: '1 Month', price: '1000' },
+  { id: 6, duration: '2 Month', price: '1400' },
 ];
 
 const UPI_ID = '9058895955-c289@axl';

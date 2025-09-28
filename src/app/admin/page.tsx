@@ -85,6 +85,7 @@ const plans = [
   { duration: '7 Day', price: 500 },
   { duration: '15 Day', price: 720 },
   { duration: '1 Month', price: 1000 },
+  { duration: '2 Month', price: 1400 },
 ];
 
 // Helper function to check if a key is expired
@@ -100,7 +101,12 @@ const isKeyExpired = (key: Key): boolean => {
     const days = parseInt(key.plan.split(' ')[0], 10);
     expiryDate.setDate(claimedDate.getDate() + days);
   } else if (key.plan.includes('Month')) {
-    const months = parseInt(key.plan.split(' ')[0], 10);
+    let months = 0;
+    if (key.plan.startsWith('1')) {
+      months = 1;
+    } else if (key.plan.startsWith('2')) {
+      months = 2;
+    }
     expiryDate.setMonth(claimedDate.getMonth() + months);
   }
 
@@ -725,13 +731,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    

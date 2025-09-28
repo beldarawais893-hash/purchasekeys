@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -29,6 +30,7 @@ const RecommendSubscriptionPlanOutputSchema = z.object({
     .describe('The recommended subscription plan based on the user viewing habits and preferences.'),
   reasoning: z
     .string()
+
     .describe('The reasoning behind the recommendation, explaining why the plan is suitable for the user.'),
 });
 export type RecommendSubscriptionPlanOutput = z.infer<typeof RecommendSubscriptionPlanOutputSchema>;
@@ -52,6 +54,7 @@ Consider the following subscription plans:
 7 ᴅᴀʏ - 500 ʳˢ
 15 ᴅᴀʏ - 720 ʳˢ
 1 ᴍᴏɴᴛʜ - 1000 ʳˢ
+2 ᴍᴏɴᴛʜ - 1400 ʳˢ
 
 Viewing Habits: {{{viewingHabits}}}
 Preferences: {{{preferences}}}
