@@ -80,7 +80,7 @@ export function PurchaseSchedule() {
                     className="bg-accent text-accent-foreground hover:bg-accent/90"
                     onClick={() => handlePay(plan)}
                   >
-                    <ShoppingCart className="mr-2 h-4 w-4" /> Buy
+                    <ShoppingCart className="mr-2 h-4 w-4" /> Buy Now
                   </Button>
                 </div>
               </div>
