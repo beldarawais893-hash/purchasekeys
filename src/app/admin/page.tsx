@@ -262,7 +262,9 @@ export default function AdminPage() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="ml-4 text-xl font-semibold">Purchase Keys</h1>
+        <h1 className="ml-4 text-2xl font-bold text-primary font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
+          Purchase Keys
+        </h1>
         <div className="ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
