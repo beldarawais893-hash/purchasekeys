@@ -16,7 +16,6 @@ import {
   Clock,
   IndianRupee,
   FilePlus,
-  Tags,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -63,6 +62,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
 
 type Key = {
   id: string;
@@ -110,8 +110,7 @@ export default function AdminPage() {
   
   // States for the 'Add New Key' form
   const [newKeyPlan, setNewKeyPlan] = useState(plans[0].duration);
-  const [newKeyValue, setNewKeyValue] = useState('');
-  const [newKeyQuantity, setNewKeyQuantity] = useState(1);
+  const [newKeyValues, setNewKeyValues] = useState('');
 
 
   useEffect(() => {
@@ -157,10 +156,10 @@ export default function AdminPage() {
   }, [keys, availableKeys]);
 
   const handleGenerateKeys = () => {
-    if (!newKeyValue.trim() || !newKeyPlan) {
+    if (!newKeyValues.trim() || !newKeyPlan) {
       toast({
         title: 'Validation Error',
-        description: 'Key value and plan are required.',
+        description: 'Key value(s) and plan are required.',
         variant: 'destructive',
       });
       return;
@@ -176,24 +175,34 @@ export default function AdminPage() {
         return;
     }
 
-    let generatedKeys: Key[] = [];
-    for (let i = 0; i < newKeyQuantity; i++) {
-        const uniqueSuffix = newKeyQuantity > 1 ? `-${i + 1}` : '';
-        const keyExists = keys.some(k => k.value === `${newKeyValue.trim()}${uniqueSuffix}`);
+    const keyValues = newKeyValues.split('\n').map(k => k.trim()).filter(k => k);
+    if (keyValues.length === 0) {
+       toast({
+        title: 'Validation Error',
+        description: 'Please enter at least one key value.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    let generatedKeys: Key[] = [];
+    let duplicatesFound = false;
+
+    for (const keyValue of keyValues) {
+        const keyExists = keys.some(k => k.value === keyValue);
         if (keyExists) {
             toast({
                 title: 'Duplicate Key',
-                description: `Key "${newKeyValue.trim()}${uniqueSuffix}" already exists.`,
+                description: `Key "${keyValue}" already exists.`,
                 variant: 'destructive',
             });
-            // Stop if any key in the batch already exists to avoid partial generation
-            return;
+            duplicatesFound = true;
+            break; // Stop if any key in the batch already exists
         }
 
         const newKey: Key = {
-            id: `key_${Date.now()}_${i}`,
-            value: `${newKeyValue.trim()}${uniqueSuffix}`,
+            id: `key_${Date.now()}_${keyValue}`,
+            value: keyValue,
             plan: planDetails.duration,
             price: planDetails.price,
             createdAt: new Date().toISOString(),
@@ -202,6 +211,10 @@ export default function AdminPage() {
         generatedKeys.push(newKey);
     }
     
+    if (duplicatesFound) {
+      return;
+    }
+
     const updatedKeys = [...keys, ...generatedKeys];
     setKeys(updatedKeys);
     localStorage.setItem('keys', JSON.stringify(updatedKeys));
@@ -212,8 +225,7 @@ export default function AdminPage() {
     })
 
     // Reset form and close dialog
-    setNewKeyValue('');
-    setNewKeyQuantity(1);
+    setNewKeyValues('');
     setNewKeyPlan(plans[0].duration);
     setIsAddKeyDialogOpen(false);
   };
@@ -574,22 +586,10 @@ export default function AdminPage() {
                 <DialogHeader>
                     <DialogTitle>Generate New Keys</DialogTitle>
                     <DialogDescription>
-                        Create single or multiple keys for a specific plan.
+                        Create multiple keys for a specific plan.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="key-value">Key Value</Label>
-                        <Input 
-                            id="key-value"
-                            placeholder="e.g., PREMIUM-USER"
-                            value={newKeyValue}
-                            onChange={e => setNewKeyValue(e.target.value)}
-                        />
-                         <p className="text-xs text-muted-foreground">
-                            If quantity > 1, a suffix like "-1", "-2" will be added.
-                        </p>
-                    </div>
                      <div className="space-y-2">
                         <Label htmlFor="key-plan">Plan</Label>
                         <Select value={newKeyPlan} onValueChange={setNewKeyPlan}>
@@ -605,15 +605,18 @@ export default function AdminPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="key-quantity">Quantity</Label>
-                        <Input 
-                            id="key-quantity"
-                            type="number"
-                            min="1"
-                            value={newKeyQuantity}
-                            onChange={e => setNewKeyQuantity(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    <div className="space-y-2">
+                        <Label htmlFor="key-values">Key Values</Label>
+                        <Textarea 
+                            id="key-values"
+                            placeholder="PREMIUM-USER-1\nPREMIUM-USER-2\nPREMIUM-USER-3"
+                            value={newKeyValues}
+                            onChange={e => setNewKeyValues(e.target.value)}
+                            className="min-h-[120px]"
                         />
+                         <p className="text-xs text-muted-foreground">
+                            Enter one key per line to generate multiple keys.
+                        </p>
                     </div>
                 </div>
                 <DialogFooter>
@@ -627,3 +630,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
