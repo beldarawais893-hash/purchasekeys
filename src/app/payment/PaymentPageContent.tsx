@@ -19,11 +19,12 @@ import {
   Copy,
   Check,
   Upload,
-  QrCode,
   IndianRupee,
   CalendarDays,
 } from 'lucide-react';
 import Image from 'next/image';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 const UPI_ID = '9058895955-c289@axl';
 
@@ -35,6 +36,7 @@ export default function PaymentPageContent() {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isQrLoading, setIsQrLoading] = useState(true);
 
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
@@ -125,14 +127,17 @@ export default function PaymentPageContent() {
            <div className="space-y-4 text-center">
             <Label className="text-lg font-medium">Scan QR to Pay</Label>
             <div className="flex flex-col items-center justify-center">
-              <div className="rounded-lg bg-white p-2">
-                <Image
-                  src={qrCodeUrl}
-                  alt="UPI QR Code"
-                  width={200}
-                  height={200}
-                  unoptimized
-                />
+                <div className="relative h-[200px] w-[200px] rounded-lg bg-white p-2">
+                    {isQrLoading && <Skeleton className="h-full w-full" />}
+                    <Image
+                    src={qrCodeUrl}
+                    alt="UPI QR Code"
+                    width={200}
+                    height={200}
+                    unoptimized
+                    className={`transition-opacity duration-300 ${isQrLoading ? 'opacity-0' : 'opacity-100'}`}
+                    onLoad={() => setIsQrLoading(false)}
+                    />
               </div>
               <div className="mt-4 flex w-full max-w-[250px] items-center justify-between rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
