@@ -34,11 +34,24 @@ export default function PaymentPageContent() {
   const [utrNumber, setUtrNumber] = useState('');
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=${UPI_ID}&pn=Purchase&am=${price}&cu=INR`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    setIsCopied(true);
+    toast({
+      title: 'Copied!',
+      description: 'UPI ID has been copied to your clipboard.',
+    });
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -109,9 +122,9 @@ export default function PaymentPageContent() {
           
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4 text-center">
+           <div className="space-y-4 text-center">
             <Label className="text-lg font-medium">Scan QR to Pay</Label>
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center justify-center">
               <div className="rounded-lg bg-white p-2">
                 <Image
                   src={qrCodeUrl}
@@ -120,6 +133,12 @@ export default function PaymentPageContent() {
                   height={200}
                   unoptimized
                 />
+              </div>
+              <div className="mt-4 flex w-full max-w-[250px] items-center justify-between rounded-md border border-input bg-background/50 p-2">
+                <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
+                <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8">
+                    {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
           </div>
