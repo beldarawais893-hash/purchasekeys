@@ -43,7 +43,7 @@ export function PurchaseSchedule() {
   const { toast } = useToast();
 
   const handlePay = (plan: Omit<SubscriptionPlan, 'id' | 'currency'>) => {
-    router.push(`/payment?plan=${encodeURIComponent(plan.duration)}&price=${plan.price}`);
+    //  router.push(`/payment?plan=${encodeURIComponent(plan.duration)}&price=${plan.price}`);
   };
 
   return (
