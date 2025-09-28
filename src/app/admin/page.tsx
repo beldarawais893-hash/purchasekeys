@@ -281,7 +281,7 @@ export default function AdminPage() {
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex items-center p-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <Button variant="ghost" size="icon" onClick={() => router.push('/home')}>
           <ArrowLeft />
         </Button>
         <h1 className="ml-4 text-2xl font-bold text-primary font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
@@ -725,6 +725,8 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
 
