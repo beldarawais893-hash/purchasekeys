@@ -329,30 +329,27 @@ export default function AdminPage() {
               <TabsContent value="keys" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <Card className="mt-4 bg-card">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Key Management</CardTitle>
-                        <CardDescription>
-                          Add, view, and manage keys here. Data is saved online.
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-primary/90 hover:bg-primary"
-                          onClick={() => setIsAddKeyDialogOpen(true)}
-                        >
-                          <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={fetchKeys}
-                          disabled={isLoading}
-                        >
-                          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        </Button>
-                      </div>
+                    <div>
+                      <CardTitle>Key Management</CardTitle>
+                      <CardDescription>
+                        Add, view, and manage keys here. Data is saved online.
+                      </CardDescription>
+                    </div>
+                    <div className="flex w-full items-center gap-2 pt-2">
+                      <Button
+                        className="flex-grow bg-primary/90 hover:bg-primary"
+                        onClick={() => setIsAddKeyDialogOpen(true)}
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={fetchKeys}
+                        disabled={isLoading}
+                      >
+                        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -728,5 +725,7 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
 
     
