@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Clipboard, ClipboardCheck, Home, Send } from 'lucide-react';
@@ -40,6 +40,7 @@ const Confetti = () => {
             });
         }
 
+        let animationFrameId: number;
         const animate = () => {
             if (!ctx || !canvas) return;
             ctx.clearRect(0, 0, width, height);
@@ -49,7 +50,9 @@ const Confetti = () => {
                 p.x += p.speedX;
 
                 if (p.y > height) {
-                    particles.splice(index, 1);
+                   // Reset particle to top
+                   p.x = Math.random() * width;
+                   p.y = -p.size;
                 }
 
                 ctx.fillStyle = p.color;
@@ -57,9 +60,9 @@ const Confetti = () => {
                 ctx.fillRect(p.x, p.y, p.size, p.size);
                 ctx.fill();
             });
-
+            
             if (particles.length > 0) {
-                requestAnimationFrame(animate);
+                 animationFrameId = requestAnimationFrame(animate);
             }
         };
         
@@ -67,9 +70,9 @@ const Confetti = () => {
 
         // Stop animation after some time
         const timer = setTimeout(() => {
-           if(canvas) {
+           cancelAnimationFrame(animationFrameId);
+           if(canvas && ctx) {
                 const fadeOut = setInterval(() => {
-                    if(!ctx) return;
                     ctx.fillStyle = 'rgba(10, 10, 20, 0.1)';
                     ctx.fillRect(0, 0, width, height);
                     if (particles.length === 0) {
@@ -77,13 +80,16 @@ const Confetti = () => {
                     }
                 }, 50);
            }
-        }, 3000);
+        }, 4000);
 
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            cancelAnimationFrame(animationFrameId);
+        }
     }, []);
 
-    return <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full z-0" />;
+    return <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none" />;
 };
 
 
@@ -94,18 +100,19 @@ export default function SuccessPageContent() {
   const [showPage, setShowPage] = useState(false);
   
   useEffect(() => {
-    // Hide the confetti after a delay and show the content
-    const showTimer = setTimeout(() => setShowPage(true), 1000);
-
     const keyData = sessionStorage.getItem('claimedKey');
     if (keyData) {
       setClaimedKey(JSON.parse(keyData));
-      // Clear the session storage to prevent re-using the key display
+      // Clear the session storage to prevent re-using the key display on refresh
       sessionStorage.removeItem('claimedKey');
     } else {
-      // If no key data is found, redirect to home to prevent access to this page
+      // If no key data is found, redirect to home to prevent direct access
       router.replace('/home');
+      return;
     }
+    
+    // Hide the confetti after a delay and show the content
+    const showTimer = setTimeout(() => setShowPage(true), 1000);
     
     return () => clearTimeout(showTimer);
   }, [router]);

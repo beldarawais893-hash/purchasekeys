@@ -3,7 +3,6 @@
 
 import { Suspense } from 'react';
 import SuccessPageContent from './SuccessPageContent';
-import { AppHeader } from '@/components/header';
 
 function SuccessPageFallback() {
   return (
