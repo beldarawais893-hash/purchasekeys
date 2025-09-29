@@ -390,7 +390,7 @@ export default function AdminPage() {
                                   </TableCell>
                                   <TableCell>{k.plan}</TableCell>
                                   <TableCell>
-                                    {new Date(k.createdAt).toLocaleDateString()}
+                                    {new Date(k.createdAt).toLocaleString()}
                                   </TableCell>
                                   <TableCell className="text-right">
                                     <Button
@@ -441,7 +441,7 @@ export default function AdminPage() {
                                   <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                                   <TableCell>
                                     {k.claimedAt
-                                      ? new Date(k.claimedAt).toLocaleDateString()
+                                      ? new Date(k.claimedAt).toLocaleString()
                                       : 'N/A'}
                                   </TableCell>
                                   <TableCell className="text-right">
@@ -622,7 +622,7 @@ export default function AdminPage() {
                               <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                               <TableCell>
                                 {k.claimedAt
-                                  ? new Date(k.claimedAt).toLocaleDateString()
+                                  ? new Date(k.claimedAt).toLocaleString()
                                   : 'N/A'}
                               </TableCell>
                               <TableCell className="text-right">
