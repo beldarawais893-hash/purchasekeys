@@ -154,10 +154,25 @@ export default function AdminPage() {
     fetchKeys();
   }, [fetchKeys]);
 
-  const availableKeys = useMemo(
-    () => keys.filter((k) => k.status === 'available' && !isKeyExpired(k)),
-    [keys]
-  );
+  const availableKeys = useMemo(() => {
+    const planOrder = plans.reduce((acc, plan, index) => {
+      acc[plan.duration] = index;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return keys
+      .filter((k) => k.status === 'available' && !isKeyExpired(k))
+      .sort((a, b) => {
+        const orderA = planOrder[a.plan] ?? Infinity;
+        const orderB = planOrder[b.plan] ?? Infinity;
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+        // If plans are the same, sort by creation date descending (newest first)
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+  }, [keys]);
+
   const claimedKeys = useMemo(
     () => keys.filter((k) => k.status === 'claimed' && !isKeyExpired(k)),
     [keys]
