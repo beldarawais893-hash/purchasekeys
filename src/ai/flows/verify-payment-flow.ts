@@ -12,6 +12,7 @@ import {z} from 'genkit';
 
 const UPI_ID = '9058895955-c289@axl';
 
+// This schema is not exported. It is used internally by the prompt.
 const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
