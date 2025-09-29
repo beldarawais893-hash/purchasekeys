@@ -12,13 +12,17 @@ import {z} from 'genkit';
 
 const UPI_ID = '9058895955-c289@axl';
 
-// This schema is defined in actions.ts now
 const VerifyPaymentInputSchema = z.object({
-  screenshotDataUri: z.string(),
-  utrNumber: z.string(),
-  planPrice: z.string(),
-  planDuration: z.string(),
+  screenshotDataUri: z
+    .string()
+    .describe(
+      "A screenshot of the payment confirmation, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
+    ),
+  utrNumber: z.string().describe('The UTR/transaction reference number provided by the user.'),
+  planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
+  planDuration: z.string().describe('The duration of the subscription plan.'),
 });
+
 
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
