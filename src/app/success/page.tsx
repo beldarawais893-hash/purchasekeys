@@ -1,13 +1,11 @@
 
-'use client';
-
 import { Suspense } from 'react';
 import SuccessPageContent from './SuccessPageContent';
 
 function SuccessPageFallback() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <div className="text-xl">Loading...</div>
+      <div className="text-xl">Loading Your Key...</div>
     </div>
   );
 }

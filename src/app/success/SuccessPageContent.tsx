@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Clipboard, ClipboardCheck, Home, Send } from 'lucide-react';
@@ -95,16 +95,22 @@ const Confetti = () => {
 
 export default function SuccessPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [claimedKey, setClaimedKey] = useState<Key | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [showPage, setShowPage] = useState(false);
   
   useEffect(() => {
-    const keyData = sessionStorage.getItem('claimedKey');
-    if (keyData) {
-      setClaimedKey(JSON.parse(keyData));
-      // Clear the session storage to prevent re-using the key display on refresh
-      sessionStorage.removeItem('claimedKey');
+    const keyDataString = searchParams.get('keyData');
+    if (keyDataString) {
+      try {
+        const keyData = JSON.parse(decodeURIComponent(keyDataString));
+        setClaimedKey(keyData);
+      } catch (error) {
+        console.error("Failed to parse key data from URL", error);
+        router.replace('/home');
+        return;
+      }
     } else {
       // If no key data is found, redirect to home to prevent direct access
       router.replace('/home');
@@ -115,7 +121,7 @@ export default function SuccessPageContent() {
     const showTimer = setTimeout(() => setShowPage(true), 1000);
     
     return () => clearTimeout(showTimer);
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleCopy = () => {
     if (claimedKey) {

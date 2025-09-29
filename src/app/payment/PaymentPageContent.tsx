@@ -133,9 +133,8 @@ export default function PaymentPageContent() {
                 title: 'Verification Successful!',
                 description: 'Redirecting to your key...',
             });
-            // Store key in session storage to pass to the success page
-            sessionStorage.setItem('claimedKey', JSON.stringify(result.claimedKey));
-            router.push('/success');
+            const keyData = encodeURIComponent(JSON.stringify(result.claimedKey));
+            router.push(`/success?keyData=${keyData}`);
         } else {
              toast({
                 title: 'Verification Failed',
@@ -182,7 +181,7 @@ export default function PaymentPageContent() {
               <div className="bg-white p-2 rounded-lg">
                 <canvas ref={qrRef} />
               </div>
-              <div className="mt-4 flex w-full max-w-[280px] items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
+               <div className="mt-4 flex w-full max-w-[280px] items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
                 <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 shrink-0">
                   {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
