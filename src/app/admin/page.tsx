@@ -424,6 +424,7 @@ export default function AdminPage() {
                               <TableRow>
                                 <TableHead>Key</TableHead>
                                 <TableHead>Plan</TableHead>
+                                <TableHead>UTR Number</TableHead>
                                 <TableHead>Claimed At</TableHead>
                                 <TableHead className="text-right">
                                   Actions
@@ -437,6 +438,7 @@ export default function AdminPage() {
                                     <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-black">{k.value}</Badge>
                                   </TableCell>
                                   <TableCell>{k.plan}</TableCell>
+                                  <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                                   <TableCell>
                                     {k.claimedAt
                                       ? new Date(k.claimedAt).toLocaleDateString()
@@ -456,7 +458,7 @@ export default function AdminPage() {
                                {claimedKeys.length === 0 && (
                                 <TableRow>
                                   <TableCell
-                                    colSpan={4}
+                                    colSpan={5}
                                     className="text-center text-muted-foreground"
                                   >
                                     No claimed keys found.
@@ -605,6 +607,7 @@ export default function AdminPage() {
                           <TableRow>
                             <TableHead>Key</TableHead>
                             <TableHead>Plan</TableHead>
+                            <TableHead>UTR Number</TableHead>
                             <TableHead>Claimed At</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
@@ -616,6 +619,7 @@ export default function AdminPage() {
                                 <Badge variant="destructive">{k.value}</Badge>
                               </TableCell>
                               <TableCell>{k.plan}</TableCell>
+                              <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                               <TableCell>
                                 {k.claimedAt
                                   ? new Date(k.claimedAt).toLocaleDateString()
@@ -635,7 +639,7 @@ export default function AdminPage() {
                           {expiredKeys.length === 0 && (
                             <TableRow>
                               <TableCell
-                                colSpan={4}
+                                colSpan={5}
                                 className="text-center text-muted-foreground"
                               >
                                 No expired keys found.
