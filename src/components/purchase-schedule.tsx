@@ -13,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import {
   Sparkles,
-  ArrowRight,
   ChevronDown,
   MessageSquareHeart,
   CalendarDays,
@@ -75,7 +74,7 @@ export function PurchaseSchedule() {
                 <div className="font-medium">{plan.duration}</div>
                 <div>{plan.price} Rs</div>
                 <Button onClick={() => handlePay(plan)} size="sm" className="bg-primary/90 hover:bg-primary">
-                  Buy Now <ArrowRight className="ml-2 h-4 w-4" />
+                  Buy Now <ShoppingCart className="ml-2 h-4 w-4" />
                 </Button>
               </div>
             ))}
