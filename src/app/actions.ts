@@ -8,21 +8,11 @@ import {
 } from '@/ai/flows/recommend-subscription-plan';
 import {
   verifyPayment,
+  VerifyPaymentInputSchema,
+  type VerifyPaymentInput,
 } from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import { z } from 'zod';
-
-export const VerifyPaymentInputSchema = z.object({
-  screenshotDataUri: z
-    .string()
-    .describe(
-      "A screenshot of the payment confirmation, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
-    ),
-  utrNumber: z.string().describe('The UTR/transaction reference number provided by the user.'),
-  planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
-  planDuration: z.string().describe('The duration of the subscription plan.'),
-});
-export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
 
 export type Key = {
