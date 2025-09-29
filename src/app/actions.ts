@@ -8,8 +8,6 @@ import {
 } from '@/ai/flows/recommend-subscription-plan';
 import {
   verifyPayment,
-  VerifyPaymentInputSchema,
-  type VerifyPaymentInput,
 } from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import { z } from 'zod';
@@ -25,6 +23,18 @@ export type Key = {
   status: 'available' | 'claimed';
   utr?: string;
 };
+
+const VerifyPaymentInputSchema = z.object({
+  screenshotDataUri: z
+    .string()
+    .describe(
+      "A screenshot of the payment confirmation, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
+    ),
+  utrNumber: z.string().describe('The UTR/transaction reference number provided by the user.'),
+  planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
+  planDuration: z.string().describe('The duration of the subscription plan.'),
+});
+export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
 
 export async function getAiRecommendation(
@@ -48,13 +58,15 @@ export async function getAiRecommendation(
 export async function verifyPaymentWithAi(
   input: VerifyPaymentInput
 ): Promise<{ success: boolean; message: string; claimedKey?: Key }> {
-  if (!input.screenshotDataUri || !input.utrNumber || !input.planPrice) {
-    throw new Error('Screenshot, UTR number, and plan price are required.');
+  // Validate input with Zod schema
+  const parsedInput = VerifyPaymentInputSchema.safeParse(input);
+  if (!parsedInput.success) {
+     return { success: false, message: 'Invalid input provided.' };
   }
 
   try {
     // 1. Verify with AI
-    const verificationResult = await verifyPayment(input);
+    const verificationResult = await verifyPayment(parsedInput.data);
 
     if (!verificationResult.isPaymentValid) {
       return { success: false, message: verificationResult.reason || 'Payment details could not be verified. Please check and try again.' };
