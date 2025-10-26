@@ -684,7 +684,7 @@ export default function AdminPage() {
                 <div className="space-y-4 py-4">
                      <div className="space-y-2">
                         <Label htmlFor="key-plan">Plan</Label>
-                        <Select value={newKeyPlan} onValueChange={setNewKeyPlan}>
+                        <Select value={newKeyPlan} onValuechange={setNewKeyPlan}>
                             <SelectTrigger id="key-plan">
                                 <SelectValue placeholder="Select a plan" />
                             </SelectTrigger>
