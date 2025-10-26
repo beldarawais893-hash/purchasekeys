@@ -48,7 +48,7 @@ export function AppHeader() {
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
         <div className="flex items-center gap-2">
           <KeyRound className="text-primary h-6 w-6" />
-          <h1 className="text-xl font-bold">Purchase Key</h1>
+          <h1 className="text-xl font-bold">Army Owner Keys</h1>
         </div>
         <div className="relative">
           <DropdownMenu>
