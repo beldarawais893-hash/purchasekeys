@@ -158,7 +158,7 @@ export default function SuccessPageContent() {
                 </p>
 
                 <div className="space-y-2">
-                    <Label className="text-muted-foreground">Your Access Key for {claimedKey.plan}</Label>
+                    <Label className="text-muted-foreground">Your Access Key for <span className="font-bold text-primary">{claimedKey.mod}</span> ({claimedKey.plan})</Label>
                     <div className="flex w-full items-center space-x-2 rounded-lg border-2 border-dashed border-primary/50 bg-secondary/50 p-4">
                         <p className="flex-grow select-all break-all font-mono text-lg font-bold text-primary">
                         {claimedKey.value}
