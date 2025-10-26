@@ -20,6 +20,7 @@ import {
   ShieldAlert,
   ChevronDown,
   Filter,
+  Cpu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -229,6 +230,24 @@ export default function AdminPage() {
       return { ...plan, total, available, claimed };
     });
   }, [filteredKeys, availableKeys]);
+
+  const salesByMod = useMemo(() => {
+    if (selectedMod !== 'All Mods') {
+      return [];
+    }
+    const sales = mods.map(mod => {
+      const modKeys = keys.filter(k => k.mod === mod.name && k.status === 'claimed');
+      const keysSold = modKeys.length;
+      const revenue = modKeys.reduce((acc, key) => acc + (key.price || 0), 0);
+      return {
+        name: mod.name,
+        keysSold,
+        revenue,
+      };
+    });
+    return sales;
+  }, [keys, selectedMod]);
+
 
   const handleGenerateKeys = async () => {
     if (!newKeyValues.trim() || !newKeyPlan || !newKeyMod) {
@@ -645,7 +664,7 @@ export default function AdminPage() {
                                 <TableCell className="text-green-500 font-semibold">
                                   {plan.available}
                                 </TableCell>
-                                <TableCell className="text-red-500 font-semibold">
+                                <TableCell className="text-yellow-500 font-semibold">
                                   {plan.claimed}
                                 </TableCell>
                               </TableRow>
@@ -655,6 +674,41 @@ export default function AdminPage() {
                       </div>
                     </CardContent>
                   </Card>
+                   {selectedMod === 'All Mods' && (
+                    <Card className="bg-card/50 backdrop-blur-sm animate-border-glow">
+                      <CardHeader>
+                        <CardTitle>Sales by Mod</CardTitle>
+                        <CardDescription>
+                          Breakdown of sales for each mod.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Mod Name</TableHead>
+                                <TableHead>Keys Sold</TableHead>
+                                <TableHead>Total Revenue</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {salesByMod.map((modSale) => (
+                                <TableRow key={modSale.name}>
+                                  <TableCell className="flex items-center gap-2"><Cpu className="h-4 w-4 text-muted-foreground" /> {modSale.name}</TableCell>
+                                  <TableCell className="font-semibold">{modSale.keysSold}</TableCell>
+                                  <TableCell className="font-semibold flex items-center">
+                                    <IndianRupee className="h-4 w-4 mr-1"/>
+                                    {modSale.revenue.toLocaleString()}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                   )}
                 </div>
               </TabsContent>
 
@@ -818,3 +872,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
