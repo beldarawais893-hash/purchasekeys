@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getKeys, type Key } from '@/app/actions';
+import { getKeys } from '@/app/actions';
+import type { Key } from '@/lib/types';
 
 
 export default function Home() {

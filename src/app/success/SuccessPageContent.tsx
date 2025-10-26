@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Clipboard, ClipboardCheck, Home, Send } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
-import { type Key } from '@/app/actions';
 import { Label } from '@/components/ui/label';
+import type { Key } from '@/lib/types';
 
 // A simple confetti animation component
 const Confetti = () => {

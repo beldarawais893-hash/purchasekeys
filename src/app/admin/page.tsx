@@ -75,8 +75,9 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
-import { getKeys, saveKeys, type Key } from '@/app/actions';
+import { getKeys, saveKeys } from '@/app/actions';
 import { Checkbox } from '@/components/ui/checkbox';
+import type { Key } from '@/lib/types';
 
 
 const plans = [
@@ -750,5 +751,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    

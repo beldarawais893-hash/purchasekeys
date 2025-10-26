@@ -6,24 +6,10 @@ import {
   type RecommendSubscriptionPlanInput,
   type RecommendSubscriptionPlanOutput,
 } from '@/ai/flows/recommend-subscription-plan';
-import {
-  verifyPayment,
-  type VerifyPaymentOutput,
-} from '@/ai/flows/verify-payment-flow';
+import { verifyPayment } from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import { z } from 'zod';
-
-
-export type Key = {
-  id: string;
-  value: string;
-  plan: string;
-  price: number;
-  createdAt: string; // ISO string
-  claimedAt?: string; // ISO string
-  status: 'available' | 'claimed';
-  utr?: string;
-};
+import type { Key } from '@/lib/types';
 
 const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
