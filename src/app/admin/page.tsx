@@ -18,6 +18,8 @@ import {
   FilePlus,
   Loader2,
   ShieldAlert,
+  ChevronDown,
+  Filter,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,6 +44,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -89,6 +95,14 @@ const plans = [
   { duration: '2 Month', price: 1400 },
 ];
 
+const mods = [
+  { name: 'Safe loader' },
+  { name: 'Infinite mod' },
+  { name: 'Ignis mod' },
+  { name: 'Monster mod' },
+];
+
+
 // Helper function to check if a key is expired
 const isKeyExpired = (key: Key): boolean => {
   if (key.status !== 'claimed' || !key.claimedAt) {
@@ -122,8 +136,10 @@ export default function AdminPage() {
   const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
   const [keyToDelete, setKeyToDelete] = useState<Key | null>(null);
   const [deleteConfirmationChecked, setDeleteConfirmationChecked] = useState(false);
+  const [selectedMod, setSelectedMod] = useState('All Mods');
   
   // States for the 'Add New Key' form
+  const [newKeyMod, setNewKeyMod] = useState('');
   const [newKeyPlan, setNewKeyPlan] = useState(plans[0].duration);
   const [newKeyValues, setNewKeyValues] = useState('');
 
@@ -155,13 +171,20 @@ export default function AdminPage() {
     fetchKeys();
   }, [fetchKeys]);
 
+  const filteredKeys = useMemo(() => {
+    if (selectedMod === 'All Mods') {
+      return keys;
+    }
+    return keys.filter(k => k.mod === selectedMod);
+  }, [keys, selectedMod]);
+
   const availableKeys = useMemo(() => {
     const planOrder = plans.reduce((acc, plan, index) => {
       acc[plan.duration] = index;
       return acc;
     }, {} as Record<string, number>);
 
-    return keys
+    return filteredKeys
       .filter((k) => k.status === 'available' && !isKeyExpired(k))
       .sort((a, b) => {
         const orderA = planOrder[a.plan] ?? Infinity;
@@ -172,14 +195,14 @@ export default function AdminPage() {
         // If plans are the same, sort by creation date descending (newest first)
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [keys]);
+  }, [filteredKeys]);
 
   const claimedKeys = useMemo(
-    () => keys.filter((k) => k.status === 'claimed' && !isKeyExpired(k)),
-    [keys]
+    () => filteredKeys.filter((k) => k.status === 'claimed' && !isKeyExpired(k)),
+    [filteredKeys]
   );
-  const expiredKeys = useMemo(() => keys.filter((k) => isKeyExpired(k)), [
-    keys,
+  const expiredKeys = useMemo(() => filteredKeys.filter((k) => isKeyExpired(k)), [
+    filteredKeys,
   ]);
 
   // Balance Page Statistics
@@ -187,7 +210,7 @@ export default function AdminPage() {
     () => claimedKeys.reduce((acc, key) => acc + (key.price || 0), 0),
     [claimedKeys]
   );
-  const totalKeys = keys.length;
+  const totalKeys = filteredKeys.length;
   const availableKeysCount = availableKeys.length;
   const availablePercentage =
     totalKeys > 0 ? (availableKeysCount / totalKeys) * 100 : 0;
@@ -196,22 +219,22 @@ export default function AdminPage() {
 
   const keysByPlan = useMemo(() => {
     return plans.map((plan) => {
-      const total = keys.filter((k) => k.plan === plan.duration).length;
+      const total = filteredKeys.filter((k) => k.plan === plan.duration).length;
       const available = availableKeys.filter(
         (k) => k.plan === plan.duration
       ).length;
-      const claimed = keys.filter(
+      const claimed = filteredKeys.filter(
         (k) => k.plan === plan.duration && k.status === 'claimed'
       ).length;
       return { ...plan, total, available, claimed };
     });
-  }, [keys, availableKeys]);
+  }, [filteredKeys, availableKeys]);
 
   const handleGenerateKeys = async () => {
-    if (!newKeyValues.trim() || !newKeyPlan) {
+    if (!newKeyValues.trim() || !newKeyPlan || !newKeyMod) {
       toast({
         title: 'Validation Error',
-        description: 'Key value(s) and plan are required.',
+        description: 'Mod, Key value(s) and plan are required.',
         variant: 'destructive',
       });
       return;
@@ -256,6 +279,7 @@ export default function AdminPage() {
         const newKey: Key = {
             id: `key_${Date.now()}_${keyValue.slice(0, 5)}`,
             value: keyValue,
+            mod: newKeyMod,
             plan: planDetails.duration,
             price: planDetails.price,
             createdAt: new Date().toISOString(),
@@ -274,10 +298,11 @@ export default function AdminPage() {
 
     toast({
         title: 'Success!',
-        description: `${generatedKeys.length} key(s) have been generated successfully.`,
+        description: `${generatedKeys.length} key(s) for ${newKeyMod} have been generated.`,
     })
 
     setNewKeyValues('');
+    setNewKeyMod('');
     setNewKeyPlan(plans[0].duration);
     setIsAddKeyDialogOpen(false);
   };
@@ -351,13 +376,34 @@ export default function AdminPage() {
               <TabsContent value="keys" className="animate-fade-in animate-slide-in-up [animation-duration:500ms]">
                 <Card className="mt-4 bg-card/50 backdrop-blur-sm animate-border-glow">
                   <CardHeader>
-                    <div>
-                      <CardTitle>Key Management</CardTitle>
-                      <CardDescription>
-                        Add, view, and manage keys here. Data is saved online.
-                      </CardDescription>
+                    <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>Key Management</CardTitle>
+                          <CardDescription>
+                            Add, view, and manage keys. Currently viewing: <span className="font-bold text-primary">{selectedMod}</span>
+                          </CardDescription>
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">
+                                    <Filter className="mr-2 h-4 w-4" />
+                                    Filter by Mod
+                                    <ChevronDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuLabel>Select a Mod</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuRadioGroup value={selectedMod} onValueChange={setSelectedMod}>
+                                    <DropdownMenuRadioItem value="All Mods">All Mods</DropdownMenuRadioItem>
+                                    {mods.map(mod => (
+                                        <DropdownMenuRadioItem key={mod.name} value={mod.name}>{mod.name}</DropdownMenuRadioItem>
+                                    ))}
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-                    <div className="flex w-full items-center gap-2 pt-2">
+                    <div className="flex w-full items-center gap-2 pt-4">
                       <Button
                         className="flex-grow bg-primary/90 hover:bg-primary"
                         onClick={() => setIsAddKeyDialogOpen(true)}
@@ -379,10 +425,10 @@ export default function AdminPage() {
                       <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="available" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
                           <CheckCircle2 className="mr-2 text-green-500" />{' '}
-                          Available Keys
+                          Available Keys ({availableKeys.length})
                         </TabsTrigger>
                         <TabsTrigger value="claimed" className="border data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:border-primary">
-                          <XCircle className="mr-2 text-yellow-500" /> Claimed Keys
+                          <XCircle className="mr-2 text-yellow-500" /> Claimed Keys ({claimedKeys.length})
                         </TabsTrigger>
                       </TabsList>
                       <TabsContent value="available" className="mt-4">
@@ -391,6 +437,7 @@ export default function AdminPage() {
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Key</TableHead>
+                                {selectedMod === 'All Mods' && <TableHead>Mod</TableHead>}
                                 <TableHead>Plan</TableHead>
                                 <TableHead>Created At</TableHead>
                                 <TableHead className="text-right">
@@ -404,6 +451,7 @@ export default function AdminPage() {
                                   <TableCell>
                                     <Badge variant="default" className="bg-green-600 hover:bg-green-700">{k.value}</Badge>
                                   </TableCell>
+                                  {selectedMod === 'All Mods' && <TableCell>{k.mod}</TableCell>}
                                   <TableCell>{k.plan}</TableCell>
                                   <TableCell>
                                     {new Date(k.createdAt).toLocaleString()}
@@ -422,10 +470,10 @@ export default function AdminPage() {
                                {availableKeys.length === 0 && (
                                 <TableRow>
                                   <TableCell
-                                    colSpan={4}
+                                    colSpan={selectedMod === 'All Mods' ? 5 : 4}
                                     className="text-center text-muted-foreground"
                                   >
-                                    No available keys found.
+                                    No available keys found for this mod.
                                   </TableCell>
                                 </TableRow>
                               )}
@@ -439,6 +487,7 @@ export default function AdminPage() {
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Key</TableHead>
+                                {selectedMod === 'All Mods' && <TableHead>Mod</TableHead>}
                                 <TableHead>Plan</TableHead>
                                 <TableHead>UTR Number</TableHead>
                                 <TableHead>Claimed At</TableHead>
@@ -453,6 +502,7 @@ export default function AdminPage() {
                                   <TableCell>
                                     <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-black">{k.value}</Badge>
                                   </TableCell>
+                                  {selectedMod === 'All Mods' && <TableCell>{k.mod}</TableCell>}
                                   <TableCell>{k.plan}</TableCell>
                                   <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                                   <TableCell>
@@ -474,10 +524,10 @@ export default function AdminPage() {
                                {claimedKeys.length === 0 && (
                                 <TableRow>
                                   <TableCell
-                                    colSpan={5}
+                                    colSpan={selectedMod === 'All Mods' ? 6 : 5}
                                     className="text-center text-muted-foreground"
                                   >
-                                    No claimed keys found.
+                                    No claimed keys found for this mod.
                                   </TableCell>
                                 </TableRow>
                               )}
@@ -494,9 +544,9 @@ export default function AdminPage() {
                 <div className="mt-4 space-y-6">
                   <Card className="bg-card/50 backdrop-blur-sm animate-border-glow">
                     <CardHeader>
-                      <CardTitle>Balance Information</CardTitle>
+                      <CardTitle>Balance Information for <span className="text-primary">{selectedMod}</span></CardTitle>
                       <CardDescription>
-                        View payment amounts and key statistics.
+                        View payment amounts and key statistics for the selected mod.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -571,7 +621,7 @@ export default function AdminPage() {
                     <CardHeader>
                       <CardTitle>Keys by Plan</CardTitle>
                       <CardDescription>
-                        Breakdown of keys for each subscription plan.
+                        Breakdown of keys for each subscription plan for <span className="font-bold text-primary">{selectedMod}</span>.
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -613,7 +663,7 @@ export default function AdminPage() {
                   <CardHeader>
                     <CardTitle>Expired Keys</CardTitle>
                     <CardDescription>
-                      View all keys that have expired.
+                      View all keys that have expired for <span className="font-bold text-primary">{selectedMod}</span>.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -622,6 +672,7 @@ export default function AdminPage() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Key</TableHead>
+                             {selectedMod === 'All Mods' && <TableHead>Mod</TableHead>}
                             <TableHead>Plan</TableHead>
                             <TableHead>UTR Number</TableHead>
                             <TableHead>Claimed At</TableHead>
@@ -634,6 +685,7 @@ export default function AdminPage() {
                               <TableCell>
                                 <Badge variant="destructive">{k.value}</Badge>
                               </TableCell>
+                              {selectedMod === 'All Mods' && <TableCell>{k.mod}</TableCell>}
                               <TableCell>{k.plan}</TableCell>
                               <TableCell className="font-mono text-xs">{k.utr || 'N/A'}</TableCell>
                               <TableCell>
@@ -655,10 +707,10 @@ export default function AdminPage() {
                           {expiredKeys.length === 0 && (
                             <TableRow>
                               <TableCell
-                                colSpan={5}
+                                colSpan={selectedMod === 'All Mods' ? 6 : 5}
                                 className="text-center text-muted-foreground"
                               >
-                                No expired keys found.
+                                No expired keys found for this mod.
                               </TableCell>
                             </TableRow>
                           )}
@@ -678,13 +730,28 @@ export default function AdminPage() {
                 <DialogHeader>
                     <DialogTitle>Generate New Keys</DialogTitle>
                     <DialogDescription>
-                        Create multiple keys for a specific plan.
+                        Create one or more keys for a specific mod and plan.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                      <div className="space-y-2">
+                        <Label htmlFor="key-mod">Mod</Label>
+                        <Select value={newKeyMod} onValueChange={setNewKeyMod}>
+                            <SelectTrigger id="key-mod">
+                                <SelectValue placeholder="Select a mod" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {mods.map(m => (
+                                    <SelectItem key={m.name} value={m.name}>
+                                        {m.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
                         <Label htmlFor="key-plan">Plan</Label>
-                        <Select value={newKeyPlan} onValuechange={setNewKeyPlan}>
+                        <Select value={newKeyPlan} onValueChange={setNewKeyPlan}>
                             <SelectTrigger id="key-plan">
                                 <SelectValue placeholder="Select a plan" />
                             </SelectTrigger>
@@ -712,7 +779,7 @@ export default function AdminPage() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button onClick={handleGenerateKeys}>
+                    <Button onClick={handleGenerateKeys} disabled={!newKeyMod}>
                         <FilePlus className="mr-2 h-4 w-4" /> Generate Keys
                     </Button>
                 </DialogFooter>
@@ -726,7 +793,7 @@ export default function AdminPage() {
                         <ShieldAlert className="text-destructive" /> Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                        You are about to permanently delete the key <span className="font-bold text-foreground">{keyToDelete?.value}</span> from the database. This will remove it from all associated lists (Available, Claimed, Expired). This action cannot be undone.
+                        You are about to permanently delete the key <span className="font-bold text-foreground">{keyToDelete?.value}</span> for mod <span className="font-bold text-foreground">{keyToDelete?.mod}</span>. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="flex items-center space-x-2 my-4">

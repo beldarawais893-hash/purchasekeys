@@ -125,7 +125,8 @@ export default function PaymentPageContent() {
             screenshotDataUri,
             utrNumber: utrNumber.trim(),
             planPrice: price,
-            planDuration: plan, // planDuration should match the key's plan
+            planDuration: plan,
+            mod: mod, // Pass the mod name to the verification function
         });
 
         if (result.success && result.claimedKey) {
@@ -239,7 +240,7 @@ export default function PaymentPageContent() {
             </div>
           </div>
 
-          <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-primary/90 hover:bg-primary">
+          <Button onClick={handleSubmit} disabled={isSubmitting || !mod || !plan || !price} className="w-full bg-primary/90 hover:bg-primary">
             {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Verifying...</> : 'Submit for Verification'}
           </Button>
         </CardContent>
@@ -247,5 +248,3 @@ export default function PaymentPageContent() {
     </div>
   );
 }
-
-    

@@ -22,6 +22,7 @@ const VerifyPaymentInputSchema = z.object({
   utrNumber: z.string().describe('The UTR/transaction reference number provided by the user.'),
   planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
   planDuration: z.string().describe('The duration of the subscription plan.'),
+  mod: z.string().describe('The name of the mod the user is purchasing.'),
 });
 // Type is inferred locally, NOT exported.
 type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
@@ -46,7 +47,7 @@ async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOu
     name: 'verifyPaymentPrompt',
     input: { schema: VerifyPaymentInputSchema },
     output: { schema: VerifyPaymentOutputSchema },
-    prompt: `You are an expert payment verification agent. Your task is to analyze a payment screenshot and verify its authenticity based on the provided details.
+    prompt: `You are an expert payment verification agent. Your task is to analyze a payment screenshot and verify its authenticity based on the provided details for the purchase of the '{{{mod}}}' mod.
 
 You must meticulously check the following four conditions:
 1.  Amount Match: The payment amount in the screenshot must exactly match the expected plan price of ₹{{{planPrice}}}.
@@ -92,7 +93,7 @@ export async function verifyPaymentWithAi(
   // Validate input with Zod schema
   const parsedInput = VerifyPaymentInputSchema.safeParse(input);
   if (!parsedInput.success) {
-     return { success: false, message: 'Invalid input provided.' };
+     return { success: false, message: 'Invalid input provided. Missing mod, plan or price.' };
   }
 
   try {
@@ -111,11 +112,11 @@ export async function verifyPaymentWithAi(
       return { success: false, message: 'This UTR number has already been used to claim a key.' };
     }
 
-    // 3. Find an available key for the plan
-    const availableKey = allKeys.find(key => key.plan === input.planDuration && key.status === 'available');
+    // 3. Find an available key for the specific mod and plan
+    const availableKey = allKeys.find(key => key.mod === input.mod && key.plan === input.planDuration && key.status === 'available');
 
     if (!availableKey) {
-      return { success: false, message: `Sorry, no keys are currently available for the ${input.planDuration} plan. Please contact the owner.` };
+      return { success: false, message: `Sorry, no keys are currently available for the ${input.mod} - ${input.planDuration} plan. Please contact the owner.` };
     }
 
     // 4. Claim the key

@@ -8,6 +8,7 @@ export type SubscriptionPlan = {
 export type Key = {
   id: string;
   value: string;
+  mod: string; // Added mod field
   plan: string;
   price: number;
   createdAt: string; // ISO string
