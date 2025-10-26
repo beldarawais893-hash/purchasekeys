@@ -101,6 +101,7 @@ const mods = [
   { name: 'Infinite mod' },
   { name: 'Ignis mod' },
   { name: 'Monster mod' },
+  { name: 'Kristal mod' },
 ];
 
 
@@ -872,5 +873,4 @@ export default function AdminPage() {
     </div>
   );
 }
-
     

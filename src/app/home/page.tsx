@@ -25,18 +25,21 @@ import {
   Cpu,
   ArrowRight,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getKeys } from '@/app/actions';
 import type { Key } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
 
 const mods = [
-  { name: 'Safe loader' },
-  { name: 'Infinite mod' },
-  { name: 'Ignis mod' },
-  { name: 'Monster mod' },
+  { name: 'Safe loader', status: 'available' },
+  { name: 'Infinite mod', status: 'available' },
+  { name: 'Ignis mod', status: 'available' },
+  { name: 'Monster mod', status: 'available' },
+  { name: 'Kristal mod', status: 'coming_soon' },
 ];
 
 export default function Home() {
@@ -205,23 +208,32 @@ export default function Home() {
                             {mods.map((mod, index) => (
                                 <div key={mod.name} className={`grid grid-cols-2 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
                                     <div className="font-medium">{mod.name}</div>
-                                    <Button 
-                                        onClick={() => handleSelectMod(mod.name)} 
-                                        size="sm" 
-                                        className="bg-primary/90 hover:bg-primary justify-self-start"
-                                        disabled={!!loadingMod}
-                                    >
-                                        {loadingMod === mod.name ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                Selecting...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Select <ArrowRight className="ml-2 h-4 w-4" />
-                                            </>
-                                        )}
-                                    </Button>
+                                    <div>
+                                    {mod.status === 'available' ? (
+                                        <Button 
+                                            onClick={() => handleSelectMod(mod.name)} 
+                                            size="sm" 
+                                            className="bg-primary/90 hover:bg-primary justify-self-start"
+                                            disabled={!!loadingMod}
+                                        >
+                                            {loadingMod === mod.name ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Selecting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Select <ArrowRight className="ml-2 h-4 w-4" />
+                                                </>
+                                            )}
+                                        </Button>
+                                    ) : (
+                                        <Badge variant="outline" className="border-yellow-500 text-yellow-500">
+                                            <Clock className="mr-2 h-4 w-4" />
+                                            Coming Soon
+                                        </Badge>
+                                    )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
