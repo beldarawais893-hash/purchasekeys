@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import {
@@ -26,6 +26,7 @@ import { verifyPaymentWithAi } from '@/app/actions';
 
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
+const PAYEE_NAME = 'Army Owner Keys';
 
 export default function PaymentPageContent() {
   const router = useRouter();
@@ -38,6 +39,13 @@ export default function PaymentPageContent() {
   
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
+
+  const qrCodeUrl = useMemo(() => {
+    if (!price || price === '0') return null;
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${price}&cu=INR`;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+  }, [price]);
+
 
   const handleCopy = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -165,15 +173,33 @@ export default function PaymentPageContent() {
           
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4 text-center">
-            <Label className="text-lg font-medium">Pay using UPI ID</Label>
+           <div className="space-y-4 text-center">
+            <Label className="text-lg font-medium">Scan and Pay</Label>
             <div className="flex flex-col items-center justify-center">
-               <div className="mt-4 flex w-full max-w-[280px] items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
-                <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
-                <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 shrink-0">
-                  {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
+              {qrCodeUrl ? (
+                <Image
+                  src={qrCodeUrl}
+                  alt="UPI QR Code"
+                  width={200}
+                  height={200}
+                  className="rounded-lg border-4 border-white"
+                />
+              ) : (
+                <div className="h-[200px] w-[200px] flex items-center justify-center bg-muted rounded-lg">
+                  <p className="text-muted-foreground text-sm">Loading QR...</p>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Or pay using the UPI ID below</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="upiId" className="sr-only">UPI ID</Label>
+            <div className="mt-4 flex w-full max-w-[280px] mx-auto items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
+              <span id="upiId" className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
+              <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 shrink-0">
+                {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
           
