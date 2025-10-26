@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -21,11 +22,10 @@ import {
   CalendarDays,
   Loader2,
 } from 'lucide-react';
-import QRCode from 'qrcode';
 import { verifyPaymentWithAi } from '@/app/actions';
 
 
-const UPI_ID = '9058895955-c289@axl';
+const UPI_ID = 'paytmqr6fauyo@ptys';
 
 export default function PaymentPageContent() {
   const router = useRouter();
@@ -35,19 +35,9 @@ export default function PaymentPageContent() {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const qrRef = useRef<HTMLCanvasElement>(null);
-
+  
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
-
-  useEffect(() => {
-    if (qrRef.current) {
-        const qrCodeUrl = `upi://pay?pa=${UPI_ID}&pn=Purchase&am=${price}&cu=INR`;
-        QRCode.toCanvas(qrRef.current, qrCodeUrl, { width: 200, margin: 2 }, (error) => {
-            if (error) console.error('Error generating QR code:', error);
-        });
-    }
-  }, [price]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -178,8 +168,14 @@ export default function PaymentPageContent() {
           <div className="space-y-4 text-center">
             <Label className="text-lg font-medium">Scan QR to Pay</Label>
             <div className="flex flex-col items-center justify-center">
-              <div className="bg-white p-2 rounded-lg">
-                <canvas ref={qrRef} />
+              <div className="p-2 rounded-lg bg-white">
+                <Image 
+                    src="/paytm_qr.jpg"
+                    alt="Paytm QR Code"
+                    width={250}
+                    height={250}
+                    className="rounded-md"
+                />
               </div>
                <div className="mt-4 flex w-full max-w-[280px] items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
@@ -222,10 +218,4 @@ export default function PaymentPageContent() {
           </div>
 
           <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-primary/90 hover:bg-primary">
-            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Verifying... </> : 'Submit & Claim Key'}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Verifying...

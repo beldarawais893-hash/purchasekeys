@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const UPI_ID = '9058895955-c289@axl';
+const UPI_ID = 'paytmqr6fauyo@ptys';
 
 // This schema is not exported. It is used internally by the prompt.
 const VerifyPaymentInputSchema = z.object({
@@ -61,8 +61,4 @@ const verifyPaymentFlow = ai.defineFlow(
     inputSchema: VerifyPaymentInputSchema,
     outputSchema: VerifyPaymentOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
+  
