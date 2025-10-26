@@ -307,7 +307,7 @@ export default function AdminPage() {
           <ArrowLeft />
         </Button>
         <h1 className="ml-4 text-2xl font-bold text-foreground font-headline">
-          Purchase Keys
+          Army Owner Keys
         </h1>
         <div className="ml-auto">
           <DropdownMenu>
@@ -751,3 +751,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
