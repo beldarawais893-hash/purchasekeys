@@ -4,6 +4,7 @@
  * @fileOverview A Genkit flow for verifying payment details from a screenshot.
  *
  * - verifyPayment - A function that handles the payment verification process.
+ * - VerifyPaymentInput - The input type for the verifyPayment function.
  * - VerifyPaymentOutput - The return type for the verifyPayment function.
  */
 
@@ -12,8 +13,7 @@ import {z} from 'genkit';
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
 
-// This schema is not exported. It is used internally by the prompt.
-const VerifyPaymentInputSchema = z.object({
+export const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
     .describe(
@@ -23,6 +23,7 @@ const VerifyPaymentInputSchema = z.object({
   planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
   planDuration: z.string().describe('The duration of the subscription plan.'),
 });
+export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
 
 const VerifyPaymentOutputSchema = z.object({
@@ -31,7 +32,7 @@ const VerifyPaymentOutputSchema = z.object({
 });
 export type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
-export async function verifyPayment(input: any): Promise<VerifyPaymentOutput> {
+export async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
   return verifyPaymentFlow(input);
 }
 
