@@ -81,19 +81,22 @@ export default function Home() {
     try {
         const keys = await getKeys();
         
-        const foundKey = keys.find(k => k.utr === searchTerm || k.value === searchTerm);
-        const foundBy = foundKey?.utr === searchTerm ? 'utr' : 'value';
+        const foundKey = keys.find(k => k.status === 'claimed' && (k.utr === searchTerm || k.value === searchTerm));
 
       if (foundKey) {
-        if (foundKey.status === 'claimed' && foundKey.claimedAt) {
-            const claimedDate = new Date(foundKey.claimedAt);
+            const claimedDate = new Date(foundKey.claimedAt!);
             const expiryDate = new Date(claimedDate);
 
             if (foundKey.plan.includes('Day')) {
                 const days = parseInt(foundKey.plan.split(' ')[0], 10);
                 expiryDate.setDate(claimedDate.getDate() + days);
             } else if (foundKey.plan.includes('Month')) {
-                const months = parseInt(foundKey.plan.split(' ')[0], 10);
+                let months = 0;
+                if (foundKey.plan.startsWith('1')) {
+                    months = 1;
+                } else if (foundKey.plan.startsWith('2')) {
+                    months = 2;
+                }
                 expiryDate.setMonth(claimedDate.getMonth() + months);
             }
 
@@ -106,29 +109,34 @@ export default function Home() {
                 return;
             }
 
-             if (foundBy === 'utr') {
+             if (foundKey.utr === searchTerm) {
+                // User searched by UTR, show them the key
                 setFoundKeyInfo(foundKey);
                 setIsKeyFoundDialogOpen(true);
-             } else { // found by value
+             } else { // User searched by key value
                  toast({
                     title: 'Key Already Claimed',
-                    description: `This key was claimed on ${new Date(foundKey.claimedAt).toLocaleString()}. Your UTR is ${foundKey.utr}.`,
-                    variant: 'destructive',
+                    description: `This key was claimed on ${new Date(foundKey.claimedAt!).toLocaleString()}. Your UTR is ${foundKey.utr}.`,
+                    variant: 'default',
                 });
              }
 
-        } else { // Key is available
-          toast({
-            title: 'Key Available',
-            description: `This key is valid and available for the ${foundKey.plan} plan.`,
-          });
-        }
       } else {
-        toast({
-          title: 'Invalid Key or UTR',
-          description: 'The Key or UTR you entered does not exist.',
-          variant: 'destructive',
-        });
+        // Check if it is an available key
+        const availableKey = (await getKeys()).find(k => k.value === searchTerm && k.status === 'available');
+        if (availableKey) {
+            toast({
+                title: 'Key Available',
+                description: `This key is valid and available for the ${availableKey.plan} plan.`,
+                variant: 'default'
+            });
+        } else {
+            toast({
+              title: 'Invalid Key or UTR',
+              description: 'No claimed key found for this Key or UTR number.',
+              variant: 'destructive',
+            });
+        }
       }
     } catch (error) {
       console.error('Failed to find key in KV store', error);
@@ -293,7 +301,7 @@ export default function Home() {
                 UTR: <span className="font-mono">{foundKeyInfo?.utr}</span>
               </p>
               <p>
-                Plan: <span>{foundKeyInfo?.plan}</span>
+                Plan: <span>{foundKeyInfo?.plan}</span> for <span>{foundKeyInfo?.mod}</span>
               </p>
             </div>
           </div>
@@ -302,5 +310,4 @@ export default function Home() {
     </div>
   );
 }
-
     

@@ -182,7 +182,8 @@ export default function SuccessPageContent() {
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
                     <Button
                         onClick={() => router.push('/home')}
-                        className="w-full bg-black hover:bg-gray-800 text-white"
+                        className="w-full"
+                        variant="outline"
                     >
                         <Home className="mr-2 h-4 w-4" /> Back to Home
                     </Button>
