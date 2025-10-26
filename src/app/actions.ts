@@ -34,16 +34,11 @@ const VerifyPaymentOutputSchema = z.object({
 });
 type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
+// Define the UPI ID as a constant.
+const UPI_ID = 'paytmqr6fauyo@ptys';
 
-/**
- * Verifies payment details using a Genkit AI flow. This function is defined
- * directly within the main actions file to avoid 'use server' cross-file import issues.
- */
-async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
-  const UPI_ID = 'paytmqr6fauyo@ptys';
-
-  // Define the prompt for the AI model
-  const prompt = ai.definePrompt({
+// Define the AI prompt at the module level for efficiency and correctness.
+const verifyPaymentPrompt = ai.definePrompt({
     name: 'verifyPaymentPrompt',
     input: { schema: VerifyPaymentInputSchema },
     output: { schema: VerifyPaymentOutputSchema },
@@ -61,11 +56,18 @@ Analyze the attached screenshot:
 Based on your analysis, determine if the payment is valid.
 - If all four conditions are met, set 'isPaymentValid' to true.
 - If any condition fails, set 'isPaymentValid' to false and provide a clear, concise 'reason' explaining exactly which check failed (e.g., "Amount in screenshot does not match plan price.", "UTR number not found in screenshot.", "Recipient UPI ID is incorrect.", "Screenshot does not appear to be original."). Do not be conversational in your reason.`,
-  });
+});
 
-  // Execute the prompt and return the structured output
-  const { output } = await prompt(input);
-  return output!;
+/**
+ * Verifies payment details using the pre-defined Genkit AI prompt.
+ * This is a clean, async wrapper around the prompt execution.
+ */
+async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
+  const { output } = await verifyPaymentPrompt(input);
+  if (!output) {
+      throw new Error("AI model did not return a valid response.");
+  }
+  return output;
 }
 
 
@@ -88,46 +90,50 @@ export async function getAiRecommendation(
 }
 
 export async function verifyPaymentWithAi(
-  input: any // Using 'any' here because the Zod schema is not exported
+  input: any // Using 'any' to accept form data, which is then validated.
 ): Promise<{ success: boolean; message: string; claimedKey?: Key }> {
-  // Validate input with Zod schema
+  // Validate input with Zod schema. This is a critical security step.
   const parsedInput = VerifyPaymentInputSchema.safeParse(input);
   if (!parsedInput.success) {
      return { success: false, message: 'Invalid input provided. Missing mod, plan or price.' };
   }
 
   try {
-    // 1. Verify with AI (now calling the local function)
+    // 1. Verify payment with the refactored AI function
     const verificationResult = await verifyPayment(parsedInput.data);
 
     if (!verificationResult.isPaymentValid) {
-      return { success: false, message: verificationResult.reason || 'Payment details could not be verified. Please check and try again.' };
+      return { success: false, message: verificationResult.reason || 'Payment details could not be verified by AI. Please check and try again.' };
     }
 
     const allKeys = await getKeys();
 
-    // 2. Check if UTR has been used before
-    const utrExists = allKeys.some(key => key.utr === input.utrNumber && key.status === 'claimed');
+    // 2. Check if UTR has been used before on a claimed key
+    const utrExists = allKeys.some(key => key.utr === parsedInput.data.utrNumber && key.status === 'claimed');
     if (utrExists) {
       return { success: false, message: 'This UTR number has already been used to claim a key.' };
     }
 
     // 3. Find an available key for the specific mod and plan
-    const availableKey = allKeys.find(key => key.mod === input.mod && key.plan === input.planDuration && key.status === 'available');
+    const availableKey = allKeys.find(key => 
+        key.mod === parsedInput.data.mod && 
+        key.plan === parsedInput.data.planDuration && 
+        key.status === 'available'
+    );
 
     if (!availableKey) {
-      return { success: false, message: `Sorry, no keys are currently available for the ${input.mod} - ${input.planDuration} plan. Please contact the owner.` };
+      return { success: false, message: `Sorry, no keys are currently available for the ${parsedInput.data.mod} - ${parsedInput.data.planDuration} plan. Please contact the owner.` };
     }
 
-    // 4. Claim the key
+    // 4. Claim the key: update its status and add claim details
     const claimedKey: Key = {
       ...availableKey,
       status: 'claimed',
       claimedAt: new Date().toISOString(),
-      utr: input.utrNumber,
+      utr: parsedInput.data.utrNumber,
     };
 
-    // 5. Update the keys in the database
+    // 5. Update the key in the list and save back to the database
     const updatedKeys = allKeys.map(key => key.id === claimedKey.id ? claimedKey : key);
     await saveKeys(updatedKeys);
 
@@ -138,9 +144,10 @@ export async function verifyPaymentWithAi(
     };
 
   } catch (error) {
-    console.error('Error during AI payment verification:', error);
+    console.error('Error during AI payment verification process:', error);
     // Provide a more generic error to the user for security
-    return { success: false, message: 'An unexpected error occurred during verification. Please try again later or contact support.' };
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred during verification.';
+    return { success: false, message: `Verification failed: ${errorMessage} Please try again later or contact support.` };
   }
 }
 
