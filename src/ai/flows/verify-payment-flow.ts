@@ -4,16 +4,14 @@
  * @fileOverview A Genkit flow for verifying payment details from a screenshot.
  *
  * - verifyPayment - A function that handles the payment verification process.
- * - VerifyPaymentInput - The input type for the verifyPayment function.
- * - VerifyPaymentOutput - The return type for the verifyPayment function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { VerifyPaymentInput, VerifyPaymentOutput } from '@/app/actions';
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
 
+// Schema and types are defined internally and not exported.
 const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
@@ -24,13 +22,15 @@ const VerifyPaymentInputSchema = z.object({
   planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
   planDuration: z.string().describe('The duration of the subscription plan.'),
 });
-
+type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
   reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
 });
+type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
+// This is the only exported function, as required by 'use server'.
 export async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
   return verifyPaymentFlow(input);
 }

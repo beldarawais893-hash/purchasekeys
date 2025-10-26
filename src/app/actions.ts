@@ -13,6 +13,7 @@ import { kv } from '@vercel/kv';
 import type { Key } from '@/lib/types';
 import { z } from 'zod';
 
+// Moved from verify-payment-flow.ts to comply with 'use server' constraints
 export const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
@@ -25,6 +26,7 @@ export const VerifyPaymentInputSchema = z.object({
 });
 export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
+// Moved from verify-payment-flow.ts to comply with 'use server' constraints
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
   reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
@@ -61,7 +63,9 @@ export async function verifyPaymentWithAi(
 
   try {
     // 1. Verify with AI
-    const verificationResult = await verifyPayment(parsedInput.data);
+    // The type is cast to `any` because the `verifyPayment` function's input type
+    // is not exported from the 'use server' file. Validation is handled above.
+    const verificationResult: VerifyPaymentOutput = await verifyPayment(parsedInput.data as any);
 
     if (!verificationResult.isPaymentValid) {
       return { success: false, message: verificationResult.reason || 'Payment details could not be verified. Please check and try again.' };
