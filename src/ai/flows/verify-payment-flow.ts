@@ -10,11 +10,11 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { VerifyPaymentOutput } from '@/app/actions';
+import type { VerifyPaymentInput, VerifyPaymentOutput } from '@/app/actions';
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
 
-export const VerifyPaymentInputSchema = z.object({
+const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
     .describe(
@@ -24,7 +24,7 @@ export const VerifyPaymentInputSchema = z.object({
   planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
   planDuration: z.string().describe('The duration of the subscription plan.'),
 });
-export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
+
 
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
