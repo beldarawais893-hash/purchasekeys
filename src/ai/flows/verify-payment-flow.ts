@@ -13,7 +13,7 @@ import {z} from 'genkit';
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
 
-const VerifyPaymentInputSchema = z.object({
+export const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
     .describe(
