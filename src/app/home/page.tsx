@@ -22,12 +22,22 @@ import {
   Clipboard,
   ClipboardCheck,
   ShieldCheck,
+  ShoppingCart,
+  Cpu,
+  IndianRupee,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getKeys } from '@/app/actions';
 import type { Key } from '@/lib/types';
 
+
+const mods = [
+  { name: 'Safe loader', price: 300 },
+  { name: 'Infinite mod', price: 500 },
+  { name: 'Ignis mod', price: 400 },
+  { name: 'Monster mod', price: 450 },
+];
 
 export default function Home() {
   const [searchKey, setSearchKey] = useState('');
@@ -130,6 +140,10 @@ export default function Home() {
     }
   };
 
+  const handlePayForMod = (mod: { name: string, price: number }) => {
+     router.push(`/payment?plan=${encodeURIComponent(mod.name)}&price=${mod.price}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
@@ -166,6 +180,35 @@ export default function Home() {
         <section id="purchase-schedule" className="mb-12">
           <PurchaseSchedule />
         </section>
+
+        <section id="purchase-mods" className="mb-12">
+            <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
+                 <CardHeader>
+                    <CardTitle className="text-center text-2xl font-bold">Purchase Mods</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-hidden rounded-lg">
+                        <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
+                            <div className="flex items-center gap-2"><Cpu className="h-5 w-5" /><span>MOD NAME</span></div>
+                            <div className="flex items-center gap-2"><IndianRupee className="h-5 w-5" /><span>PRICE</span></div>
+                            <div className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" /><span>PURCHASE</span></div>
+                        </div>
+                        <div className="flex flex-col">
+                            {mods.map((mod, index) => (
+                                <div key={mod.name} className={`grid grid-cols-3 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
+                                    <div className="font-medium">{mod.name}</div>
+                                    <div>{mod.price} Rs</div>
+                                    <Button onClick={() => handlePayForMod(mod)} size="sm" className="bg-primary/90 hover:bg-primary">
+                                        Buy Now <ShoppingCart className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </section>
+
 
         <section id="contact-owner">
           <Card className="max-w-md mx-auto bg-card/50 backdrop-blur-sm animate-border-glow">
@@ -264,3 +307,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
