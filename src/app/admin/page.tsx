@@ -135,8 +135,8 @@ export default function AdminPage() {
     } catch (error) {
       console.error("Failed to fetch keys from KV store:", error);
       let description = 'Could not load keys from the online database.';
-      if (error instanceof Error && (error.message.includes('KV_REST_API_URL') || error.message.includes('KV_REST_API_TOKEN'))) {
-        description = 'Configuration Error: Could not connect to Vercel KV. Please ensure your environment variables are set correctly.';
+       if (error instanceof Error && (error.message.includes('KV_REST_API_URL') || error.message.includes('KV_REST_API_TOKEN') || error.message.includes('Vercel KV'))) {
+        description = 'Connection Error: Could not connect to Vercel KV. Please go to your Vercel Project Settings > Environment Variables and add your KV credentials. Then, redeploy your project.';
       } else if (error instanceof Error && error.message.includes('WRONGTYPE')) {
          description = 'Database Error: The data format in Vercel KV is incorrect. The app tried to fix it. Please refresh.';
       }
@@ -144,7 +144,7 @@ export default function AdminPage() {
         title: 'Error Loading Keys',
         description: description,
         variant: 'destructive',
-        duration: 9000,
+        duration: 15000,
       });
     } finally {
       setIsLoading(false);
