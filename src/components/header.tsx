@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -48,7 +49,7 @@ export function AppHeader() {
       <header className="bg-card text-card-foreground p-4 flex justify-between items-center border-b border-border">
         <div className="flex items-center gap-3">
           <KeyRound className="text-primary h-8 w-8" />
-          <h1 className="text-2xl font-bold">Army Owner Keys</h1>
+          <h1 className="text-2xl font-bold">KRISTAL KEYS</h1>
         </div>
         <div className="relative">
           <DropdownMenu>
