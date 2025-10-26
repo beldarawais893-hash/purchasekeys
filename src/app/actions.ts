@@ -8,11 +8,18 @@ import {
 } from '@/ai/flows/recommend-subscription-plan';
 import { 
   verifyPayment, 
-  VerifyPaymentInputSchema,
   type VerifyPaymentInput 
 } from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import type { Key } from '@/lib/types';
+import { z } from 'zod';
+
+const VerifyPaymentInputSchema = z.object({
+  screenshotDataUri: z.string(),
+  utrNumber: z.string(),
+  planPrice: z.string(),
+  planDuration: z.string(),
+});
 
 
 export async function getAiRecommendation(
