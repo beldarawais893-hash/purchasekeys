@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { VerifyPaymentOutput } from '@/app/actions';
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
 
@@ -25,12 +26,10 @@ export const VerifyPaymentInputSchema = z.object({
 });
 export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
-
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
   reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
 });
-export type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
 export async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
   return verifyPaymentFlow(input);

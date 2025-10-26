@@ -8,18 +8,18 @@ import {
 } from '@/ai/flows/recommend-subscription-plan';
 import { 
   verifyPayment, 
-  type VerifyPaymentInput 
+  type VerifyPaymentInput,
+  VerifyPaymentInputSchema
 } from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import type { Key } from '@/lib/types';
 import { z } from 'zod';
 
-const VerifyPaymentInputSchema = z.object({
-  screenshotDataUri: z.string(),
-  utrNumber: z.string(),
-  planPrice: z.string(),
-  planDuration: z.string(),
+const VerifyPaymentOutputSchema = z.object({
+  isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
+  reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
 });
+export type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
 
 export async function getAiRecommendation(
