@@ -24,6 +24,7 @@ import {
   ShoppingCart,
   Cpu,
   ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -46,6 +47,8 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
+  const [loadingMod, setLoadingMod] = useState<string | null>(null);
+
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
@@ -103,6 +106,7 @@ export default function Home() {
                     description: 'This key has expired. Please purchase a new key.',
                     variant: 'destructive',
                 });
+                setLoadingMod(null);
                 return;
             }
 
@@ -148,6 +152,7 @@ export default function Home() {
   };
 
   const handleSelectMod = (modName: string) => {
+     setLoadingMod(modName);
      router.push(`/purchase?mod=${encodeURIComponent(modName)}`);
   };
 
@@ -200,8 +205,22 @@ export default function Home() {
                             {mods.map((mod, index) => (
                                 <div key={mod.name} className={`grid grid-cols-2 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
                                     <div className="font-medium">{mod.name}</div>
-                                    <Button onClick={() => handleSelectMod(mod.name)} size="sm" className="bg-primary/90 hover:bg-primary justify-self-start">
-                                        Select <ArrowRight className="ml-2 h-4 w-4" />
+                                    <Button 
+                                        onClick={() => handleSelectMod(mod.name)} 
+                                        size="sm" 
+                                        className="bg-primary/90 hover:bg-primary justify-self-start"
+                                        disabled={!!loadingMod}
+                                    >
+                                        {loadingMod === mod.name ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Selecting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Select <ArrowRight className="ml-2 h-4 w-4" />
+                                            </>
+                                        )}
                                     </Button>
                                 </div>
                             ))}
