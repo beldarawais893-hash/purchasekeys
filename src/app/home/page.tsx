@@ -90,17 +90,13 @@ export default function Home() {
             const claimedDate = new Date(foundKey.claimedAt!);
             const expiryDate = new Date(claimedDate);
 
-            if (foundKey.plan.includes('Day')) {
-                const days = parseInt(foundKey.plan.split(' ')[0], 10);
-                expiryDate.setDate(claimedDate.getDate() + days);
-            } else if (foundKey.plan.includes('Month')) {
-                let months = 0;
-                if (foundKey.plan.startsWith('1')) {
-                    months = 1;
-                } else if (foundKey.plan.startsWith('2')) {
-                    months = 2;
-                }
-                expiryDate.setMonth(claimedDate.getMonth() + months);
+            const [value, unit] = foundKey.plan.split(' ');
+            const amount = parseInt(value, 10);
+
+            if (unit.toLowerCase().includes('day')) {
+                expiryDate.setDate(claimedDate.getDate() + amount);
+            } else if (unit.toLowerCase().includes('month')) {
+                expiryDate.setMonth(claimedDate.getMonth() + amount);
             }
 
             if (new Date() > expiryDate) {

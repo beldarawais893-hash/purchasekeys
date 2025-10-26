@@ -114,17 +114,13 @@ const isKeyExpired = (key: Key): boolean => {
   const claimedDate = new Date(key.claimedAt);
   const expiryDate = new Date(claimedDate);
 
-  if (key.plan.includes('Day')) {
-    const days = parseInt(key.plan.split(' ')[0], 10);
-    expiryDate.setDate(claimedDate.getDate() + days);
-  } else if (key.plan.includes('Month')) {
-    let months = 0;
-    if (key.plan.startsWith('1')) {
-      months = 1;
-    } else if (key.plan.startsWith('2')) {
-      months = 2;
-    }
-    expiryDate.setMonth(claimedDate.getMonth() + months);
+  const [value, unit] = key.plan.split(' ');
+  const amount = parseInt(value, 10);
+
+  if (unit.toLowerCase().includes('day')) {
+    expiryDate.setDate(claimedDate.getDate() + amount);
+  } else if (unit.toLowerCase().includes('month')) {
+    expiryDate.setMonth(claimedDate.getMonth() + amount);
   }
 
   return new Date() > expiryDate;
@@ -884,3 +880,4 @@ export default function AdminPage() {
     
 
     
+
