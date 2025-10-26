@@ -6,14 +6,13 @@ import {
   type RecommendSubscriptionPlanInput,
   type RecommendSubscriptionPlanOutput,
 } from '@/ai/flows/recommend-subscription-plan';
-import { 
-  verifyPayment, 
-} from '@/ai/flows/verify-payment-flow';
 import { kv } from '@vercel/kv';
 import type { Key } from '@/lib/types';
 import { z } from 'zod';
+import { ai } from '@/ai/genkit';
 
-// Moved from verify-payment-flow.ts to comply with 'use server' constraints
+
+// Zod Schema for input validation, kept within the primary server action file.
 export const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
@@ -26,12 +25,46 @@ export const VerifyPaymentInputSchema = z.object({
 });
 export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
-// Moved from verify-payment-flow.ts to comply with 'use server' constraints
+// Internal type for the AI model's output.
+type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
   reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
 });
-export type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
+
+
+/**
+ * Verifies payment details using a Genkit AI flow. This function is defined
+ * directly within the main actions file to avoid 'use server' cross-file import issues.
+ */
+async function verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentOutput> {
+  const UPI_ID = 'paytmqr6fauyo@ptys';
+
+  // Define the prompt for the AI model
+  const prompt = ai.definePrompt({
+    name: 'verifyPaymentPrompt',
+    input: { schema: VerifyPaymentInputSchema },
+    output: { schema: VerifyPaymentOutputSchema },
+    prompt: `You are an expert payment verification agent. Your task is to analyze a payment screenshot and verify its authenticity based on the provided details.
+
+You must meticulously check the following four conditions:
+1.  Amount Match: The payment amount in the screenshot must exactly match the expected plan price of ₹{{{planPrice}}}.
+2.  UPI ID Match: The recipient's UPI ID in the screenshot must be '${UPI_ID}'.
+3.  UTR/Reference Number Match: The UTR, UPI reference number, or transaction ID in the screenshot must exactly match the user-provided UTR number: '{{{utrNumber}}}'.
+4.  Screenshot Authenticity: The screenshot must look like a genuine, unaltered screenshot from a payment app. Check for inconsistencies in fonts, colors, or any signs of editing or watermarks.
+
+Analyze the attached screenshot:
+{{media url=screenshotDataUri}}
+
+Based on your analysis, determine if the payment is valid.
+- If all four conditions are met, set 'isPaymentValid' to true.
+- If any condition fails, set 'isPaymentValid' to false and provide a clear, concise 'reason' explaining exactly which check failed (e.g., "Amount in screenshot does not match plan price.", "UTR number not found in screenshot.", "Recipient UPI ID is incorrect.", "Screenshot does not appear to be original."). Do not be conversational in your reason.`,
+  });
+
+  // Execute the prompt and return the structured output
+  const { output } = await prompt(input);
+  return output!;
+}
 
 
 export async function getAiRecommendation(
@@ -62,10 +95,8 @@ export async function verifyPaymentWithAi(
   }
 
   try {
-    // 1. Verify with AI
-    // The type is cast to `any` because the `verifyPayment` function's input type
-    // is not exported from the 'use server' file. Validation is handled above.
-    const verificationResult: VerifyPaymentOutput = await verifyPayment(parsedInput.data as any);
+    // 1. Verify with AI (now calling the local function)
+    const verificationResult = await verifyPayment(parsedInput.data);
 
     if (!verificationResult.isPaymentValid) {
       return { success: false, message: verificationResult.reason || 'Payment details could not be verified. Please check and try again.' };
