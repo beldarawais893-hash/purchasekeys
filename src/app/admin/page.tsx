@@ -796,7 +796,7 @@ export default function AdminPage() {
                                 <SelectValue placeholder="Select a mod" />
                             </SelectTrigger>
                             <SelectContent>
-                                {mods.map(m => (
+                                {mods.filter(m => m.name !== 'Kristal mod').map(m => (
                                     <SelectItem key={m.name} value={m.name}>
                                         {m.name}
                                     </SelectItem>
@@ -873,4 +873,6 @@ export default function AdminPage() {
     </div>
   );
 }
+    
+
     
