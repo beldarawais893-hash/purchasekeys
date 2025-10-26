@@ -4,7 +4,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, Clipboard, ClipboardCheck, Home, Send } from 'lucide-react';
+import { CheckCircle2, Clipboard, ClipboardCheck, Home } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import type { Key } from '@/lib/types';
@@ -180,13 +180,6 @@ export default function SuccessPageContent() {
                 </div>
             
                 <div className="flex flex-col sm:flex-row gap-4 w-full">
-                     <Button
-                        onClick={() => window.open('https://t.me/+Kv7fEX8f7TFkMjk1', '_blank')}
-                        variant="outline"
-                        className="w-full"
-                    >
-                        <Send className="mr-2 h-4 w-4" /> Join Community
-                    </Button>
                     <Button
                         onClick={() => router.push('/home')}
                         className="w-full bg-black hover:bg-gray-800 text-white"
