@@ -12,8 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   Send,
@@ -26,16 +24,11 @@ import {
   ShoppingCart,
   Cpu,
   ArrowRight,
-  Sparkles,
-  Loader2,
-  MessageSquareHeart,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getKeys, getAiModRecommendation } from '@/app/actions';
+import { getKeys } from '@/app/actions';
 import type { Key } from '@/lib/types';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 
 
 const mods = [
@@ -53,11 +46,6 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
-
-  const [userRequirements, setUserRequirements] = useState('');
-  const [isRecommending, setIsRecommending] = useState(false);
-  const [recommendation, setRecommendation] = useState<{ recommendedMod: string, reasoning: string } | null>(null);
-
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
@@ -163,32 +151,6 @@ export default function Home() {
      router.push(`/purchase?mod=${encodeURIComponent(modName)}`);
   };
 
-  const handleGetRecommendation = async () => {
-    if (!userRequirements.trim()) {
-      toast({
-        title: 'Input Required',
-        description: 'Please describe what you are looking for in a mod.',
-        variant: 'destructive'
-      });
-      return;
-    }
-    setIsRecommending(true);
-    setRecommendation(null);
-    try {
-      const result = await getAiModRecommendation({ userRequirements });
-      setRecommendation(result);
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: 'AI Error',
-        description: 'Could not get a recommendation. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsRecommending(false);
-    }
-  };
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -248,62 +210,6 @@ export default function Home() {
                 </CardContent>
             </Card>
         </section>
-
-        <section id="ai-assistant" className="mb-12">
-          <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
-            <CardHeader>
-              <div className="flex items-center justify-center gap-2">
-                <Sparkles className="text-primary h-6 w-6" />
-                <CardTitle className="text-center text-2xl font-bold">AI Assistant</CardTitle>
-              </div>
-              <CardDescription className="text-center">
-                Tell us what you need, and our AI will recommend the perfect mod for you!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="requirements" className="mb-2 flex items-center">
-                  <MessageSquareHeart className="mr-2 h-4 w-4" />
-                  What are you looking for in a mod?
-                </Label>
-                <Textarea
-                  id="requirements"
-                  placeholder="e.g., 'I want a mod that is very safe and undetectable' or 'I need the most powerful features for attacking'."
-                  value={userRequirements}
-                  onChange={(e) => setUserRequirements(e.target.value)}
-                  className="min-h-[100px]"
-                  disabled={isRecommending}
-                />
-              </div>
-              <Button onClick={handleGetRecommendation} disabled={isRecommending} className="w-full bg-primary/90 hover:bg-primary">
-                {isRecommending ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Getting Recommendation...</>
-                ) : (
-                  <><Sparkles className="mr-2 h-4 w-4" /> Get Recommendation</>
-                )}
-              </Button>
-              {recommendation && (
-                <Alert className="mt-4 border-primary/50">
-                  <Sparkles className="h-4 w-4" />
-                  <AlertTitle className="font-bold flex items-center gap-2">
-                    AI Recommendation: <Badge className="bg-primary">{recommendation.recommendedMod}</Badge>
-                  </AlertTitle>
-                  <AlertDescription>
-                    <p className="mt-2">{recommendation.reasoning}</p>
-                    <Button
-                      onClick={() => handleSelectMod(recommendation.recommendedMod)}
-                      size="sm"
-                      className="mt-4"
-                    >
-                      Purchase Now <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
-        </section>
-
 
         <section id="contact-owner">
           <Card className="max-w-md mx-auto bg-card/50 backdrop-blur-sm animate-border-glow">

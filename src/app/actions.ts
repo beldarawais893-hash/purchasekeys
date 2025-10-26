@@ -6,11 +6,6 @@ import {
   type RecommendSubscriptionPlanInput,
   type RecommendSubscriptionPlanOutput,
 } from '@/ai/flows/recommend-subscription-plan';
-import {
-  recommendMod,
-  type RecommendModInput,
-  type RecommendModOutput,
-} from '@/ai/flows/recommend-mod';
 import { kv } from '@vercel/kv';
 import type { Key } from '@/lib/types';
 import { z } from 'zod';
@@ -91,24 +86,6 @@ export async function getAiRecommendation(
     );
   }
 }
-
-export async function getAiModRecommendation(
-  input: RecommendModInput
-): Promise<RecommendModOutput> {
-  if (!input.userRequirements) {
-    throw new Error('User requirements are required.');
-  }
-  try {
-    const result = await recommendMod(input);
-    return result;
-  } catch (error) {
-    console.error('Error getting AI mod recommendation:', error);
-    throw new Error(
-      'Failed to get a mod recommendation from the AI. Please try again later.'
-    );
-  }
-}
-
 
 export async function verifyPaymentWithAi(
   input: any // Using 'any' here because the Zod schema is not exported
