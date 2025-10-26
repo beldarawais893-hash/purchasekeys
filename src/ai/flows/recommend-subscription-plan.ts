@@ -49,12 +49,12 @@ Based on the user's viewing habits and preferences, recommend the most suitable 
 
 Consider the following subscription plans:
 
-1 ᴅᴀʏ - 200 ʳˢ
-3 ᴅᴀʏ - 350 ʳˢ
-7 ᴅᴀʏ - 500 ʳˢ
-15 ᴅᴀʏ - 720 ʳˢ
-1 ᴍᴏɴᴛʜ - 900 ʳˢ
-2 ᴍᴏɴᴛʜ - 1400 ʳˢ
+1 ᴅᴀʏ - 150 ʳˢ
+3 ᴅᴀʏ - 300 ʳˢ
+7 ᴅᴀʏ - 400 ʳˢ
+15 ᴅᴀʏ - 500 ʳˢ
+1 ᴍᴏɴᴛʜ - 700 ʳˢ
+2 ᴍᴏɴᴛʜ - 1200 ʳˢ
 
 Viewing Habits: {{{viewingHabits}}}
 Preferences: {{{preferences}}}
@@ -73,5 +73,7 @@ const recommendSubscriptionPlanFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
 
     

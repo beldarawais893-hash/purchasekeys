@@ -29,12 +29,12 @@ import type { SubscriptionPlan } from '@/lib/types';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
 const plans: Omit<SubscriptionPlan, 'id' | 'currency'>[] = [
-  { duration: '1 Day', price: 200 },
-  { duration: '3 Day', price: 350 },
-  { duration: '7 Day', price: 500 },
-  { duration: '15 Day', price: 720 },
-  { duration: '1 Month', price: 900 },
-  { duration: '2 Month', price: 1400 },
+  { duration: '1 Day', price: 150 },
+  { duration: '3 Day', price: 300 },
+  { duration: '7 Day', price: 400 },
+  { duration: '15 Day', price: 500 },
+  { duration: '1 Month', price: 700 },
+  { duration: '2 Month', price: 1200 },
 ];
 
 export function PurchaseSchedule() {
@@ -95,5 +95,7 @@ export function PurchaseSchedule() {
     </Card>
   );
 }
+
+    
 
     
