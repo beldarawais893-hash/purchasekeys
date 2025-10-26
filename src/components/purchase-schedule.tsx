@@ -60,17 +60,17 @@ export function PurchaseSchedule() {
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-hidden rounded-lg">
-          <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
+          <div className="grid grid-cols-3 gap-2 md:gap-4 bg-muted/30 p-3 md:p-4 text-xs md:text-sm font-semibold text-primary">
             <div className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5" />
+              <CalendarDays className="h-4 w-4 md:h-5 md:w-5" />
               <span>DAYS</span>
             </div>
             <div className="flex items-center gap-2">
-              <IndianRupee className="h-5 w-5" />
+              <IndianRupee className="h-4 w-4 md:h-5 md:w-5" />
               <span>PRICE</span>
             </div>
              <div className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
               <span>PURCHASE</span>
             </div>
           </div>
@@ -78,13 +78,13 @@ export function PurchaseSchedule() {
             {plans.map((plan, index) => (
               <div
                 key={plan.duration}
-                className={`grid grid-cols-3 items-center gap-4 p-4 ${
+                className={`grid grid-cols-3 items-center gap-2 md:gap-4 p-3 md:p-4 text-sm md:text-base ${
                   index < plans.length - 1 ? 'border-b border-border' : ''
                 }`}
               >
                 <div className="font-medium">{plan.duration}</div>
                 <div>{plan.price} Rs</div>
-                <Button onClick={() => handlePay(plan)} size="sm" className="bg-primary/90 hover:bg-primary">
+                <Button onClick={() => handlePay(plan)} size="sm" className="bg-primary/90 hover:bg-primary text-xs md:text-sm">
                   Buy Now <ShoppingCart className="ml-2 h-4 w-4" />
                 </Button>
               </div>
