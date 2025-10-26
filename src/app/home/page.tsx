@@ -25,7 +25,7 @@ import {
   ShoppingCart,
   Cpu,
   IndianRupee,
-  ArrowDown,
+  ArrowRight,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -48,7 +48,6 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
-  const purchaseScheduleRef = useRef<HTMLElement>(null);
 
 
   useEffect(() => {
@@ -143,8 +142,8 @@ export default function Home() {
     }
   };
 
-  const handleBuyMod = () => {
-     purchaseScheduleRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const handleSelectMod = (modName: string) => {
+     router.push(`/purchase?mod=${encodeURIComponent(modName)}`);
   };
 
   return (
@@ -183,20 +182,20 @@ export default function Home() {
         <section id="purchase-mods" className="mb-12">
             <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
                  <CardHeader>
-                    <CardTitle className="text-center text-2xl font-bold">1. Select Your Mod</CardTitle>
+                    <CardTitle className="text-center text-2xl font-bold">Select Your Mod</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="overflow-hidden rounded-lg">
                         <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 font-semibold text-primary">
                             <div className="flex items-center gap-2"><Cpu className="h-5 w-5" /><span>MOD NAME</span></div>
-                            <div className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" /><span>SELECT</span></div>
+                            <div className="flex items-center gap-2 justify-start"><ShoppingCart className="h-5 w-5" /><span>SELECT</span></div>
                         </div>
                         <div className="flex flex-col">
                             {mods.map((mod, index) => (
                                 <div key={mod.name} className={`grid grid-cols-2 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
                                     <div className="font-medium">{mod.name}</div>
-                                    <Button onClick={handleBuyMod} size="sm" className="bg-primary/90 hover:bg-primary">
-                                        Select <ArrowDown className="ml-2 h-4 w-4" />
+                                    <Button onClick={() => handleSelectMod(mod.name)} size="sm" className="bg-primary/90 hover:bg-primary justify-self-start">
+                                        Select <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
                             ))}
@@ -205,11 +204,6 @@ export default function Home() {
                 </CardContent>
             </Card>
         </section>
-
-        <section id="purchase-schedule" ref={purchaseScheduleRef} className="mb-12 scroll-mt-20">
-          <PurchaseSchedule />
-        </section>
-
 
         <section id="contact-owner">
           <Card className="max-w-md mx-auto bg-card/50 backdrop-blur-sm animate-border-glow">

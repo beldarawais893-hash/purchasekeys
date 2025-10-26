@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -39,16 +39,23 @@ const plans: Omit<SubscriptionPlan, 'id' | 'currency'>[] = [
 
 export function PurchaseSchedule() {
   const router = useRouter();
-  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const mod = searchParams.get('mod');
 
   const handlePay = (plan: Omit<SubscriptionPlan, 'id' | 'currency'>) => {
-     router.push(`/payment?plan=${encodeURIComponent(plan.duration)}&price=${plan.price}`);
+     const params = new URLSearchParams();
+     if (mod) {
+       params.append('mod', mod);
+     }
+     params.append('plan', plan.duration);
+     params.append('price', plan.price.toString());
+     router.push(`/payment?${params.toString()}`);
   };
 
   return (
     <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
        <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">2. Choose Your Plan</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">Choose Your Plan</CardTitle>
           <CardDescription className="text-center">Select a subscription plan to activate your mod.</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -88,3 +95,5 @@ export function PurchaseSchedule() {
     </Card>
   );
 }
+
+    

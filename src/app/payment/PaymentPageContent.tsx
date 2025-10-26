@@ -21,6 +21,7 @@ import {
   IndianRupee,
   CalendarDays,
   Loader2,
+  Cpu,
 } from 'lucide-react';
 import { verifyPaymentWithAi } from '@/app/actions';
 
@@ -37,14 +38,15 @@ export default function PaymentPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
+  const mod = searchParams.get('mod') || 'Selected Mod';
   const plan = searchParams.get('plan') || 'N/A';
   const price = searchParams.get('price') || '0';
 
   const qrCodeUrl = useMemo(() => {
     if (!price || price === '0') return null;
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${price}&cu=INR`;
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${price}&cu=INR&tn=Payment for ${encodeURIComponent(mod)} - ${encodeURIComponent(plan)}`;
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
-  }, [price]);
+  }, [price, mod, plan]);
 
 
   const handleCopy = () => {
@@ -123,7 +125,7 @@ export default function PaymentPageContent() {
             screenshotDataUri,
             utrNumber: utrNumber.trim(),
             planPrice: price,
-            planDuration: plan,
+            planDuration: plan, // planDuration should match the key's plan
         });
 
         if (result.success && result.claimedKey) {
@@ -166,6 +168,9 @@ export default function PaymentPageContent() {
 
       <Card className="bg-card/50 backdrop-blur-sm animate-border-glow">
         <CardHeader className="text-center">
+             <div className="flex items-center justify-center gap-2 text-lg text-muted-foreground">
+                <Cpu className="h-5 w-5 text-primary"/> <span>{mod}</span>
+            </div>
             <div className="flex items-center justify-center gap-4 text-lg">
                 <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary"/> <span>{plan}</span></div>
                 <div className="flex items-center gap-2"><IndianRupee className="h-5 w-5 text-primary"/> <span className="font-bold text-2xl">{price}</span></div>
@@ -242,3 +247,5 @@ export default function PaymentPageContent() {
     </div>
   );
 }
+
+    
