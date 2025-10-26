@@ -176,13 +176,13 @@ export default function Home() {
             </CardHeader>
             <CardContent className="flex flex-col items-center space-y-4 pt-6">
               <a
-                href="https://t.me/Kaalbhairavmodzowner"
+                href="https://t.me/KristalOwner"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
               >
                 <Send className="mr-2 h-4 w-4" />
-                Kaalbhairavmodzowner
+                @KristalOwner
               </a>
               <a
                 href="https://t.me/ImpalerVLAED"
