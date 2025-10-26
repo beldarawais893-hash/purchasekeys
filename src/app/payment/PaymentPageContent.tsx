@@ -218,4 +218,10 @@ export default function PaymentPageContent() {
           </div>
 
           <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full bg-primary/90 hover:bg-primary">
-            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Verifying...
+            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Verifying...</> : 'Submit for Verification'}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
