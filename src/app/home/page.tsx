@@ -185,15 +185,6 @@ export default function Home() {
                 @KristalOwner
               </a>
               <a
-                href="https://t.me/ImpalerVLAED"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
-              >
-                <Send className="mr-2 h-4 w-4" />
-                ImpalerVLAED
-              </a>
-              <a
                 href="https://t.me/+2rwJzhSwo_Y1N2E1"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -273,5 +264,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
