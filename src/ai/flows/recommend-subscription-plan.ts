@@ -49,12 +49,12 @@ Based on the user's viewing habits and preferences, recommend the most suitable 
 
 Consider the following subscription plans:
 
-1 ᴅᴀʏ - 150 ʳˢ
-3 ᴅᴀʏ - 300 ʳˢ
-7 ᴅᴀʏ - 400 ʳˢ
-15 ᴅᴀʏ - 500 ʳˢ
-1 ᴍᴏɴᴛʜ - 700 ʳˢ
-2 ᴍᴏɴᴛʜ - 1200 ʳˢ
+1 Day - 150 Rs
+3 Day - 300 Rs
+7 Day - 400 Rs
+15 Day - 500 Rs
+1 Month - 700 Rs
+2 Month - 1200 Rs
 
 Viewing Habits: {{{viewingHabits}}}
 Preferences: {{{preferences}}}
@@ -73,7 +73,3 @@ const recommendSubscriptionPlanFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
-
-    
