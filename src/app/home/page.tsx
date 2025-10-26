@@ -25,8 +25,9 @@ import {
   ShoppingCart,
   Cpu,
   IndianRupee,
+  ArrowDown,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getKeys } from '@/app/actions';
 import type { Key } from '@/lib/types';
@@ -47,6 +48,8 @@ export default function Home() {
   const [isCopied, setIsCopied] = useState(false);
   const router = useRouter();
   const [isSearching, setIsSearching] = useState(false);
+  const purchaseScheduleRef = useRef<HTMLElement>(null);
+
 
   useEffect(() => {
     const hasVisited = sessionStorage.getItem('hasVisitedWelcome');
@@ -140,8 +143,8 @@ export default function Home() {
     }
   };
 
-  const handlePayForMod = (mod: { name: string, price: number }) => {
-     router.push(`/payment?plan=${encodeURIComponent(mod.name)}&price=${mod.price}`);
+  const handleBuyMod = () => {
+     purchaseScheduleRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -150,7 +153,7 @@ export default function Home() {
       <main className="container mx-auto px-4 py-8 md:py-12 flex-grow">
         <header className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2 font-headline animate-text-glow [text-shadow:0_0_10px_hsl(var(--primary))]">
-            Purchase Schedule
+            MODS & KEYS
           </h1>
         </header>
 
@@ -177,29 +180,25 @@ export default function Home() {
           </div>
         </div>
 
-        <section id="purchase-schedule" className="mb-12">
-          <PurchaseSchedule />
-        </section>
-
         <section id="purchase-mods" className="mb-12">
             <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
                  <CardHeader>
-                    <CardTitle className="text-center text-2xl font-bold">Purchase Mods</CardTitle>
+                    <CardTitle className="text-center text-2xl font-bold">1. Select Your Mod</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="overflow-hidden rounded-lg">
                         <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
                             <div className="flex items-center gap-2"><Cpu className="h-5 w-5" /><span>MOD NAME</span></div>
                             <div className="flex items-center gap-2"><IndianRupee className="h-5 w-5" /><span>PRICE</span></div>
-                            <div className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" /><span>PURCHASE</span></div>
+                            <div className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" /><span>SELECT</span></div>
                         </div>
                         <div className="flex flex-col">
                             {mods.map((mod, index) => (
                                 <div key={mod.name} className={`grid grid-cols-3 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
                                     <div className="font-medium">{mod.name}</div>
                                     <div>{mod.price} Rs</div>
-                                    <Button onClick={() => handlePayForMod(mod)} size="sm" className="bg-primary/90 hover:bg-primary">
-                                        Buy Now <ShoppingCart className="ml-2 h-4 w-4" />
+                                    <Button onClick={handleBuyMod} size="sm" className="bg-primary/90 hover:bg-primary">
+                                        Select <ArrowDown className="ml-2 h-4 w-4" />
                                     </Button>
                                 </div>
                             ))}
@@ -207,6 +206,10 @@ export default function Home() {
                     </div>
                 </CardContent>
             </Card>
+        </section>
+
+        <section id="purchase-schedule" ref={purchaseScheduleRef} className="mb-12 scroll-mt-20">
+          <PurchaseSchedule />
         </section>
 
 
@@ -307,5 +310,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

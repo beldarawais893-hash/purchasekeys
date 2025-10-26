@@ -47,6 +47,10 @@ export function PurchaseSchedule() {
 
   return (
     <Card className="w-full bg-card/50 backdrop-blur-sm animate-border-glow">
+       <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">2. Choose Your Plan</CardTitle>
+          <CardDescription className="text-center">Select a subscription plan to activate your mod.</CardDescription>
+      </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-hidden rounded-lg">
           <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
