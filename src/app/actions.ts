@@ -12,8 +12,8 @@ import { z } from 'zod';
 import { ai } from '@/ai/genkit';
 
 
-// Zod Schema for input validation, kept within the primary server action file.
-export const VerifyPaymentInputSchema = z.object({
+// Zod Schema for input validation. NOT exported.
+const VerifyPaymentInputSchema = z.object({
   screenshotDataUri: z
     .string()
     .describe(
@@ -23,14 +23,15 @@ export const VerifyPaymentInputSchema = z.object({
   planPrice: z.string().describe('The price of the subscription plan the user is paying for.'),
   planDuration: z.string().describe('The duration of the subscription plan.'),
 });
-export type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
+// Type is inferred locally, NOT exported.
+type VerifyPaymentInput = z.infer<typeof VerifyPaymentInputSchema>;
 
-// Internal type for the AI model's output.
-type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
+// Internal type for the AI model's output. NOT exported.
 const VerifyPaymentOutputSchema = z.object({
   isPaymentValid: z.boolean().describe('Whether the payment details in the screenshot are valid and correct.'),
   reason: z.string().describe('A brief explanation of why the payment is considered invalid. Provide this only if isPaymentValid is false.'),
 });
+type VerifyPaymentOutput = z.infer<typeof VerifyPaymentOutputSchema>;
 
 
 /**
@@ -86,7 +87,7 @@ export async function getAiRecommendation(
 }
 
 export async function verifyPaymentWithAi(
-  input: VerifyPaymentInput
+  input: any // Using 'any' here because the Zod schema is not exported
 ): Promise<{ success: boolean; message: string; claimedKey?: Key }> {
   // Validate input with Zod schema
   const parsedInput = VerifyPaymentInputSchema.safeParse(input);
