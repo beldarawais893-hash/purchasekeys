@@ -97,11 +97,11 @@ const plans = [
 ];
 
 const mods = [
-  { name: 'Safe loader' },
-  { name: 'Infinite mod' },
-  { name: 'Ignis mod' },
-  { name: 'Monster mod' },
-  { name: 'Kristal mod' },
+  { name: 'Safe loader', status: 'available' },
+  { name: 'Infinite mod', status: 'available' },
+  { name: 'Ignis mod', status: 'available' },
+  { name: 'Monster mod', status: 'available' },
+  { name: 'Kristal mod', status: 'coming_soon' },
 ];
 
 
@@ -424,12 +424,18 @@ export default function AdminPage() {
                         </DropdownMenu>
                     </div>
                     <div className="flex w-full items-center gap-2 pt-4">
-                      <Button
-                        className="flex-grow bg-primary/90 hover:bg-primary"
-                        onClick={() => setIsAddKeyDialogOpen(true)}
-                      >
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
-                      </Button>
+                      {selectedMod === 'Kristal mod' ? (
+                        <Button className="flex-grow" disabled>
+                            <Clock className="mr-2 h-4 w-4" /> Coming Soon
+                        </Button>
+                      ) : (
+                        <Button
+                          className="flex-grow bg-primary/90 hover:bg-primary"
+                          onClick={() => setIsAddKeyDialogOpen(true)}
+                        >
+                          <PlusCircle className="mr-2 h-4 w-4" /> Add New Key
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="icon"
@@ -796,7 +802,7 @@ export default function AdminPage() {
                                 <SelectValue placeholder="Select a mod" />
                             </SelectTrigger>
                             <SelectContent>
-                                {mods.filter(m => m.name !== 'Kristal mod').map(m => (
+                                {mods.filter(m => m.status === 'available').map(m => (
                                     <SelectItem key={m.name} value={m.name}>
                                         {m.name}
                                     </SelectItem>
