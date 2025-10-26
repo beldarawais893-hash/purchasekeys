@@ -166,17 +166,8 @@ export default function PaymentPageContent() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4 text-center">
-            <Label className="text-lg font-medium">Scan QR to Pay</Label>
+            <Label className="text-lg font-medium">Pay using UPI ID</Label>
             <div className="flex flex-col items-center justify-center">
-              <div className="p-2 rounded-lg bg-white">
-                <Image 
-                    src="/paytm_qr.jpg"
-                    alt="Paytm QR Code"
-                    width={250}
-                    height={250}
-                    className="rounded-md"
-                />
-              </div>
                <div className="mt-4 flex w-full max-w-[280px] items-center space-x-2 rounded-md border border-input bg-background/50 p-2">
                 <span className="font-mono text-sm text-foreground break-all">{UPI_ID}</span>
                 <Button variant="ghost" size="icon" onClick={handleCopy} className="h-8 w-8 shrink-0">
