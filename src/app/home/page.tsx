@@ -194,7 +194,7 @@ export default function Home() {
                 ImpalerVLAED
               </a>
               <a
-                href="https://t.me/+Kv7fEX8f7TFkMjk1"
+                href="https://t.me/+2rwJzhSwo_Y1N2E1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-primary focus:outline-none"
@@ -273,3 +273,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
