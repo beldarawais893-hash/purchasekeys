@@ -26,7 +26,7 @@ import { verifyPaymentWithAi } from '@/app/actions';
 
 
 const UPI_ID = 'paytmqr6fauyo@ptys';
-const PAYEE_NAME = 'Army Owner Keys';
+const PAYEE_NAME = 'KRISTAL KEYS';
 
 export default function PaymentPageContent() {
   const router = useRouter();
