@@ -34,10 +34,10 @@ import type { Key } from '@/lib/types';
 
 
 const mods = [
-  { name: 'Safe loader', price: 300 },
-  { name: 'Infinite mod', price: 500 },
-  { name: 'Ignis mod', price: 400 },
-  { name: 'Monster mod', price: 450 },
+  { name: 'Safe loader' },
+  { name: 'Infinite mod' },
+  { name: 'Ignis mod' },
+  { name: 'Monster mod' },
 ];
 
 export default function Home() {
@@ -187,16 +187,14 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="overflow-hidden rounded-lg">
-                        <div className="grid grid-cols-3 gap-4 bg-muted/30 p-4 font-semibold text-primary">
+                        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-4 font-semibold text-primary">
                             <div className="flex items-center gap-2"><Cpu className="h-5 w-5" /><span>MOD NAME</span></div>
-                            <div className="flex items-center gap-2"><IndianRupee className="h-5 w-5" /><span>PRICE</span></div>
                             <div className="flex items-center gap-2"><ShoppingCart className="h-5 w-5" /><span>SELECT</span></div>
                         </div>
                         <div className="flex flex-col">
                             {mods.map((mod, index) => (
-                                <div key={mod.name} className={`grid grid-cols-3 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
+                                <div key={mod.name} className={`grid grid-cols-2 items-center gap-4 p-4 ${index < mods.length - 1 ? 'border-b border-border' : ''}`}>
                                     <div className="font-medium">{mod.name}</div>
-                                    <div>{mod.price} Rs</div>
                                     <Button onClick={handleBuyMod} size="sm" className="bg-primary/90 hover:bg-primary">
                                         Select <ArrowDown className="ml-2 h-4 w-4" />
                                     </Button>
@@ -310,3 +308,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
