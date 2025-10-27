@@ -269,15 +269,18 @@ export default function Home() {
       </main>
       <footer className="text-center p-4 text-muted-foreground text-sm">
         <p>Designed & Developed by – Awais Raza</p>
-        <a
-          href="https://t.me/Awaisdeveleoper"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 hover:text-primary transition-colors"
-        >
-          <Send className="w-4 h-4" />
-          Connect on Telegram: @Awaisdeveleoper
-        </a>
+        <p>
+          Connect on Telegram:{' '}
+          <a
+            href="https://t.me/Awaisdeveleoper"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 hover:text-primary transition-colors"
+          >
+            <Send className="w-4 h-4" />
+            @Awaisdeveleoper
+          </a>
+        </p>
       </footer>
 
       <Dialog
