@@ -16,7 +16,6 @@ import { useToast } from '@/hooks/use-toast';
 import {
   Send,
   Search,
-  Instagram,
   Megaphone,
   Clipboard,
   ClipboardCheck,
@@ -271,13 +270,13 @@ export default function Home() {
       <footer className="text-center p-4 text-muted-foreground text-sm">
         <p>Designed & Developed by – Awais Raza</p>
         <a
-          href="https://www.instagram.com/awais_raza.4"
+          href="https://t.me/Awaisdeveleoper"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 hover:text-primary transition-colors"
         >
-          <Instagram className="w-4 h-4" />
-          Connect on Instagram: @awais_raza.4
+          <Send className="w-4 h-4" />
+          Connect on Telegram: @Awaisdeveleoper
         </a>
       </footer>
 
